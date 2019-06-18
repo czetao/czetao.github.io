@@ -291,6 +291,28 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -312,7 +334,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  0
+                  301
                 </span>
               
 
@@ -351,7 +373,11 @@
       
         
           
-            
+            <h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>mysql数据库引擎属于插件式存储引擎，基于业务可在不同的表上使用合适的存储引擎。在mysql5.5后，默认是InnoDB存储引擎。<br>InnoDB：InnoDB是造成mysql灵活性的技术的直接产品。<br>      <strong>支持事务处理，支持外键，行锁，当需要频繁的更新，删除操作时选择此引擎。</strong><br>MyISAM:不支持事务，支持表锁。读多写少可使用，查询效率更好。</p>
+<p>更换存储引擎：    Alter  table XXX engine = InnoDB<br>由于存储引擎不同，索引的结构也会相对不同。<br>Myisam 的索引结构（非聚集索引）<br>InnoDB表 （聚集索引） :即存数据又存索引</p>
+<h3 id="索引—–最常见的慢查询优化方式"><a href="#索引—–最常见的慢查询优化方式" class="headerlink" title="索引—–最常见的慢查询优化方式"></a>索引—–最常见的慢查询优化方式</h3><pre><code>是一种优化查询的数据结构，mysql是基于B+树实现的，可以优化查询速度。
+</code></pre><p>建索引原则：<br>适合 ： 频繁作为where条件的字段。关联字段可以建索引，例如外键。 Order bt col, Group by col.<br>不适合 ： where条件中用不到的字段，频繁更新的字段 ，数据值分布比较均匀的不适合建索引，例如男女 ， 真假值 ，表的数据量少</p>
+
           
         
       
@@ -607,6 +633,28 @@
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机网络</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -1140,7 +1188,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1151,7 +1199,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -1225,7 +1273,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共1.5k字</span>
+  <span class="post-count">博客全站共1.8k字</span>
 </div>
 
         
