@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="小识跨域,">
+  <meta name="keywords" content="git小记,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="为什么会发生跨域 浏览器限制（浏览器会对请求做校验，校验失败则是跨域。    ） 跨域  只要端口号，域名，协议..不同，浏览器都会将其标记为跨域 XHR(XMLHttpRequest)请求。如果不是XHR请求，浏览器也不会对其限制。解决思路 JSONP对json的补充，不是一个官方协议，但也是一个约定（前后台约定callback）。动态创建一个script标签，返回js代码（需要对后台代码做修改">
-<meta name="keywords" content="小识跨域">
+<meta name="description" content="git  remote &amp;lt;主机名&amp;gt; &amp;lt;远程地址&amp;gt;  git remote -v 查看别称 git add .  添加所有 git commit -m “提交说明” git push -u  &amp;lt;主机名&amp;gt; master推送出错时，error: failed to push some refs to &amp;#39;git@github.com:…..” 是因为没有将远程仓">
+<meta name="keywords" content="git小记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ajax跨域">
-<meta property="og:url" content="http://yoursite.com/2019/07/05/ajax跨域/index.html">
+<meta property="og:title" content="git">
+<meta property="og:url" content="http://yoursite.com/2019/07/16/git/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="为什么会发生跨域 浏览器限制（浏览器会对请求做校验，校验失败则是跨域。    ） 跨域  只要端口号，域名，协议..不同，浏览器都会将其标记为跨域 XHR(XMLHttpRequest)请求。如果不是XHR请求，浏览器也不会对其限制。解决思路 JSONP对json的补充，不是一个官方协议，但也是一个约定（前后台约定callback）。动态创建一个script标签，返回js代码（需要对后台代码做修改">
+<meta property="og:description" content="git  remote &amp;lt;主机名&amp;gt; &amp;lt;远程地址&amp;gt;  git remote -v 查看别称 git add .  添加所有 git commit -m “提交说明” git push -u  &amp;lt;主机名&amp;gt; master推送出错时，error: failed to push some refs to &amp;#39;git@github.com:…..” 是因为没有将远程仓">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-08T03:39:54.599Z">
+<meta property="og:updated_time" content="2019-07-16T01:23:25.412Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ajax跨域">
-<meta name="twitter:description" content="为什么会发生跨域 浏览器限制（浏览器会对请求做校验，校验失败则是跨域。    ） 跨域  只要端口号，域名，协议..不同，浏览器都会将其标记为跨域 XHR(XMLHttpRequest)请求。如果不是XHR请求，浏览器也不会对其限制。解决思路 JSONP对json的补充，不是一个官方协议，但也是一个约定（前后台约定callback）。动态创建一个script标签，返回js代码（需要对后台代码做修改">
+<meta name="twitter:title" content="git">
+<meta name="twitter:description" content="git  remote &amp;lt;主机名&amp;gt; &amp;lt;远程地址&amp;gt;  git remote -v 查看别称 git add .  添加所有 git commit -m “提交说明” git push -u  &amp;lt;主机名&amp;gt; master推送出错时，error: failed to push some refs to &amp;#39;git@github.com:…..” 是因为没有将远程仓">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/07/05/ajax跨域/">
+  <link rel="canonical" href="http://yoursite.com/2019/07/16/git/">
 
 
 
 
 
-  <title>ajax跨域 | ddd `Blog</title>
+  <title>git | ddd `Blog</title>
   
 
 
@@ -253,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/05/ajax跨域/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/16/git/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chen ZeTao">
@@ -270,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">ajax跨域</h1>
+          <h1 class="post-title" itemprop="name headline">git</h1>
         
 
         <div class="post-meta">
@@ -282,8 +282,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-05T15:32:15+08:00">
-                2019-07-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-16T09:14:51+08:00">
+                2019-07-16
               </time>
             
 
@@ -319,7 +319,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  487
+                  87
                 </span>
               
 
@@ -356,38 +356,12 @@
       
 
       
-        <h2 id="为什么会发生跨域"><a href="#为什么会发生跨域" class="headerlink" title="为什么会发生跨域"></a>为什么会发生跨域</h2><ul>
-<li>浏览器限制（浏览器会对请求做校验，校验失败则是跨域。    ）</li>
-<li>跨域  只要端口号，域名，协议..不同，浏览器都会将其标记为跨域</li>
-<li>XHR(XMLHttpRequest)请求。如果不是XHR请求，浏览器也不会对其限制。<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2></li>
-<li>JSONP<br>对json的补充，不是一个官方协议，但也是一个约定（前后台约定callback）。动态创建一个script标签，返回js代码（需要对后台代码做修改。）原理即是对发送的请求加一个callback参数，后台发现有callback参数，即知道是一个jsonp请求，就会将返回的数据将json改成JavaScript。JavaScript里的内容就是一个函数调用。<br>dataType：”jsonp”,<br>jsonp:”callback”</li>
-</ul>
-<p>弊端：</p>
-<ol>
-<li>服务器需要改动代码支持。</li>
-<li>只支持get方法。</li>
-<li>发送的不是XHR请求。（异步，各种事件的特性都无法使用）     </li>
-</ol>
+        <p><strong>git  remote &lt;主机名&gt; &lt;远程地址&gt;</strong></p>
 <ul>
-<li><p>支持跨域<br>被调用方的角度。跨域请求是直接从浏览器发送过去的，在响应头中添加字段，告诉浏览器允许跨域。</p>
-<ul>
-<li>服务器端实现</li>
-</ul>
-<ol>
-<li>通过拦截器在响应头中添加字段<br> response.addHeader(“Access-Control-Allow-Origin”,”<a href="http://localhost:8081/*(允许所有方法)&quot;)" target="_blank" rel="noopener">http://localhost:8081/*(允许所有方法)&quot;)</a>;     将这个字段设置为*，即为允许跨域，并不完善。</li>
-<li>response.addHeader(“Access-Control-Allow-Methods”,”GET”);</li>
-</ol>
-<ul>
-<li>NGINX配置</li>
-<li>APACHE配置</li>
-</ul>
-</li>
-<li>带cookie的跨域<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">        url : &apos;http://remote.domain.com/corsrequest&apos;,</span><br><span class="line">        data : data,</span><br><span class="line">        dataType: &apos;json&apos;,</span><br><span class="line">        type : &apos;POST&apos;,</span><br><span class="line">        xhrFields: &#123;</span><br><span class="line">            withCredentials: true</span><br><span class="line">        &#125;,</span><br><span class="line">        crossDomain: true,</span><br><span class="line">        contentType: &quot;application/json&quot;,</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>通过设置 withCredentials: true ，发送Ajax时，Request header中便会带上 Cookie 信息。通过设置document里添加cookie</p>
-<ul>
-<li>隐藏跨域<br>在调用方的角度, 通过一个代理http服务器，将从A域名发出的请求，将指定的url加入B域名里面，就不会判定为跨域。<br>静态请求：请求与用户数据无关。<br>动态请求：请求与用户数据有关。</li>
+<li>git remote -v 查看别称</li>
+<li>git add .  添加所有</li>
+<li>git commit -m “提交说明”</li>
+<li>git push -u  &lt;主机名&gt; master<br><strong>推送出错时，error: failed to push some refs to <a href="mailto:&#39;git@github.com" target="_blank" rel="noopener">&#39;git@github.com</a>:…..” 是因为没有将远程仓库同步，将远程仓库与本地代码合并。git pull –rebase origin master</strong></li>
 </ul>
 
       
@@ -406,7 +380,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/小识跨域/" rel="tag"># 小识跨域</a>
+            <a href="/tags/git小记/" rel="tag"># git小记</a>
           
         </div>
       
@@ -419,8 +393,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/07/02/实习记录/" rel="next" title="实习记录">
-                <i class="fa fa-chevron-left"></i> 实习记录
+              <a href="/2019/07/05/ajax跨域/" rel="next" title="ajax跨域">
+                <i class="fa fa-chevron-left"></i> ajax跨域
               </a>
             
           </div>
@@ -428,10 +402,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/07/16/git/" rel="prev" title="git">
-                git <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -483,17 +453,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -555,22 +516,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么会发生跨域"><span class="nav-number">1.</span> <span class="nav-text">为什么会发生跨域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决思路"><span class="nav-number">2.</span> <span class="nav-text">解决思路</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
