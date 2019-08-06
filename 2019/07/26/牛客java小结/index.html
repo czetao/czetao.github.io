@@ -88,7 +88,7 @@
 <meta property="og:description" content="捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件  参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）   boolean 的默认值">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190530083019499.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjI3NDA3Mg==,size_16,color_FFFFFF,t_70">
-<meta property="og:updated_time" content="2019-07-26T07:35:36.348Z">
+<meta property="og:updated_time" content="2019-08-05T10:19:07.254Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="牛客java小结">
 <meta name="twitter:description" content="捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件  参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）   boolean 的默认值">
@@ -343,7 +343,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.3k
+                  1.8k
                 </span>
               
 
@@ -359,7 +359,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  6
                 </span>
               
             </div>
@@ -421,8 +421,35 @@
 <li>鲁棒性(Robust,即健壮性)<br>Java在编译和运行程序时，都要对可能出现的问题进行检查，以消除错误的产生。它提供自动垃圾收集来进行内存管理，防止程序员在管理内存时容易产生 的错误。通过集成的面向对象的例外处理机制，在编译时，Java揭示出可能出现但未被处理的例外，帮助程序员正确地进行选择以防止系统的崩溃。另外， Java在编译时还可捕获类型声明中的许多常见错误，防止动态运行时不匹配问题的出现。</li>
 <li>Java中定义String数组，有两种定义方式：String a[]和String[] a</li>
 <li>byte能表示的范围[-128,127]</li>
+<li>类的继承，自动向上转型</li>
+<li>在定义方法参数时，通常总是应该优先使用父类或接口<ul>
+<li>对应成list ， 不需要定义多个对象<h2 id="1-2-数据类型"><a href="#1-2-数据类型" class="headerlink" title="1.2 数据类型"></a>1.2 数据类型</h2></li>
+</ul>
+</li>
+<li>基本数据类型<pre><code>包装类：包装类是对象，拥有方法和字段。 包装类型都是有重写equals方法
+初始值不同，int是0，boolean是false,包装类初始值是null,在定义javabean时，通常使用包装类，为防止数据库中有null数据。更例如定义List中，数据具体类型也是用包装类。
+</code></pre></li>
+<li>自动拆箱  包装类 ==》基本数据类型    int a = new Integer(100);    [-128,127]在这个范围内，会直接从缓存(堆中的常量池)中取。<br> 自动装箱       </li>
+<li>Double和BigDecimal<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">double d1 = 2.0;</span><br><span class="line">double d2 = 1.1;</span><br><span class="line">d1-d2 = 0.89999999;</span><br></pre></td></tr></table></figure>
+</li>
 </ol>
-
+<p>实际运用中，在对金额的运算，通常使用的是BigDecimal。<br>bigdecimal的equals方法，还会对数据中的小数点进行比较。<br>通常使用compareTO方法比较大小。 {-1：小于，  0 ：等于，   1：大于}<br>为了防止精度丢失，构造方法BigDecimal(“String”)来定义bigdecimal对象，禁止直接使用double。</p>
+<h2 id="1-3-类设计（jdk8新特性，接口中可以有方法）"><a href="#1-3-类设计（jdk8新特性，接口中可以有方法）" class="headerlink" title="1.3 类设计（jdk8新特性，接口中可以有方法）"></a>1.3 类设计（jdk8新特性，接口中可以有方法）</h2><ol>
+<li>接口默认是public,所有方法在接口中不能有实现（java8开始接口可以有默认实现 允许在接口中定义static方法和default方法（带方法体））</li>
+<li>接口本身可以通过extends关键字扩展多个接口</li>
+<li>StringBuffer 和StringBuilder的区别 <ul>
+<li>可变性 源码没有用final修饰，是可变的，String是final char[] ,不可变</li>
+<li>线程安全性     StringBuilder非线程安全</li>
+<li>性能    </li>
+</ul>
+</li>
+<li>hashset 去重。HashSet<teacher> ，通过重写teacher实体类中的eqauls和hashcode方法，定义去重原理。对list中存放对象，需重写equals方法和</teacher></li>
+<li>list == null || list.size()==0</li>
+<li>Date日期转换成指定格式的字符串日期。<br>SimpleDataFormat是线程不安全的类，建议使用DateFormateUtils工具包<br>// 日期String转Date<br>DateUtils.parseDate(“2019-08-04”,”YYYY-MM-DD”)<h2 id="1-4-代码规范"><a href="#1-4-代码规范" class="headerlink" title="1.4 代码规范"></a>1.4 代码规范</h2></li>
+<li>可以抽离代码<br> 鼠标右击 》Refactor 》Extract </li>
+</ol>
+<p>VJTOOLS</p>
+<h2 id="1-5-并发基本"><a href="#1-5-并发基本" class="headerlink" title="1.5 并发基本"></a>1.5 并发基本</h2>
       
     </div>
     
@@ -516,8 +543,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -534,7 +570,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -556,7 +592,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -579,6 +615,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-数据类型"><span class="nav-number">1.</span> <span class="nav-text">1.2 数据类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-类设计（jdk8新特性，接口中可以有方法）"><span class="nav-number">2.</span> <span class="nav-text">1.3 类设计（jdk8新特性，接口中可以有方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-代码规范"><span class="nav-number">3.</span> <span class="nav-text">1.4 代码规范</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-并发基本"><span class="nav-number">4.</span> <span class="nav-text">1.5 并发基本</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -630,7 +682,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共5.9k字</span>
+  <span class="post-count">博客全站共7.3k字</span>
 </div>
 
         
