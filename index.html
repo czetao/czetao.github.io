@@ -334,7 +334,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  67
+                  410
                 </span>
               
 
@@ -374,6 +374,19 @@
         
           
             <p>React官方文档 <a href="https://reactjs.org/" target="_blank" rel="noopener">https://reactjs.org/</a><br>ECMAScript 6入门 <a href="http://es6.ruanyifeng.com/" target="_blank" rel="noopener">http://es6.ruanyifeng.com/</a><br>（特别是解构赋值、箭头函数和 Class）<br>MDN - JavaScript <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript</a><br>（JS基础语法）<br>MDN - Array.prototype.map() <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" target="_blank" rel="noopener">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map</a><br>（数组map方法）</p>
+<h2 id="ES6入门"><a href="#ES6入门" class="headerlink" title="ES6入门"></a>ES6入门</h2><h2 id="javaScript"><a href="#javaScript" class="headerlink" title="javaScript"></a>javaScript</h2><ol>
+<li>JavaScript里一切皆对象，一切皆可储存在变量里。 let 声明变量。</li>
+<li>浏览器出现Cannot set property ‘onclick’ of null的问题<br>浏览器先加载玩按钮节点才执行的js ,所以当浏览器自顶向下解析时，找不到onclick绑定的按钮节点。因此，需要把js文件放在底部加载，就会避免该问题</li>
+<li><p>ES6 中let 命令，用来声明变量，所声明的变量，只在let命令所在的代码块中有效。<br>var命令声明的，在全局范围内都有效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> for (let i = 0; i &lt; 3; i++) &#123;</span><br><span class="line">  let i = &apos;abc&apos;;</span><br><span class="line">  console.log(i);</span><br><span class="line">&#125;</span><br><span class="line">// abc</span><br><span class="line">// abc</span><br><span class="line">// abc</span><br></pre></td></tr></table></figure>
+<p>上面代码正确运行，输出了 3 次abc。let 命令在for循环中，函数内部变量的i,与循环变量i不在同一个作用域。</p>
+</li>
+<li><p>变量的结构赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">let [foo, [[bar], baz]] = [1, [[2], 3]];</span><br><span class="line">foo // 1</span><br><span class="line">bar // 2</span><br><span class="line">baz // 3</span><br><span class="line"></span><br><span class="line">let [ , , third] = [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;];</span><br><span class="line">third // &quot;baz&quot;</span><br><span class="line"></span><br><span class="line">let [x, , y] = [1, 2, 3];</span><br><span class="line">x // 1</span><br><span class="line">y // 3</span><br><span class="line"></span><br><span class="line">let [head, ...tail] = [1, 2, 3, 4];</span><br><span class="line">head // 1</span><br><span class="line">tail // [2, 3, 4]</span><br><span class="line"></span><br><span class="line">let [x, y, ...z] = [&apos;a&apos;];</span><br><span class="line">x // &quot;a&quot;</span><br><span class="line">y // undefined</span><br><span class="line">z // []</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>解构失败例子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let [foo] = [];</span><br><span class="line">let [bar, foo] = [1];</span><br></pre></td></tr></table></figure></p>
+<p> 等号左边的模式，只匹配一部分的等号右边的数组。这种情况下，解构依然可以成功。<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> let [x, y] = [1, 2, 3];</span><br><span class="line">x // 1</span><br><span class="line">y // 2</span><br><span class="line"></span><br><span class="line">let [a, [b], d] = [1, [2, 3], 4];</span><br><span class="line">a // 1</span><br><span class="line">b // 2</span><br><span class="line">d // 4</span><br></pre></td></tr></table></figure></p>
 
           
         
@@ -549,162 +562,6 @@
             <p>本地mysql密码 666666</p>
 <h2 id="1-1本地redis地址"><a href="#1-1本地redis地址" class="headerlink" title="1.1本地redis地址"></a>1.1本地redis地址</h2><p>D:\installations\redis<br>windows下redis启动<br>redis-server.exe redis.windows.conf</p>
 <h2 id="1-2"><a href="#1-2" class="headerlink" title="1.2"></a>1.2</h2><p>port 6379 </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/07/事务/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/07/事务/" itemprop="url">事务</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-07T09:05:29+08:00">
-                2019-08-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  613
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="事务的概念"><a href="#事务的概念" class="headerlink" title="事务的概念"></a>事务的概念</h2><p>ACID四个原子性<br>Atomicity，原子性：一组事务，要么成功，要么失败<br>Consistency，一致性：事务执行前后，数据库状态保持一致<br>Isolation,隔离性：事务互相隔离<br>Durability，持久性：事务执行的结果是永久的</p>
-<h2 id="mysql开启事务"><a href="#mysql开启事务" class="headerlink" title="mysql开启事务"></a>mysql开启事务</h2><p>默认情况下，mysql每执行一条sql语句都是一条事务，自动提交。如果一条事务有多条sql语句需要执行，要开启一个新的事务<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">开启事务</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span></span><br><span class="line">....</span><br><span class="line">结束事务</span><br><span class="line"><span class="keyword">commit</span>/<span class="keyword">rollback</span></span><br></pre></td></tr></table></figure></p>
-<p> 在执行SQL语句之前，先执行start transaction，这就开启了一个事务（事务的起点），然后可以去执行多条SQL语句，最后要结束事务，commit表示提交，即事务中的多条SQL语句所作出的影响会持久到数据库中，或者rollback，表示回滚到事务的起点，之前做的所有操作都被撤销了。</p>
-<h2 id="jdbc-开启事务"><a href="#jdbc-开启事务" class="headerlink" title="jdbc 开启事务"></a>jdbc 开启事务</h2><p>默认自动提交事务，若要手动提交，则关闭事务。<br>在JDBC中处理事务，都是通过Connection完成的。<br>同一事务中所有的操作，都在使用同一个Connection对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">con.setAutoCommit(<span class="keyword">false</span>) 表示开启事务。</span><br><span class="line">...(进行多条sql)</span><br><span class="line">commit（）：提交结束事务。</span><br><span class="line">rollback（）：回滚结束事务。</span><br></pre></td></tr></table></figure></p>
-<h4 id="附上jdbc代码练习"><a href="#附上jdbc代码练习" class="headerlink" title="附上jdbc代码练习"></a>附上jdbc代码练习</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException </span>&#123;</span><br><span class="line">       Connection conn= <span class="keyword">null</span>;</span><br><span class="line">       String driver = <span class="string">"com.mysql.jdbc.Driver"</span>;</span><br><span class="line">       <span class="comment">//时区问题，serverTimezone=UTC</span></span><br><span class="line">       String url = <span class="string">"jdbc:mysql://localhost:3306/czt?characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC"</span>;</span><br><span class="line">       String name = <span class="string">"root"</span>;</span><br><span class="line">       String password = <span class="string">"666666"</span>;</span><br><span class="line">       <span class="comment">//先获取链接驱动</span></span><br><span class="line">       Class.forName(driver);</span><br><span class="line">       String sql =<span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">       	<span class="comment">//通过driverManager获取链接</span></span><br><span class="line">           conn = DriverManager.getConnection(url, name, password);</span><br><span class="line">           <span class="keyword">if</span> (conn != <span class="keyword">null</span> )&#123;</span><br><span class="line">               System.out.println(<span class="string">"成功连接"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//通过链接，发送statement    preperStatement的区别是，可以预编译sql语句，再注入参数，</span></span><br><span class="line">           Statement statement = conn.createStatement();</span><br><span class="line">           sql = <span class="string">"create table student(NO char(20),name varchar(20),primary key(NO))"</span>;</span><br><span class="line">           <span class="comment">//返回影响行数</span></span><br><span class="line">           <span class="keyword">int</span> i = statement.executeUpdate(sql);</span><br><span class="line">           <span class="keyword">if</span> (i!=-<span class="number">1</span>)&#123;</span><br><span class="line">               System.out.println(<span class="string">"修改成功"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           conn.close();</span><br><span class="line">       &#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="spring-开启事务"><a href="#spring-开启事务" class="headerlink" title="spring 开启事务"></a>spring 开启事务</h2><p><a href="https://juejin.im/post/5b00c52ef265da0b95276091" target="_blank" rel="noopener">spring 事务管理详解</a><br>在xml配置文件中<br><strong>第一步</strong>：配置事务管理器<br><strong>第二步</strong>：开启事务注解<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 第一步：配置事务管理器 (和配置文件方式一样)--&gt;</span><br><span class="line">	&lt;bean id=<span class="string">"dataSourceTransactionManager"</span></span><br><span class="line">		<span class="class"><span class="keyword">class</span></span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span><br><span class="line">		&lt;!-- 注入dataSource --&gt;</span><br><span class="line">		&lt;property name="dataSource" ref="dataSource"&gt;&lt;/property&gt;</span><br><span class="line">	&lt;/bean&gt;</span><br><span class="line">	</span><br><span class="line">	&lt;!-- 第二步： 开启事务注解 --&gt;</span><br><span class="line">	&lt;tx:annotation-driven transaction-manager=<span class="string">"dataSourceTransactionManager"</span> /&gt;</span><br><span class="line">	&lt;!-- 第三步 在方法所在类上加注解 --&gt;</span><br></pre></td></tr></table></figure></p>
 
           
         
@@ -2115,6 +1972,188 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第二周/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/25/实习第二周/" itemprop="url">实习第二周</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:47+08:00">
+                2019-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/实习/" itemprop="url" rel="index">
+                    <span itemprop="name">实习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  339
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (DESCRIPTION =</span><br><span class="line">    (ADDRESS_LIST =</span><br><span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = 115.28.**.**)(PORT = 1521))</span><br><span class="line">    )</span><br><span class="line">    (CONNECT_DATA =</span><br><span class="line">      (SERVICE_NAME （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>nc63train/a</p>
+<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE [OR REPLACE] [&#123;FORCE|NOFORCE&#125;] VIEW view_name</span><br><span class="line">AS</span><br><span class="line">SELECT查询</span><br><span class="line">[WITH READ ONLY CONSTRAINT]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line">create or REPLACE view p_rate</span><br><span class="line">AS</span><br><span class="line">select r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line">from rate r,pro_user p where r.userid=p.userid;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>OR REPLACE：如果视图已经存在，则替换旧视图。</li>
+<li>FORCE：即使基表不存在，也可以创建该视图，但是该视图不能正常使用，当基表创建成功后，视图才能正常使用。</li>
+<li>NOFORCE：如果基表不存在，无法创建视图，该项是默认选项。</li>
+<li>WITH READ ONLY：默认可以通过视图对基表执行增删改操作，但是有很多在基表上的限制(比如：基表中某列不能为空，但是该列没有出现在视图中，则不能通过视图执行insert操作)，WITH READ ONLY说明视图是只读视图，不能通过该视图进行增删改操作。现实开发中，基本上不通过视图对表中的数据进行增删改操作。<h2 id="删除视图"><a href="#删除视图" class="headerlink" title="删除视图"></a>删除视图</h2>可以使用“DROP VIEW 视图名称”，删除视图不会影响基表的数据。</li>
+</ol>
+<p>全局数据库名称orcl<br>管理口令 ilzzr888</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -2167,7 +2206,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2263,7 +2302,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共8.4k字</span>
+  <span class="post-count">博客全站共8.2k字</span>
 </div>
 
         
