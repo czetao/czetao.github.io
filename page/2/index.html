@@ -249,6 +249,188 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第二周/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/25/实习第二周/" itemprop="url">实习第二周</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:47+08:00">
+                2019-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/实习/" itemprop="url" rel="index">
+                    <span itemprop="name">实习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  339
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (DESCRIPTION =</span><br><span class="line">    (ADDRESS_LIST =</span><br><span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = 115.28.**.**)(PORT = 1521))</span><br><span class="line">    )</span><br><span class="line">    (CONNECT_DATA =</span><br><span class="line">      (SERVICE_NAME （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>nc63train/a</p>
+<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE [OR REPLACE] [&#123;FORCE|NOFORCE&#125;] VIEW view_name</span><br><span class="line">AS</span><br><span class="line">SELECT查询</span><br><span class="line">[WITH READ ONLY CONSTRAINT]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line">create or REPLACE view p_rate</span><br><span class="line">AS</span><br><span class="line">select r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line">from rate r,pro_user p where r.userid=p.userid;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>OR REPLACE：如果视图已经存在，则替换旧视图。</li>
+<li>FORCE：即使基表不存在，也可以创建该视图，但是该视图不能正常使用，当基表创建成功后，视图才能正常使用。</li>
+<li>NOFORCE：如果基表不存在，无法创建视图，该项是默认选项。</li>
+<li>WITH READ ONLY：默认可以通过视图对基表执行增删改操作，但是有很多在基表上的限制(比如：基表中某列不能为空，但是该列没有出现在视图中，则不能通过视图执行insert操作)，WITH READ ONLY说明视图是只读视图，不能通过该视图进行增删改操作。现实开发中，基本上不通过视图对表中的数据进行增删改操作。<h2 id="删除视图"><a href="#删除视图" class="headerlink" title="删除视图"></a>删除视图</h2>可以使用“DROP VIEW 视图名称”，删除视图不会影响基表的数据。</li>
+</ol>
+<p>全局数据库名称orcl<br>管理口令 ilzzr888</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第一周/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -897,7 +1079,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  139
+                  147
                 </span>
               
 
@@ -941,9 +1123,12 @@
 <li>git remote -v 查看别称</li>
 <li>git add .  添加所有    git reset 撤回所有add ,也可以针对特定文件。</li>
 <li>git commit -m “提交说明” [git commit -a -m “ “] 组合命令，[-a] = git add .</li>
-<li>git push -u  &lt;主机名&gt; master<br><strong>推送出错时，error: failed to push some refs to <a href="mailto:&#39;git@github.com" target="_blank" rel="noopener">&#39;git@github.com</a>:…..” 是因为没有将远程仓库同步，将远程仓库与本地代码合并。git pull –rebase origin master</strong></li>
-<li>git clone &lt;远程地址&gt; .    注意最后加 .  克隆当前目录</li>
+<li><p>git push -u  &lt;主机名&gt; master<br><strong>推送出错时，error: failed to push some refs to <a href="mailto:&#39;git@github.com" target="_blank" rel="noopener">&#39;git@github.com</a>:…..” 是因为没有将远程仓库同步，将远程仓库与本地代码合并。git pull –rebase origin master</strong><br>git pull origin master –allow-unrelated-histories</p>
+</li>
+<li><p>git clone &lt;远程地址&gt; .    注意最后加 .  克隆当前目录</p>
+</li>
 <li>git diff  #查看difference</li>
+<li>git reset</li>
 </ul>
 
           
@@ -1882,189 +2067,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/18/HTTP协议/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/18/HTTP协议/" itemprop="url">HTTP协议</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-18T09:47:59+08:00">
-                2019-06-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机网络</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  534
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="https://github.com/nipingd/Web/blob/master/14-%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95/04-HTTP%E5%8D%8F%E8%AE%AE.md?from=singlemessage" target="_blank" rel="noopener">HTTP协议细讲</a></p>
-<h4 id="HTTP协议掌握考点"><a href="#HTTP协议掌握考点" class="headerlink" title="HTTP协议掌握考点"></a>HTTP协议掌握考点</h4><ul>
-<li>HTTP协议主要特点</li>
-<li>HTTP报文的组成部分（请求报文，响应报文）</li>
-<li>get和post</li>
-<li>HTTP状态码<h4 id="主要特点"><a href="#主要特点" class="headerlink" title="主要特点"></a>主要特点</h4></li>
-<li><strong>无连接</strong> ：<br>连接一次就会断开，不会继续保持连接</li>
-<li><strong>无状态</strong><br>客户端和服务器端是两种身份。第一次请求结束后，就断开了，第二次请求时，服务器端并没有记住之前的状态，也就是说，服务器端无法区分客户端是否为同一个人、同一个身份。<br>有的时候，我们访问网站时，网站能记住我们的账号，这个是通过其他的手段（比如 session）做到的，并不是http协议能做到的。<h4 id="HTTP报文的组成部分"><a href="#HTTP报文的组成部分" class="headerlink" title="HTTP报文的组成部分"></a>HTTP报文的组成部分</h4></li>
-<li>请求报文<br>get/post请求方法  请求url  http协议及版本号<br>请求头  一堆键值对<br>  请求体    name = tom &amp;password = 123(数据部分)</li>
-<li>响应报文<br>http协议/版本号  状态码及状态描述<br>响应头<br>响应体  返回信息<br><strong>记住组成部分，会考</strong><h4 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h4>http状态码响应类别共有5种：<br>1XX ：指示信息，表示请求已接收，继续处理<br>2XX ：处理成功<br>3XX ：重定向，客户端应采取更多操作<br>4XX :  客户端错误<br>5XX :  服务器错误<br><strong>常见状态码</strong><br>200  OK :客户端请求成功<br>204  ：没有资源返回<br>206  ：范围请求，客户端只请求某个大文件里的一部分内容。比如说，如果播放视频地址或音频地址的前面一部分，可以用到206。<br>301 ：永久性转移，请求的资源已被分配新的URl<br>302 :  暂时性转移，本次使用这个<br>304：我这个服务器告诉客户端，你已经有缓存了，不需要从我这里取了。<br>400：请求报文存在错误<br>403：权限不足<br>404：找不到页面<br>500：服务器发生错误，原来缓冲的文档还可以继续使用。<br>503：服务器暂时无法处理请求，服务器临时过载或当机。一段时间后可能恢复正常。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2117,7 +2119,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2139,7 +2141,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2213,7 +2215,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共8.2k字</span>
+  <span class="post-count">博客全站共8.7k字</span>
 </div>
 
         
