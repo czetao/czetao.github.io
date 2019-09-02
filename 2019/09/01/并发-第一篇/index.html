@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="并发,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 1. 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型2. 线程优先级通过一个整型变量priority控制优先级，thread.setPriority(prio">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发----第一篇">
+<meta property="og:url" content="http://yoursite.com/2019/09/01/并发-第一篇/index.html">
+<meta property="og:site_name" content="ddd `Blog">
+<meta property="og:description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 1. 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型2. 线程优先级通过一个整型变量priority控制优先级，thread.setPriority(prio">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-01T14:24:02.098Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并发----第一篇">
+<meta name="twitter:description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 1. 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型2. 线程优先级通过一个整型变量priority控制优先级，thread.setPriority(prio">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/01/并发-第一篇/">
+
+
+
+
+
+  <title>并发----第一篇 | ddd `Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ddd `Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">czt的博客</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/01/并发-第一篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">并发----第一篇</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-01T17:43:41+08:00">
+                2019-09-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/并发/" itemprop="url" rel="index">
+                    <span itemprop="name">并发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。<br>JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程</strong></p>
+<h3 id="1-为什么要多线程"><a href="#1-为什么要多线程" class="headerlink" title="1. 为什么要多线程"></a>1. 为什么要多线程</h3><ol>
+<li>更多的处理器核心</li>
+<li>更多的响应时间</li>
+<li>更好的编程模型<h3 id="2-线程优先级"><a href="#2-线程优先级" class="headerlink" title="2. 线程优先级"></a>2. 线程优先级</h3>通过一个整型变量priority控制优先级，thread.setPriority(priority)。</li>
+</ol>
+<ul>
+<li>默认优先级 ： 5  范围从 1-10，优先级逐级增高</li>
+<li>对于优先级的选择   对于频繁阻塞的任务（休眠 或 I/O操作） ，优先级应该高。对于偏重计算的任务（需要较多的CPU） , 优先级应该低，确保处理器不会被独占<br><strong>注意 ：线程优先级不能作为程序正确性的依赖，因为操作系统可以完成不用理会JAVA线程对于优先级的设定，对线程优先级的设置会被忽略。</strong><h3 id="3-线程中断"><a href="#3-线程中断" class="headerlink" title="3.线程中断"></a>3.线程中断</h3>中断好比其他线程对该线程打了个招呼，其他线程通过调用该线程的interrupt()方法对其进行了中断操作。<h3 id="4-等待-通知机制"><a href="#4-等待-通知机制" class="headerlink" title="4. 等待/通知机制"></a>4. 等待/通知机制</h3>等待/通知机制，是指一个线程A调用了对象O的wait（）方法进入等待状态，而另一个线程B调用了对象O的notify（）或者notifyAll（）方法，线程A收到通知后从对象O的wait（）方法返回，进而执行后续操作。<br>notify（）：通知一个在对象上等待的线程，使其从wait()返回，前提是获得对象的锁<br>notifyAll（）：通知所有等待在该对象上的线程<br>wait（）：调用该方法的线程进入waiting状态，只有等待另外线程的通知或中断才会返回，需要注意，调用wait（）方法后，会返回对象的锁。</li>
+</ul>
+<ol>
+<li>使用wait() , notify() 和 notify() 时需要先对调用对象加锁。</li>
+<li>notify（）或notifyAll（）方法调用后，等待线程依旧不会从wait返回，需要调用notify（）或notifyAll（）的线程释放锁后，才有机会。</li>
+<li>notify()方法将等待队列中的一个等待线程从等待队列中移到同步队列中，而notifyAll（）方法则是将等待队列中所有线程全部移到同步队列中，被移动的线程状态由waiting变为blocked</li>
+<li>从wait（）方法返回的前提是获得了调用对象的锁。<h3 id="5-volatile关键字-—最轻量级的同步机制"><a href="#5-volatile关键字-—最轻量级的同步机制" class="headerlink" title="5.volatile关键字 —最轻量级的同步机制"></a>5.volatile关键字 —最轻量级的同步机制</h3></li>
+</ol>
+<ul>
+<li>当一个变量被定义为volatile，两种特性<ol>
+<li>保证此变量对所有线程的可见性<br>“可见性” ：当一个线程修改此变量，其他线程是立即得知新值。但由于JAVA里面的运算并非原子操作，导致volatile变量在并发下也并不安全。（例如 a++）。具有可见性和原子性，但类似于volatile++这种复合操作不具有原子性。<br>通过字节码可以知道，其指令多了一个Lock前缀，使得本CPU的cache写入内存，该写入使得别的CPU无效其Cache，会重新从内存中读取，保证可见性。</li>
+<li>禁止指令重排序优化（会干扰并发）<br>保证变量赋值操作的顺序与程序代码中的执行顺序一致。通过内存屏障，使重排序时后面的指令不能比屏障之前的先执行。意味着所有之前的操作都已经执行完成。<br>重排序：编译器和处理器为了优化程序性能而对指令序列进行重新排序的一种手段。<h3 id="6-Synchronized关键字，最基本的互斥同步手段"><a href="#6-Synchronized关键字，最基本的互斥同步手段" class="headerlink" title="6.Synchronized关键字，最基本的互斥同步手段"></a>6.Synchronized关键字，最基本的互斥同步手段</h3>Synchronize经过编译后，会在同步块前后分别形成两个monitorenter，monitorexit两个字节码指令。<br>工作原理  –&gt;monitorenter –&gt;尝试获取对象的锁 —&gt;失败，线程阻塞<br>—- &gt;成功，对象没被锁定，当前线程拥有对象的锁，锁的计数器加一<br>— &gt; monitorexit  —&gt;锁计数器减一 ，当计数器为0，锁就被释放 —&gt;唤醒被阻塞的线程<h3 id="7-锁释放-获取的内存语义与volatile写-读的内存语义是相同的"><a href="#7-锁释放-获取的内存语义与volatile写-读的内存语义是相同的" class="headerlink" title="7. 锁释放 - 获取的内存语义与volatile写 - 读的内存语义是相同的"></a>7. 锁释放 - 获取的内存语义与volatile写 - 读的内存语义是相同的</h3></li>
+</ol>
+</li>
+<li>线程A释放一个锁（写一个volatile变量），实质上线程A向接下来将要获取这个锁的某个线程发出了（线程A对共享变量所做修改的）消息。</li>
+<li>线程B获取了一个锁（读一个volatile变量），实质上是线程B接收了之前某个线程发出的（在释放之前对共享变量所做修改的）消息。</li>
+<li>线程A释放锁，随后线程B获取锁，这个过程实质上是线程A通过主内存向线程B发送消息。<h3 id="8-实现多线程的几种方法"><a href="#8-实现多线程的几种方法" class="headerlink" title="8. 实现多线程的几种方法"></a>8. 实现多线程的几种方法</h3></li>
+</ul>
+<ol>
+<li><p>继承Thread类<br>通过JDK提供的Thread类，重写Thread类run方法即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;...&#125;</span><br><span class="line"><span class="comment">//启动 </span></span><br><span class="line"><span class="keyword">new</span> Thread1().start;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>实现Runnable接口  Runnable接口中仅定义一个run（）方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Thread2</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用内部类的方式<br>上面两种方式都需要再定义一个类，显得麻烦，通过匿名内部类实现，依然有两种</p>
+</li>
+</ol>
+<ul>
+<li><p>继承Thread a </p>
+</li>
+<li><p>实现 Runnable b</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable()&#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;&#125;</span><br><span class="line">&#125;).start;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ol start="4">
+<li>带返回值的callable<br>实现callable接口</li>
+<li>基于线程池的方式<h3 id="9-Thread-join"><a href="#9-Thread-join" class="headerlink" title="9. Thread.join()"></a>9. Thread.join()</h3>若一个线程A执行了thread.join()，含义是当前线程A等待Thread线程终止后才从join方法返回。<h3 id="10-锁"><a href="#10-锁" class="headerlink" title="10.锁"></a>10.锁</h3>锁的内部实现依赖于队列同步器<br>同步器底层通过一个<strong>双向队列</strong>，存放工作队列，当一个线程成功获取同步状态，其他线程将无法获取到同步状态，转而被构造成为节点并加入同步队列中。<h3 id="11-可重入锁"><a href="#11-可重入锁" class="headerlink" title="11. 可重入锁"></a>11. 可重入锁</h3></li>
+<li>自己可以再次获取自己的内部锁，任意线程在获取到锁之后能够再次获取该锁而不会被该锁所阻塞。Synchronize 和 基于Lock 实现的ReentrantLock都是可重入锁。</li>
+<li>可重入锁 有两个特性</li>
+</ol>
+<ul>
+<li>线程再次获取锁<br>锁需要识别获取锁的线程是否是当前占据锁的线程，如果是，可再成功获取</li>
+<li><p>锁的最终释放<br>重复n次获取锁，在第n次释放锁后，其他线程才能获取到该锁</p>
+<h3 id="12-读写锁"><a href="#12-读写锁" class="headerlink" title="12.读写锁"></a>12.读写锁</h3><p>维护一对锁，一个读锁，一个写锁。通过分离读锁，写锁提高效率。<br>JAVA并发包提供读写锁的实现是 ReetrantReadWriteLock。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ReetrantReadWriteLock rwl = <span class="keyword">new</span> ReetrantReadWriteLock();</span><br><span class="line">Lock r = rwl.readLock();  <span class="comment">// 读锁</span></span><br><span class="line">Lock w = rwl.writeLock(); <span class="comment">// 写锁</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>公平性选择 默认是非公平性</p>
+</li>
+<li>重进入锁</li>
+<li>锁降级 <ul>
+<li>先拿读锁（保证可见性）</li>
+<li>放读锁，拿写锁，再拿读锁。<br>读写锁的实现是通过int变量维护多种状态，读写锁将变量切分，高16位表示读，低16位表示写。<h3 id="13-ReentrantLock"><a href="#13-ReentrantLock" class="headerlink" title="13.ReentrantLock"></a>13.ReentrantLock</h3></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><p>通过调用Lock（）方法获取锁，unlock（）释放锁</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock lock = new ReentrantLock();</span><br><span class="line">lock.lock()  ;  lock.unlock();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>实现依赖于AQS框架，使用一个整型的volatile变量（state）来维持同步</p>
+<h3 id="14-happens-before程序顺序规则是JMM核心的概念"><a href="#14-happens-before程序顺序规则是JMM核心的概念" class="headerlink" title="14. happens-before程序顺序规则是JMM核心的概念"></a>14. happens-before程序顺序规则是JMM核心的概念</h3><p>JMM通过happens-before来指定两个操作之间的执行顺序<br>定义： ①如果一个操作happens-before另一个操作，那么第一个操作的执行结果将对第二个可见，且第一个操作的执行顺序排在第二个之前 ———————-对程序员可见<br>②如果一个操作happens-before另一个操作，并不意味着必须按照happens-before关系指定的顺序执行，如果重排序之后的执行结果，与按happens-before顺序结果一致，那么这种重排序并不违法。 ————————对编译器和处理器的约束原则</p>
+<h3 id="15-CAS-比较与替换是设计并发算法时用到的技术"><a href="#15-CAS-比较与替换是设计并发算法时用到的技术" class="headerlink" title="15.CAS 比较与替换是设计并发算法时用到的技术"></a>15.CAS 比较与替换是设计并发算法时用到的技术</h3><p>CAS是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class MyLock&#123;</span><br><span class="line">	private AtomicBoolean locked = nnew AtomicBoolean(false);</span><br><span class="line">	public boolean lock()&#123;</span><br><span class="line">		return locked.compareAndSet(false,true);</span><br><span class="line">	&#125;</span><br><span class="line">	//比较locked 和 false ，如果相等，则把它修改成true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="16-ConcurrentHashMap-是线程安全且高效的HashMap"><a href="#16-ConcurrentHashMap-是线程安全且高效的HashMap" class="headerlink" title="16.ConcurrentHashMap 是线程安全且高效的HashMap"></a>16.ConcurrentHashMap 是线程安全且高效的HashMap</h3><ol>
+<li>ConcurrentHashMap的锁分段技术可有效提升并发访问率<br>与HashTable容器相比，HashTable容器并发环境效率低下是所有访问HashTable的线程都必须访问同一把锁。<br>假如容器中有很多锁，每把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不存在竞争。这就是ConcurrentHashMap的锁分段技术。</li>
+<li>ConcurrentHashMap的结构<br>是有Segment数组结构 和 HashEntry 数组结构组成<ul>
+<li>Segment是一种可重入锁，结构和HahMap类似，是一种数组和链表结构。</li>
+<li>一个ConcurrentHashMap里包含一个Segment数组，扮演锁的角色。<br>-每个HashEntry是一个链表结构的元素，一个Segment里包含一个HashEntry数组。<br>-每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须首先获得与他对应的Segment锁。</li>
+</ul>
+</li>
+<li>get操作<br>在定位Segment时，都会对元素的hashcode进行一次再散列。<br>在HashTable中，get方法是需要加锁的，但在ConcurrentHashMap中的get操作是不用加锁的。<br>原因： 在它的get方法中将要使用的共享变量都定义成volatile类型。能够在线程之间保持可见性，能够被多线程读，但只能被单线程写（有种情况可被多线程写，就是写入的值不依赖原值）。就像有多线程写， 也能get（）到最新的值。根据JMM的happens-before规则，对volatile的写入操作时优先于读操作的。这是用volatile替换锁的经典场景。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/并发/" rel="tag"># 并发</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/21/递归/" rel="next" title="递归">
+                <i class="fa fa-chevron-left"></i> 递归
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/02/排序/" rel="prev" title="排序">
+                排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/weixin.jpg" alt="Chen ZeTao">
+            
+              <p class="site-author-name" itemprop="name">Chen ZeTao</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-为什么要多线程"><span class="nav-number">1.</span> <span class="nav-text">1. 为什么要多线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-线程优先级"><span class="nav-number">2.</span> <span class="nav-text">2. 线程优先级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-线程中断"><span class="nav-number">3.</span> <span class="nav-text">3.线程中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-等待-通知机制"><span class="nav-number">4.</span> <span class="nav-text">4. 等待/通知机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-volatile关键字-—最轻量级的同步机制"><span class="nav-number">5.</span> <span class="nav-text">5.volatile关键字 —最轻量级的同步机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-Synchronized关键字，最基本的互斥同步手段"><span class="nav-number">6.</span> <span class="nav-text">6.Synchronized关键字，最基本的互斥同步手段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-锁释放-获取的内存语义与volatile写-读的内存语义是相同的"><span class="nav-number">7.</span> <span class="nav-text">7. 锁释放 - 获取的内存语义与volatile写 - 读的内存语义是相同的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-实现多线程的几种方法"><span class="nav-number">8.</span> <span class="nav-text">8. 实现多线程的几种方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Thread-join"><span class="nav-number">9.</span> <span class="nav-text">9. Thread.join()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-锁"><span class="nav-number">10.</span> <span class="nav-text">10.锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-可重入锁"><span class="nav-number">11.</span> <span class="nav-text">11. 可重入锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-读写锁"><span class="nav-number">12.</span> <span class="nav-text">12.读写锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-ReentrantLock"><span class="nav-number">13.</span> <span class="nav-text">13.ReentrantLock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-happens-before程序顺序规则是JMM核心的概念"><span class="nav-number">14.</span> <span class="nav-text">14. happens-before程序顺序规则是JMM核心的概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-CAS-比较与替换是设计并发算法时用到的技术"><span class="nav-number">15.</span> <span class="nav-text">15.CAS 比较与替换是设计并发算法时用到的技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-ConcurrentHashMap-是线程安全且高效的HashMap"><span class="nav-number">16.</span> <span class="nav-text">16.ConcurrentHashMap 是线程安全且高效的HashMap</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chen ZeTao</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共12.2k字</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/tororo.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

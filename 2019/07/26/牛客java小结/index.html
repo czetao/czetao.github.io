@@ -88,7 +88,7 @@
 <meta property="og:description" content="捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件  参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）   boolean 的默认值">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190530083019499.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjI3NDA3Mg==,size_16,color_FFFFFF,t_70">
-<meta property="og:updated_time" content="2019-08-07T03:38:10.492Z">
+<meta property="og:updated_time" content="2019-08-20T15:30:12.609Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="牛客java小结">
 <meta name="twitter:description" content="捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件  参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）   boolean 的默认值">
@@ -343,7 +343,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.8k
+                  2k
                 </span>
               
 
@@ -359,7 +359,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  6
+                  7
                 </span>
               
             </div>
@@ -426,7 +426,10 @@
 <li>对应成list ， 不需要定义多个对象</li>
 </ul>
 </li>
-<li>类里面只有属性和方法。 <h2 id="1-2-数据类型"><a href="#1-2-数据类型" class="headerlink" title="1.2 数据类型"></a>1.2 数据类型</h2></li>
+<li>类里面只有属性和方法。 </li>
+<li>%取余操作，只适用于整型</li>
+<li>如某个JAVA进程的JVM参数配置如下：<br>-Xms1G -Xmx2G -Xmn500M -XX:MaxPermSize=64M -XX:+UseConcMarkSweepGC -XX:SurvivorRatio=3,<br>请问eden区最终分配的大小是多少？<br>java -Xmx2G -Xms1G -Xmn500M -Xss128k<br>-Xmx2G：设置JVM最大可用内存为2G。<br>-Xms1G：设置JVM促使内存为1G。此值可以设置与-Xmx相同，以避免每次垃圾回收完成后JVM重新分配内存。<br>-Xmn500M：设置年轻代大小为2G。整个JVM内存大小=年轻代大小 + 年老代大小 + 持久代大小。<br>-XX:SurvivorRatio=3:新生代中又会划分为 Eden 区，from Survivor、to Survivor 区。<br>其中 Eden 和 Survivor 区的比例默认是 8:1:1，当然也支持参数调整 -XX:SurvivorRatio=3的话就是3:1:1。<br>故该题为500*（1/3）=300M.</li>
+<li>nterface中合法方法定义?()<br>public void main(String [] args);<br>没有关键字static，可以当成普通方法。<h2 id="1-2-数据类型"><a href="#1-2-数据类型" class="headerlink" title="1.2 数据类型"></a>1.2 数据类型</h2></li>
 <li>基本数据类型<pre><code>包装类：包装类是对象，拥有方法和字段。 包装类型都是有重写equals方法
 初始值不同，int是0，boolean是false,包装类初始值是null,在定义javabean时，通常使用包装类，为防止数据库中有null数据。更例如定义List中，数据具体类型也是用包装类。
 </code></pre></li>
@@ -571,7 +574,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -582,7 +585,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -593,7 +596,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -683,7 +686,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共9.2k字</span>
+  <span class="post-count">博客全站共12.2k字</span>
 </div>
 
         
