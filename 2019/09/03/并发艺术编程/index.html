@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ddd `Blog">
 <meta property="og:description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型线程优先级通过一个整型变量priority控制优先级，thread.setPriority(priority)。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-03T15:38:42.916Z">
+<meta property="og:updated_time" content="2019-09-04T09:16:17.876Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发艺术编程">
 <meta name="twitter:description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型线程优先级通过一个整型变量priority控制优先级，thread.setPriority(priority)。">
@@ -448,16 +448,14 @@
 <li>公平锁的实现    <strong>*</strong>重点<h2 id="happens-before程序顺序规则是JMM核心的概念"><a href="#happens-before程序顺序规则是JMM核心的概念" class="headerlink" title="happens-before程序顺序规则是JMM核心的概念"></a>happens-before程序顺序规则是JMM核心的概念</h2>JMM通过happens-before来指定两个操作之间的执行顺序<br>定义： ①如果一个操作happens-before另一个操作，那么第一个操作的执行结果将对第二个可见，且第一个操作的执行顺序排在第二个之前 ———————-对程序员可见<br>②如果一个操作happens-before另一个操作，并不意味着必须按照happens-before关系指定的顺序执行，如果重排序之后的执行结果，与按happens-before顺序结果一致，那么这种重排序并不违法。 ————————对编译器和处理器的约束原则<h2 id="CAS-比较与替换是设计并发算法时用到的技术"><a href="#CAS-比较与替换是设计并发算法时用到的技术" class="headerlink" title="CAS 比较与替换是设计并发算法时用到的技术"></a>CAS 比较与替换是设计并发算法时用到的技术</h2>CAS是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class MyLock&#123;</span><br><span class="line">	private AtomicBoolean locked = nnew AtomicBoolean(false);</span><br><span class="line">	public boolean lock()&#123;</span><br><span class="line">		return locked.compareAndSet(false,true);</span><br><span class="line">	&#125;</span><br><span class="line">	//比较locked 和 false ，如果相等，则把它修改成true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<h2 id="ConcurrentHashMap-是线程安全且高效的HashMap"><a href="#ConcurrentHashMap-是线程安全且高效的HashMap" class="headerlink" title="ConcurrentHashMap 是线程安全且高效的HashMap"></a>ConcurrentHashMap 是线程安全且高效的HashMap</h2><h3 id="ConcurrentHashMap的锁分段技术可有效提升并发访问率"><a href="#ConcurrentHashMap的锁分段技术可有效提升并发访问率" class="headerlink" title="ConcurrentHashMap的锁分段技术可有效提升并发访问率"></a>ConcurrentHashMap的锁分段技术可有效提升并发访问率</h3><p>与HashTable容器相比，HashTable容器并发环境效率低下是所有访问HashTable的线程都必须访问同一把锁。<br>假如容器中有很多锁，每把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不存在竞争。这就是ConcurrentHashMap的锁分段技术。</p>
+<h2 id="ConcurrentHashMap-是线程安全且高效的HashMap"><a href="#ConcurrentHashMap-是线程安全且高效的HashMap" class="headerlink" title="ConcurrentHashMap 是线程安全且高效的HashMap"></a>ConcurrentHashMap 是线程安全且高效的HashMap</h2><h3 id="ConcurrentHashMap的锁分段技术可有效提升并发访问率"><a href="#ConcurrentHashMap的锁分段技术可有效提升并发访问率" class="headerlink" title="ConcurrentHashMap的锁分段技术可有效提升并发访问率"></a>ConcurrentHashMap的锁分段技术可有效提升并发访问率</h3><p>  与HashTable容器相比，HashTable容器并发环境效率低下是所有访问HashTable的线程都必须访问同一把锁。<br>假如容器中有很多锁，每把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不存在竞争。这就是ConcurrentHashMap的锁分段技术。</p>
 <h3 id="ConcurrentHashMap的结构"><a href="#ConcurrentHashMap的结构" class="headerlink" title="ConcurrentHashMap的结构"></a>ConcurrentHashMap的结构</h3><p>是有Segment数组结构 和 HashEntry 数组结构组成</p>
-<pre><code>- Segment是一种可重入锁，结构和HahMap类似，是一种数组和链表结构。
-- 一个ConcurrentHashMap里包含一个Segment数组，扮演锁的角色。
--每个HashEntry是一个链表结构的元素，一个Segment里包含一个HashEntry数组。
--每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须首先获得与他对应的Segment锁。
-</code></pre><h3 id="get操作"><a href="#get操作" class="headerlink" title="get操作"></a>get操作</h3><p>　　在定位Segment时，都会对元素的hashcode进行一次再散列。<br>在HashTable中，get方法是需要加锁的，但在ConcurrentHashMap中的get操作是不用加锁的。<br>原因： 在它的get方法中将要使用的共享变量都定义成volatile类型。能够在线程之间保持可见性，能够被多线程读，但只能被单线程写（有种情况可被多线程写，就是写入的值不依赖原值）。就像有多线程写， 也能get（）到最新的值。根据JMM的happens-before规则，对volatile的写入操作时优先于读操作的。这是用volatile替换锁的经典场景。</p>
-<h3 id="put操作"><a href="#put操作" class="headerlink" title="put操作"></a>put操作</h3><p>put方法首先定位到Segment,然后在Segment里进入插入操作。</p>
-<h3 id="ConcurrentHashMap的扩容"><a href="#ConcurrentHashMap的扩容" class="headerlink" title="ConcurrentHashMap的扩容"></a>ConcurrentHashMap的扩容</h3><p>首先会创建一个容量是原来容量两倍的数组，然后将原来的元素再散列插入到新数组中。为了高校，ConcurrentHashMap不会对整个容器进行扩容，而只对某个Segment进行扩容。<br>比HashMap更高校，HashMap是在插入后进行判断是否需要扩容， 但扩容后可能就不插入新元素。浪费了扩容的其他空间。</p>
-<h2 id="阻塞队列（BlockingQueue）"><a href="#阻塞队列（BlockingQueue）" class="headerlink" title="阻塞队列（BlockingQueue）"></a>阻塞队列（BlockingQueue）</h2><p>是一个支持两个附加操作的队列，这两个附加的操作支持阻塞的插入和移除</p>
+<ul>
+<li>Segment是一种可重入锁，结构和HahMap类似，是一种数组和链表结构。</li>
+<li>一个ConcurrentHashMap里包含一个Segment数组，扮演锁的角色。</li>
+<li>每个HashEntry是一个链表结构的元素，一个Segment里包含一个HashEntry数组。</li>
+<li>每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须首先获得与他对应的Segment锁。<h3 id="get操作"><a href="#get操作" class="headerlink" title="get操作"></a>get操作</h3>　  在定位Segment时，都会对元素的hashcode进行一次再散列。<br>在HashTable中，get方法是需要加锁的，但在ConcurrentHashMap中的get操作是不用加锁的。<br>原因： 在它的get方法中将要使用的共享变量都定义成volatile类型。能够在线程之间保持可见性，能够被多线程读，但只能被单线程写（有种情况可被多线程写，就是写入的值不依赖原值）。就像有多线程写， 也能get（）到最新的值。根据JMM的happens-before规则，对volatile的写入操作时优先于读操作的。这是用volatile替换锁的经典场景。<h3 id="put操作"><a href="#put操作" class="headerlink" title="put操作"></a>put操作</h3>put方法首先定位到Segment,然后在Segment里进入插入操作。<h3 id="ConcurrentHashMap的扩容"><a href="#ConcurrentHashMap的扩容" class="headerlink" title="ConcurrentHashMap的扩容"></a>ConcurrentHashMap的扩容</h3>首先会创建一个容量是原来容量两倍的数组，然后将原来的元素再散列插入到新数组中。为了高校，ConcurrentHashMap不会对整个容器进行扩容，而只对某个Segment进行扩容。<br>比HashMap更高校，HashMap是在插入后进行判断是否需要扩容， 但扩容后可能就不插入新元素。浪费了扩容的其他空间。<h2 id="阻塞队列（BlockingQueue）"><a href="#阻塞队列（BlockingQueue）" class="headerlink" title="阻塞队列（BlockingQueue）"></a>阻塞队列（BlockingQueue）</h2>是一个支持两个附加操作的队列，这两个附加的操作支持阻塞的插入和移除</li>
+</ul>
 <ol>
 <li>支持阻塞的插入方法，意思是当队列满时，队列会阻塞插入元素的线程，直到队列不满。</li>
 <li>支持阻塞的移除方法，当队列为空时，会阻塞移除元素的线程，等待队列不为空。<h2 id="并发工具类"><a href="#并发工具类" class="headerlink" title="并发工具类"></a>并发工具类</h2><h3 id="等待多线程完成的CountDownLatch"><a href="#等待多线程完成的CountDownLatch" class="headerlink" title="等待多线程完成的CountDownLatch"></a>等待多线程完成的CountDownLatch</h3>CountDownLatch允许一个或多个线程等待其他线程完成操作。<br>假如需求，解析一个Excel里多个sheet的数据，每个线程解析一个sheet，等所有的sheet都解析完，程序需要提示解析完成。<br>实现主线程等待所有线程完成sheet的解析，最简单是使用join（）方法<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Thread1.start();</span><br><span class="line">Thread2.start();</span><br><span class="line">Thread1.join();    <span class="comment">//主线程需等待join线程执行结束。</span></span><br><span class="line">THread2.join();</span><br></pre></td></tr></table></figure>
@@ -512,6 +510,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/07/位运算符/" rel="prev" title="位运算符">
+                位运算符 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -590,7 +592,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -702,7 +704,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共20.4k字</span>
+  <span class="post-count">博客全站共20.5k字</span>
 </div>
 
         
