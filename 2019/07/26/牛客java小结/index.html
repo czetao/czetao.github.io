@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -79,22 +79,22 @@
 
 
 
-<meta name="description" content="牛客java 捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件    参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）  boole">
+<meta name="description" content="零散知识存在继承的情况下，初始化顺序为：  父类（静态变量，静态代码块） 子类（静态变量，静态代码块） 父类（实例变量，普通代码块） 父类（构造函数） 子类（实例变量，普通代码块） 子类（构造函数）  继承：在继承关系之中，如果要实例化子类对象，会默认先调用父类构造，为父类之中的属性初始化，之后再调用子类构造，为子类之中的属性初始化，即：默认情况下，子类会找到父类之中的无参构造方法。  牛客jav">
 <meta name="keywords" content="java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="牛客java小结">
 <meta property="og:url" content="http://yoursite.com/2019/07/26/牛客java小结/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="牛客java 捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件    参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）  boole">
+<meta property="og:description" content="零散知识存在继承的情况下，初始化顺序为：  父类（静态变量，静态代码块） 子类（静态变量，静态代码块） 父类（实例变量，普通代码块） 父类（构造函数） 子类（实例变量，普通代码块） 子类（构造函数）  继承：在继承关系之中，如果要实例化子类对象，会默认先调用父类构造，为父类之中的属性初始化，之后再调用子类构造，为子类之中的属性初始化，即：默认情况下，子类会找到父类之中的无参构造方法。  牛客jav">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20190530083019499.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjI3NDA3Mg==,size_16,color_FFFFFF,t_70">
 <meta property="og:image" content="https://uploadfiles.nowcoder.com/images/20190727/5227440_1564208997208_C0C78CE31C2575E39A0EE7AE31E20FB8">
 <meta property="og:image" content="https://img-blog.csdn.net/20180612094225630?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
 <meta property="og:image" content="https://img-blog.csdn.net/20180612135157564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
-<meta property="og:updated_time" content="2019-09-10T04:00:24.332Z">
+<meta property="og:updated_time" content="2019-09-22T12:43:40.007Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="牛客java小结">
-<meta name="twitter:description" content="牛客java 捕捉到异常时 ， 程序就会停止运行 ，抛出异常 重载 ：仅返回值类型不同时， 不足以构成重载  。重载的基本条件    参数类型不同 参数次序不通过 参数个数不同   重写 ： 函数名， 函数参数，返回值 应该相同 true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用const  goto 是java的保留字（关键字）  boole">
+<meta name="twitter:description" content="零散知识存在继承的情况下，初始化顺序为：  父类（静态变量，静态代码块） 子类（静态变量，静态代码块） 父类（实例变量，普通代码块） 父类（构造函数） 子类（实例变量，普通代码块） 子类（构造函数）  继承：在继承关系之中，如果要实例化子类对象，会默认先调用父类构造，为父类之中的属性初始化，之后再调用子类构造，为子类之中的属性初始化，即：默认情况下，子类会找到父类之中的无参构造方法。  牛客jav">
 <meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190530083019499.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjI3NDA3Mg==,size_16,color_FFFFFF,t_70">
 
 
@@ -103,7 +103,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Gemini',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
     fancybox: true,
@@ -378,7 +378,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3.8k
+                  4k
                 </span>
               
 
@@ -394,7 +394,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  13
+                  14
                 </span>
               
             </div>
@@ -415,7 +415,17 @@
       
 
       
-        <h2 id="牛客java"><a href="#牛客java" class="headerlink" title="牛客java"></a>牛客java</h2><ol>
+        <h2 id="零散知识"><a href="#零散知识" class="headerlink" title="零散知识"></a>零散知识</h2><p>存在继承的情况下，初始化顺序为：</p>
+<ul>
+<li>父类（静态变量，静态代码块）</li>
+<li>子类（静态变量，静态代码块）</li>
+<li>父类（实例变量，普通代码块）</li>
+<li>父类（构造函数）</li>
+<li>子类（实例变量，普通代码块）</li>
+<li>子类（构造函数）</li>
+</ul>
+<p>继承：在继承关系之中，如果要实例化子类对象，会默认先调用父类构造，为父类之中的属性初始化，之后再调用子类构造，为子类之中的属性初始化，即：默认情况下，子类会找到父类之中的无参构造方法。 </p>
+<h2 id="牛客java"><a href="#牛客java" class="headerlink" title="牛客java"></a>牛客java</h2><ol>
 <li>捕捉到异常时 ， 程序就会停止运行 ，抛出异常</li>
 <li>重载 ：仅返回值类型不同时， 不足以构成重载  。<br>重载的基本条件 </li>
 </ol>
@@ -481,7 +491,10 @@
 </li>
 <li>start方法会开启一个新的线程执行run方法，所以start方法执行完，不代表run方法执行完，线程也不一定销毁！</li>
 <li>可以有方法名与类名相同的普通方法</li>
-<li><img src="https://uploadfiles.nowcoder.com/images/20190727/5227440_1564208997208_C0C78CE31C2575E39A0EE7AE31E20FB8" alt="各种排序的时间复杂度"><h3 id="真题总结"><a href="#真题总结" class="headerlink" title="真题总结"></a>真题总结</h3></li>
+<li><img src="https://uploadfiles.nowcoder.com/images/20190727/5227440_1564208997208_C0C78CE31C2575E39A0EE7AE31E20FB8" alt="各种排序的时间复杂度"></li>
+</ol>
+<ol>
+<li>“is”+100+5 在字符串后面的会自动转成字符串<br>在字符串前面的不会转成字符串<h3 id="真题总结"><a href="#真题总结" class="headerlink" title="真题总结"></a>真题总结</h3></li>
 <li>内部类的访问规则</li>
 </ol>
 <ul>
@@ -492,7 +505,7 @@
 <li>父子类中方法执行顺序</li>
 </ol>
 <ul>
-<li>静态优先，构造随后</li>
+<li>静态优先，普通代码块，构造随后</li>
 <li>无论静态还是构造，先父再子</li>
 </ul>
 <ol start="3">
@@ -515,14 +528,17 @@
 <ol start="6">
 <li>接口是更抽象的东西，属性默认是：public static final的，方法默认是public abstract的！</li>
 <li>XML中DTD,XSD的区别<br>DTD和XSD相比：DTD 是使用非 XML 语法编写的。<br>DTD 不可扩展,不支持命名空间,只提供非常有限的数据类型 。<br>DTD即文档类型定义，是一种XML约束模式语言，是XML文件的验证机制,属于XML文件组成的一部分。<br>XML Schema语言也就是XSD。XML Schema描述了XML文档的结构。 </li>
-<li>JAVA中使用DOM方法解析XML文件<br>XML现在已经成为一种通用的数据交换格式，平台的无关性使得很多场合都需要用到XML，DOM解析是将XML文件全部载入到内存，组装成一颗DOM树，然后通过节点以及节点之间的关系来解析XML文件。<h2 id="Java集合体系"><a href="#Java集合体系" class="headerlink" title="Java集合体系"></a>Java集合体系</h2><img src="https://img-blog.csdn.net/20180612094225630?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt><h3 id="Connection接口"><a href="#Connection接口" class="headerlink" title="Connection接口:"></a>Connection接口:</h3>— List 有序,可重复<br>ArrayList<br>优点: 底层数据结构是数组，查询快，增删慢。<br>缺点: 线程不安全，效率高<br>Vector<br>优点: 底层数据结构是数组，查询快，增删慢。<br>缺点: 线程安全，效率低<br>LinkedList<br>优点: 底层数据结构是链表，查询慢，增删快。<br>缺点: 线程不安全，效率高</li>
+<li>JAVA中使用DOM方法解析XML文件<br>XML现在已经成为一种通用的数据交换格式，平台的无关性使得很多场合都需要用到XML，DOM解析是将XML文件全部载入到内存，组装成一颗DOM树，然后通过节点以及节点之间的关系来解析XML文件。</li>
+</ol>
+<h2 id="多线程相关"><a href="#多线程相关" class="headerlink" title="多线程相关"></a>多线程相关</h2><ol>
+<li>调用run()，与调用start()的区别<br>直接调用run()方法，并没有创建线程，跟调用普通方法是一样的。创建一个线程，需要覆盖Thread类的run（）方法，然后调用Thread类的start（）方法启动。<h2 id="Java集合体系"><a href="#Java集合体系" class="headerlink" title="Java集合体系"></a>Java集合体系</h2><img src="https://img-blog.csdn.net/20180612094225630?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt><h3 id="Connection接口"><a href="#Connection接口" class="headerlink" title="Connection接口:"></a>Connection接口:</h3>— List 有序,可重复<br>ArrayList<br>优点: 底层数据结构是数组，查询快，增删慢。<br>缺点: 线程不安全，效率高<br>Vector<br>优点: 底层数据结构是数组，查询快，增删慢。<br>缺点: 线程安全，效率低<br>LinkedList<br>优点: 底层数据结构是链表，查询慢，增删快。<br>缺点: 线程不安全，效率高</li>
 </ol>
 <p>—Set 无序,唯一<br>HashSet<br>底层数据结构是哈希表。(无序,唯一)<br>如何来保证元素唯一性?<br>1.依赖两个方法：hashCode()和equals()<br>LinkedHashSet<br>底层数据结构是链表和哈希表。(FIFO插入有序,唯一)<br>1.由链表保证元素有序<br>2.由哈希表保证元素唯一<br>TreeSet<br>底层数据结构是红黑树。(唯一，有序)</p>
 <ol>
 <li>如何保证元素排序的呢?<br>自然排序<br>比较器排序<br>2.如何保证元素唯一性的呢?<h3 id="Map接口"><a href="#Map接口" class="headerlink" title="Map接口"></a>Map接口</h3><img src="https://img-blog.csdn.net/20180612135157564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt><h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2></li>
 <li>基本数据类型<br>包装类：包装类是对象，拥有方法和字段。 包装类型都是有重写equals方法<br>初始值不同，int是0，boolean是false,包装类初始值是null,在定义javabean时，通常使用包装类，为防止数据库中有null数据。更例如定义List中，数据具体类型也是用包装类。</li>
 <li>自动拆箱  包装类 ==》基本数据类型    int a = new Integer(100);    [-128,127]在这个范围内，会直接从缓存(堆中的常量池)中取。<br> 自动装箱       </li>
-<li>Double和BigDecimal<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">double d1 = 2.0;</span><br><span class="line">double d2 = 1.1;</span><br><span class="line">d1-d2 = 0.89999999;</span><br></pre></td></tr></table></figure>
+<li>Double和BigDecimal<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">double d1 = <span class="number">2.0</span><span class="comment">;</span></span><br><span class="line">double d2 = <span class="number">1.1</span><span class="comment">;</span></span><br><span class="line"><span class="attribute">d1-d2</span> = <span class="number">0.89999999</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
 </li>
 </ol>
 <p>实际运用中，在对金额的运算，通常使用的是BigDecimal。<br>bigdecimal的equals方法，还会对数据中的小数点进行比较。<br>通常使用compareTO方法比较大小。 {-1：小于，  0 ：等于，   1：大于}<br>为了防止精度丢失，构造方法BigDecimal(“String”)来定义bigdecimal对象，禁止直接使用double。</p>
@@ -718,7 +734,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#牛客java"><span class="nav-number">1.</span> <span class="nav-text">牛客java</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#真题总结"><span class="nav-number">1.1.</span> <span class="nav-text">真题总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java集合体系"><span class="nav-number">2.</span> <span class="nav-text">Java集合体系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection接口"><span class="nav-number">2.1.</span> <span class="nav-text">Connection接口:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Map接口"><span class="nav-number">2.2.</span> <span class="nav-text">Map接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据类型"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类设计（jdk8新特性，接口中可以有方法）"><span class="nav-number">4.</span> <span class="nav-text">类设计（jdk8新特性，接口中可以有方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码规范"><span class="nav-number">5.</span> <span class="nav-text">代码规范</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#零散知识"><span class="nav-number">1.</span> <span class="nav-text">零散知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#牛客java"><span class="nav-number">2.</span> <span class="nav-text">牛客java</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#真题总结"><span class="nav-number">2.1.</span> <span class="nav-text">真题总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程相关"><span class="nav-number">3.</span> <span class="nav-text">多线程相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java集合体系"><span class="nav-number">4.</span> <span class="nav-text">Java集合体系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection接口"><span class="nav-number">4.1.</span> <span class="nav-text">Connection接口:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Map接口"><span class="nav-number">4.2.</span> <span class="nav-text">Map接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据类型"><span class="nav-number">5.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类设计（jdk8新特性，接口中可以有方法）"><span class="nav-number">6.</span> <span class="nav-text">类设计（jdk8新特性，接口中可以有方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码规范"><span class="nav-number">7.</span> <span class="nav-text">代码规范</span></a></li></ol></div>
             
 
           </div>
@@ -764,7 +780,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
 
 
 
@@ -775,7 +791,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共23.8k字</span>
+  <span class="post-count">博客全站共24.9k字</span>
 </div>
 
         

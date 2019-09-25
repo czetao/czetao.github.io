@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -98,7 +98,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Gemini',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
     fancybox: true,
@@ -473,11 +473,11 @@
 </ul>
 <ol>
 <li><p>通过调用Lock（）方法获取锁，unlock（）释放锁</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock lock = new ReentrantLock();</span><br><span class="line">lock.lock()  ;  lock.unlock();</span><br></pre></td></tr></table></figure>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock <span class="keyword">lock</span> = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line"><span class="keyword">lock</span>.<span class="keyword">lock</span>()  ;  <span class="keyword">lock</span>.unlock();</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>实现依赖于AQS框架，使用一个整型的volatile变量（state）来维持同步   <em>**</em>重点</p>
 </li>
-<li>公平锁的实现    <strong>*</strong>重点<h2 id="happens-before程序顺序规则是JMM核心的概念"><a href="#happens-before程序顺序规则是JMM核心的概念" class="headerlink" title="happens-before程序顺序规则是JMM核心的概念"></a>happens-before程序顺序规则是JMM核心的概念</h2>JMM通过happens-before来指定两个操作之间的执行顺序<br>定义： ①如果一个操作happens-before另一个操作，那么第一个操作的执行结果将对第二个可见，且第一个操作的执行顺序排在第二个之前 ———————-对程序员可见<br>②如果一个操作happens-before另一个操作，并不意味着必须按照happens-before关系指定的顺序执行，如果重排序之后的执行结果，与按happens-before顺序结果一致，那么这种重排序并不违法。 ————————对编译器和处理器的约束原则<h2 id="CAS-比较与替换是设计并发算法时用到的技术"><a href="#CAS-比较与替换是设计并发算法时用到的技术" class="headerlink" title="CAS 比较与替换是设计并发算法时用到的技术"></a>CAS 比较与替换是设计并发算法时用到的技术</h2>CAS是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class MyLock&#123;</span><br><span class="line">	private AtomicBoolean locked = nnew AtomicBoolean(false);</span><br><span class="line">	public boolean lock()&#123;</span><br><span class="line">		return locked.compareAndSet(false,true);</span><br><span class="line">	&#125;</span><br><span class="line">	//比较locked 和 false ，如果相等，则把它修改成true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<li>公平锁的实现    <strong>*</strong>重点<h2 id="happens-before程序顺序规则是JMM核心的概念"><a href="#happens-before程序顺序规则是JMM核心的概念" class="headerlink" title="happens-before程序顺序规则是JMM核心的概念"></a>happens-before程序顺序规则是JMM核心的概念</h2>JMM通过happens-before来指定两个操作之间的执行顺序<br>定义： ①如果一个操作happens-before另一个操作，那么第一个操作的执行结果将对第二个可见，且第一个操作的执行顺序排在第二个之前 ———————-对程序员可见<br>②如果一个操作happens-before另一个操作，并不意味着必须按照happens-before关系指定的顺序执行，如果重排序之后的执行结果，与按happens-before顺序结果一致，那么这种重排序并不违法。 ————————对编译器和处理器的约束原则<h2 id="CAS-比较与替换是设计并发算法时用到的技术"><a href="#CAS-比较与替换是设计并发算法时用到的技术" class="headerlink" title="CAS 比较与替换是设计并发算法时用到的技术"></a>CAS 比较与替换是设计并发算法时用到的技术</h2>CAS是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLock</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> AtomicBoolean locked = <span class="function">nnew <span class="title">AtomicBoolean</span><span class="params">(<span class="keyword">false</span>)</span></span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">boolean</span> <span class="title">lock</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="function"><span class="keyword">return</span> locked.<span class="title">compareAndSet</span><span class="params">(<span class="keyword">false</span>,<span class="keyword">true</span>)</span></span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//比较locked 和 false ，如果相等，则把它修改成true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
 <h2 id="ConcurrentHashMap-是线程安全且高效的HashMap"><a href="#ConcurrentHashMap-是线程安全且高效的HashMap" class="headerlink" title="ConcurrentHashMap 是线程安全且高效的HashMap"></a>ConcurrentHashMap 是线程安全且高效的HashMap</h2><h3 id="ConcurrentHashMap的锁分段技术可有效提升并发访问率"><a href="#ConcurrentHashMap的锁分段技术可有效提升并发访问率" class="headerlink" title="ConcurrentHashMap的锁分段技术可有效提升并发访问率"></a>ConcurrentHashMap的锁分段技术可有效提升并发访问率</h3><p>  与HashTable容器相比，HashTable容器并发环境效率低下是所有访问HashTable的线程都必须访问同一把锁。<br>假如容器中有很多锁，每把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不存在竞争。这就是ConcurrentHashMap的锁分段技术。</p>
@@ -725,7 +725,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
 
 
 
@@ -736,7 +736,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共23.8k字</span>
+  <span class="post-count">博客全站共24.9k字</span>
 </div>
 
         
