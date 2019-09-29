@@ -281,6 +281,400 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第二周/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/25/实习第二周/" itemprop="url">实习第二周</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:47+08:00">
+                2019-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/实习/" itemprop="url" rel="index">
+                    <span itemprop="name">实习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  339
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (<span class="name">DESCRIPTION</span> =</span><br><span class="line">    (<span class="name">ADDRESS_LIST</span> =</span><br><span class="line">      (<span class="name">ADDRESS</span> = (<span class="name">PROTOCOL</span> = TCP)(<span class="name">HOST</span> = <span class="number">115.28</span>.**.**)(<span class="name">PORT</span> = <span class="number">1521</span>))</span><br><span class="line">    )</span><br><span class="line">    (<span class="name">CONNECT_DATA</span> =</span><br><span class="line">      (<span class="name">SERVICE_NAME</span> （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>nc63train/a</p>
+<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> [<span class="keyword">OR</span> <span class="keyword">REPLACE</span>] [&#123;<span class="keyword">FORCE</span>|NOFORCE&#125;] <span class="keyword">VIEW</span> view_name</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span>查询</span><br><span class="line">[<span class="keyword">WITH</span> <span class="keyword">READ</span> <span class="keyword">ONLY</span> <span class="keyword">CONSTRAINT</span>]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">or</span> <span class="keyword">REPLACE</span> <span class="keyword">view</span> p_rate</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">select</span> r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line"><span class="keyword">from</span> rate r,pro_user p <span class="keyword">where</span> r.userid=p.userid;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>OR REPLACE：如果视图已经存在，则替换旧视图。</li>
+<li>FORCE：即使基表不存在，也可以创建该视图，但是该视图不能正常使用，当基表创建成功后，视图才能正常使用。</li>
+<li>NOFORCE：如果基表不存在，无法创建视图，该项是默认选项。</li>
+<li>WITH READ ONLY：默认可以通过视图对基表执行增删改操作，但是有很多在基表上的限制(比如：基表中某列不能为空，但是该列没有出现在视图中，则不能通过视图执行insert操作)，WITH READ ONLY说明视图是只读视图，不能通过该视图进行增删改操作。现实开发中，基本上不通过视图对表中的数据进行增删改操作。<h2 id="删除视图"><a href="#删除视图" class="headerlink" title="删除视图"></a>删除视图</h2>可以使用“DROP VIEW 视图名称”，删除视图不会影响基表的数据。</li>
+</ol>
+<p>全局数据库名称orcl<br>管理口令 ilzzr888</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第一周/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/25/实习第一周/" itemprop="url">实习第一周</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:27+08:00">
+                2019-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/实习/" itemprop="url" rel="index">
+                    <span itemprop="name">实习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  832
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="接触产品"><a href="#接触产品" class="headerlink" title="接触产品"></a>接触产品</h2><ul>
+<li>erp nc65</li>
+<li>中间件 UAP <h2 id="uap"><a href="#uap" class="headerlink" title="uap"></a>uap</h2>用友UAP平台是一体化平台，其中包括了开发平台、集成平台、动态建模平台、商业分析平台（用友BQ）、数据处理平台（用友AE）、云管理平台和运行平台等7个领域产品，<br>这些平台产品涵盖了软件应用的全生命周期和IT服务管理过程，用于全面支撑平台化企业，可以为大中型企业与公共组织构建信息化平台提供核心工具与服务。<h2 id="账号密码"><a href="#账号密码" class="headerlink" title="账号密码"></a>账号密码</h2></li>
+</ul>
+<ol>
+<li>管理系统(用超级管理员打开)<br>超级管理员root ilzzr888!!</li>
+<li>系统管理员2  ilzzr888qwe（普通开启方式）<br>集团管理员(失效日期设置，不对，还有奇怪)<br>统一新增密码 ilzzr888<br>用01  ilzzr888qwe<br>职责里面没有分配功能一块</li>
+<li>邮箱密码<br>ilzzr888..</li>
+<li>用友云社区<br>ilzzr888<h2 id="开发环境基础设置"><a href="#开发环境基础设置" class="headerlink" title="开发环境基础设置"></a>开发环境基础设置</h2></li>
+<li>窗口–&gt;首选项–&gt;</li>
+</ol>
+<ul>
+<li>java–&gt;jre  选用UAP自带的Runtime jre</li>
+<li>UAP-STUDIO–&gt;开发配置  UAP HOME设置，位置是uaphome</li>
+<li>数据源等在配置基础环境sysconfig.bat脚本中就配置好，会自动导入</li>
+<li>开发设置–&gt;客户端链接  端口号要与脚本设置一样。</li>
+</ul>
+<h2 id="oracle数据库"><a href="#oracle数据库" class="headerlink" title="oracle数据库"></a>oracle数据库</h2><h2 id="nc65erp本地搭建"><a href="#nc65erp本地搭建" class="headerlink" title="nc65erp本地搭建"></a>nc65erp本地搭建</h2><h2 id="UAP中间件搭建"><a href="#UAP中间件搭建" class="headerlink" title="UAP中间件搭建"></a>UAP中间件搭建</h2><h3 id="元数据建立与使用"><a href="#元数据建立与使用" class="headerlink" title="元数据建立与使用"></a>元数据建立与使用</h3><ol>
+<li>新建实体组件  无业务组件[train.bill]</li>
+<li>实体属性：创建实体时，访问器类型：当组件代码风格选择传统样式时，针对主子表或者多子表中<strong>主表对应的实体，访问器要设置为AggVO</strong>，即聚合VO访问器，其他的一律选择NCVO。</li>
+<li>代码风格：自定义样式</li>
+<li>向导生成单据属性</li>
+<li>类型样式：SINGLE 单一样式，最终的类型就是原始数据类型。（与数据库对应，或者封装的类型。）<br> REF:引用样式，用于实体，值对象，随后的类型即为参照。</li>
+<li>主键一定设置为UFID类型。</li>
+<li>字段名称即为生成数据库表列的名称。</li>
+<li>对于设置为AggVO样式的实体，访问策略有设置为BodyOfAggVOAccessor.</li>
+<li>参照设置：一个实体可以设置多个参照，但必须设置一个缺省参照。<pre><code>获取属性的参照时，如果没有设置则取属性对应实体的缺省参照。
+</code></pre><h3 id="树管理开发界面"><a href="#树管理开发界面" class="headerlink" title="树管理开发界面"></a>树管理开发界面</h3><ol>
+<li>与树卡档案不同的是，右边的信息只有一个字段与之关联，新增删除是对节点内容的修改。数据挂在节点下面。</li>
+<li>树卡档案，树与卡片相联系，一个树节点就是一个卡片。增改卡片就是对树节点的修改。</li>
+<li><strong> 整体开发流程： 元数据建模，节点注册配置，单击模板制作，输出模板制作，节点代码编写。</strong>  </li>
+<li>实现接口，记得配置接口属性映射（如何设置接口的属性。）</li>
+<li>元数据发布：发布元数据，生成java源代码，生成建库sql脚本并执行。<h5 id="NC65学习记录"><a href="#NC65学习记录" class="headerlink" title="NC65学习记录"></a>NC65学习记录</h5></li>
+<li>uap-studio新增模块后，需将模块信息注册到数据源。</li>
+<li>生成元数据时，映射以及命名要规范。</li>
+</ol>
+</li>
+</ol>
+<h4 id="orcl数据库安装"><a href="#orcl数据库安装" class="headerlink" title="orcl数据库安装"></a>orcl数据库安装</h4><p>管理口令：</p>
+<p>创建模块之后，记得给登录系统管理员，给模块分配角色。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/23/sql语句/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1710,372 +2104,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/18/HTTP协议/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/18/HTTP协议/" itemprop="url">HTTP协议</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-18T09:47:59+08:00">
-                2019-06-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机网络</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  534
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="https://github.com/nipingd/Web/blob/master/14-%E5%89%8D%E7%AB%AF%E9%9D%A2%E8%AF%95/04-HTTP%E5%8D%8F%E8%AE%AE.md?from=singlemessage" target="_blank" rel="noopener">HTTP协议细讲</a></p>
-<h4 id="HTTP协议掌握考点"><a href="#HTTP协议掌握考点" class="headerlink" title="HTTP协议掌握考点"></a>HTTP协议掌握考点</h4><ul>
-<li>HTTP协议主要特点</li>
-<li>HTTP报文的组成部分（请求报文，响应报文）</li>
-<li>get和post</li>
-<li>HTTP状态码<h4 id="主要特点"><a href="#主要特点" class="headerlink" title="主要特点"></a>主要特点</h4></li>
-<li><strong>无连接</strong> ：<br>连接一次就会断开，不会继续保持连接</li>
-<li><strong>无状态</strong><br>客户端和服务器端是两种身份。第一次请求结束后，就断开了，第二次请求时，服务器端并没有记住之前的状态，也就是说，服务器端无法区分客户端是否为同一个人、同一个身份。<br>有的时候，我们访问网站时，网站能记住我们的账号，这个是通过其他的手段（比如 session）做到的，并不是http协议能做到的。<h4 id="HTTP报文的组成部分"><a href="#HTTP报文的组成部分" class="headerlink" title="HTTP报文的组成部分"></a>HTTP报文的组成部分</h4></li>
-<li>请求报文<br>get/post请求方法  请求url  http协议及版本号<br>请求头  一堆键值对<br>  请求体    name = tom &amp;password = 123(数据部分)</li>
-<li>响应报文<br>http协议/版本号  状态码及状态描述<br>响应头<br>响应体  返回信息<br><strong>记住组成部分，会考</strong><h4 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h4>http状态码响应类别共有5种：<br>1XX ：指示信息，表示请求已接收，继续处理<br>2XX ：处理成功<br>3XX ：重定向，客户端应采取更多操作<br>4XX :  客户端错误<br>5XX :  服务器错误<br><strong>常见状态码</strong><br>200  OK :客户端请求成功<br>204  ：没有资源返回<br>206  ：范围请求，客户端只请求某个大文件里的一部分内容。比如说，如果播放视频地址或音频地址的前面一部分，可以用到206。<br>301 ：永久性转移，请求的资源已被分配新的URl<br>302 :  暂时性转移，本次使用这个<br>304：我这个服务器告诉客户端，你已经有缓存了，不需要从我这里取了。<br>400：请求报文存在错误<br>403：权限不足<br>404：找不到页面<br>500：服务器发生错误，原来缓冲的文档还可以继续使用。<br>503：服务器暂时无法处理请求，服务器临时过载或当机。一段时间后可能恢复正常。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/06/hexo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/06/hexo/" itemprop="url">hexo</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-06T12:11:35+08:00">
-                2019-06-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hexo记录/" itemprop="url" rel="index">
-                    <span itemprop="name">hexo记录</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  85
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ol>
-<li>hexo g 生成静态文件 generate</li>
-<li>hexo d 部署网站，需要预先生成静态文件</li>
-<li>hexo clean 清楚缓存文件</li>
-<li>hexo s 启动博客</li>
-<li>hexo new “文章名称”  创建文章名称</li>
-<li>hexo new page “tags” 新页面</li>
-<li>组合命令  hexo d -g 部署上传</li>
-</ol>
-<p>这是<a href="https://segmentfault.com/a/1190000009544924#articleHeader12" target="_blank" rel="noopener">next主题优化网站</a></p>
-<p>这是<a href="https://daringfireball.net/projects/markdown/syntax#link" target="_blank" rel="noopener">Typora官方网站</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2128,7 +2156,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">33</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2224,7 +2252,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共34.2k字</span>
+  <span class="post-count">博客全站共46.4k字</span>
 </div>
 
         
