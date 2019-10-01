@@ -489,11 +489,11 @@
 <h3 id="2、什么是sql注入"><a href="#2、什么是sql注入" class="headerlink" title="2、什么是sql注入"></a>2、什么是sql注入</h3><p>　　<a href="https://en.wikipedia.org/wiki/SQL_injection" target="_blank" rel="noopener"> sql注入解释</a>：是一种代码注入技术，用于攻击数据驱动的应用，恶意的SQL语句被插入到执行的实体字段中（例如，为了转储数据库内容给攻击者）</p>
 <p>　　<strong>SQL**</strong>注入<strong>，大家都不陌生，是一种常见的攻击方式。</strong>攻击者<strong>在界面的表单信息或URL上输入一些奇怪的SQL片段（例如“or ‘1’=’1’”这样的语句），有可能入侵</strong>参数检验不足<strong>的应用程序。所以，在我们的应用中需要做一些工作，来防备这样的攻击方式。在一些安全性要求很高的应用中（比如银行软件），经常使用将</strong>SQL<strong>**语句</strong>全部替换为<strong>存储过程</strong>这样的方式，来防止SQL注入。这当然是<strong>一种很安全的方式</strong>，但我们平时开发中，可能不需要这种死板的方式。</p>
 <h3 id="3、mybatis是如何做到防止sql注入的"><a href="#3、mybatis是如何做到防止sql注入的" class="headerlink" title="3、mybatis是如何做到防止sql注入的"></a>3、mybatis是如何做到防止sql注入的</h3><p>　　<a href="https://mybatis.github.io/mybatis-3/" target="_blank" rel="noopener">MyBatis</a>框架作为一款半自动化的持久层框架，其SQL语句都要我们自己手动编写，这个时候当然需要防止SQL注入。其实，MyBatis的SQL是一个具有“<strong>输入+输出</strong>”的功能，类似于函数的结构，参考上面的两个例子。其中，parameterType表示了输入的参数类型，resultType表示了输出的参数类型。回应上文，如果我们想防止SQL注入，理所当然地要在输入参数上下功夫。上面代码中使用 <strong>#</strong> 的即输入参数在SQL中拼接的部分，传入参数后，打印出执行的SQL语句，会看到SQL是这样的：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select id, username, password, role <span class="keyword">from</span><span class="built_in"> user </span>where <span class="attribute">username</span>=? <span class="keyword">and</span> <span class="attribute">password</span>=?</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select id, username, password, role from user where username=? and password=?</span><br></pre></td></tr></table></figure>
 <p>　　不管输入什么参数，打印出的SQL都是这样的。这是因为MyBatis启用了预编译功能，在SQL执行前，会先将上面的SQL发送给数据库进行编译；执行时，直接使用编译好的SQL，替换占位符“?”就可以了。因为SQL注入只能对编译过程起作用，所以这样的方式就很好地避免了SQL注入的问题。</p>
 <p>　　【底层实现原理】MyBatis是如何做到SQL预编译的呢？其实在框架底层，是JDBC中的PreparedStatement类在起作用，PreparedStatement是我们很熟悉的Statement的子类，它的对象包含了编译好的SQL语句。这种“准备好”的方式不仅能提高安全性，而且在多次执行同一个SQL时，能够提高效率。原因是SQL已编译好，再次执行时无需再编译。</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//安全的，预编译了的</span></span><br><span class="line">Connection conn = getConn();<span class="comment">//获得连接</span></span><br><span class="line"><span class="built_in">String</span> sql = <span class="string">"select id, username, password, role from user where id=?"</span>; <span class="comment">//执行sql前会预编译号该条语句</span></span><br><span class="line">PreparedStatement pstmt = conn.prepareStatement(sql); </span><br><span class="line">pstmt.setString(<span class="number">1</span>, id); </span><br><span class="line"><span class="keyword">ResultSet</span> rs=pstmt.executeUpdate(); </span><br><span class="line"><span class="params">...</span><span class="params">...</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//不安全的，没进行预编译</span><br><span class="line">private String getNameByUserId(String userId) &#123;</span><br><span class="line">    Connection conn = getConn();//获得连接</span><br><span class="line">    String sql = "<span class="keyword">select</span> id,username,<span class="keyword">password</span>,<span class="keyword">role</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id=<span class="string">" + id;</span></span><br><span class="line"><span class="string">    //当id参数为"</span><span class="number">3</span>;<span class="keyword">drop</span> table <span class="keyword">user</span>;"时，执行的sql语句如下:</span><br><span class="line">    //<span class="keyword">select</span> id,username,<span class="keyword">password</span>,<span class="keyword">role</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id=<span class="number">3</span>; <span class="keyword">drop</span> table <span class="keyword">user</span>;  </span><br><span class="line">    PreparedStatement pstmt =  conn.prepareStatement(sql);</span><br><span class="line">    ResultSet rs=pstmt.executeUpdate();</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//安全的，预编译了的</span><br><span class="line">Connection conn = getConn();//获得连接</span><br><span class="line">String sql = &quot;select id, username, password, role from user where id=?&quot;; //执行sql前会预编译号该条语句</span><br><span class="line">PreparedStatement pstmt = conn.prepareStatement(sql); </span><br><span class="line">pstmt.setString(1, id); </span><br><span class="line">ResultSet rs=pstmt.executeUpdate(); </span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//不安全的，没进行预编译</span><br><span class="line">private String getNameByUserId(String userId) &#123;</span><br><span class="line">    Connection conn = getConn();//获得连接</span><br><span class="line">    String sql = &quot;select id,username,password,role from user where id=&quot; + id;</span><br><span class="line">    //当id参数为&quot;3;drop table user;&quot;时，执行的sql语句如下:</span><br><span class="line">    //select id,username,password,role from user where id=3; drop table user;  </span><br><span class="line">    PreparedStatement pstmt =  conn.prepareStatement(sql);</span><br><span class="line">    ResultSet rs=pstmt.executeUpdate();</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>【 <strong>结论</strong>：】</p>
 <table>
 <thead>
@@ -686,7 +686,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -708,7 +708,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -798,7 +798,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共53.6k字</span>
+  <span class="post-count">博客全站共80.7k字</span>
 </div>
 
         

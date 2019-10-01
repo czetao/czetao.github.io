@@ -410,9 +410,9 @@
       
 
       
-        <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (<span class="name">DESCRIPTION</span> =</span><br><span class="line">    (<span class="name">ADDRESS_LIST</span> =</span><br><span class="line">      (<span class="name">ADDRESS</span> = (<span class="name">PROTOCOL</span> = TCP)(<span class="name">HOST</span> = <span class="number">115.28</span>.**.**)(<span class="name">PORT</span> = <span class="number">1521</span>))</span><br><span class="line">    )</span><br><span class="line">    (<span class="name">CONNECT_DATA</span> =</span><br><span class="line">      (<span class="name">SERVICE_NAME</span> （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+        <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (DESCRIPTION =</span><br><span class="line">    (ADDRESS_LIST =</span><br><span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = 115.28.**.**)(PORT = 1521))</span><br><span class="line">    )</span><br><span class="line">    (CONNECT_DATA =</span><br><span class="line">      (SERVICE_NAME （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
 <p>nc63train/a</p>
-<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> [<span class="keyword">OR</span> <span class="keyword">REPLACE</span>] [&#123;<span class="keyword">FORCE</span>|NOFORCE&#125;] <span class="keyword">VIEW</span> view_name</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span>查询</span><br><span class="line">[<span class="keyword">WITH</span> <span class="keyword">READ</span> <span class="keyword">ONLY</span> <span class="keyword">CONSTRAINT</span>]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">or</span> <span class="keyword">REPLACE</span> <span class="keyword">view</span> p_rate</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">select</span> r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line"><span class="keyword">from</span> rate r,pro_user p <span class="keyword">where</span> r.userid=p.userid;</span><br></pre></td></tr></table></figure>
+<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE [OR REPLACE] [&#123;FORCE|NOFORCE&#125;] VIEW view_name</span><br><span class="line">AS</span><br><span class="line">SELECT查询</span><br><span class="line">[WITH READ ONLY CONSTRAINT]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line">create or REPLACE view p_rate</span><br><span class="line">AS</span><br><span class="line">select r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line">from rate r,pro_user p where r.userid=p.userid;</span><br></pre></td></tr></table></figure>
 <ol>
 <li>OR REPLACE：如果视图已经存在，则替换旧视图。</li>
 <li>FORCE：即使基表不存在，也可以创建该视图，但是该视图不能正常使用，当基表创建成功后，视图才能正常使用。</li>
@@ -541,7 +541,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -563,7 +563,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -653,7 +653,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共53.6k字</span>
+  <span class="post-count">博客全站共80.7k字</span>
 </div>
 
         

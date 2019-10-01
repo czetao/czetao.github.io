@@ -538,7 +538,7 @@
 <li>如何保证元素排序的呢?<br>自然排序<br>比较器排序<br>2.如何保证元素唯一性的呢?<h3 id="Map接口"><a href="#Map接口" class="headerlink" title="Map接口"></a>Map接口</h3><img src="https://img-blog.csdn.net/20180612135157564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt><h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2></li>
 <li>基本数据类型<br>包装类：包装类是对象，拥有方法和字段。 包装类型都是有重写equals方法<br>初始值不同，int是0，boolean是false,包装类初始值是null,在定义javabean时，通常使用包装类，为防止数据库中有null数据。更例如定义List中，数据具体类型也是用包装类。</li>
 <li>自动拆箱  包装类 ==》基本数据类型    int a = new Integer(100);    [-128,127]在这个范围内，会直接从缓存(堆中的常量池)中取。<br> 自动装箱       </li>
-<li>Double和BigDecimal<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">double d1 = <span class="number">2.0</span><span class="comment">;</span></span><br><span class="line">double d2 = <span class="number">1.1</span><span class="comment">;</span></span><br><span class="line"><span class="attribute">d1-d2</span> = <span class="number">0.89999999</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<li>Double和BigDecimal<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">double d1 = 2.0;</span><br><span class="line">double d2 = 1.1;</span><br><span class="line">d1-d2 = 0.89999999;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
 <p>实际运用中，在对金额的运算，通常使用的是BigDecimal。<br>bigdecimal的equals方法，还会对数据中的小数点进行比较。<br>通常使用compareTO方法比较大小。 {-1：小于，  0 ：等于，   1：大于}<br>为了防止精度丢失，构造方法BigDecimal(“String”)来定义bigdecimal对象，禁止直接使用double。</p>
@@ -679,7 +679,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -701,7 +701,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -791,7 +791,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共53.6k字</span>
+  <span class="post-count">博客全站共80.7k字</span>
 </div>
 
         

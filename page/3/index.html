@@ -281,6 +281,685 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/26/牛客java小结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/26/牛客java小结/" itemprop="url">牛客java小结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-26T14:16:39+08:00">
+                2019-07-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="零散知识"><a href="#零散知识" class="headerlink" title="零散知识"></a>零散知识</h2><p>存在继承的情况下，初始化顺序为：</p>
+<ul>
+<li>父类（静态变量，静态代码块）</li>
+<li>子类（静态变量，静态代码块）</li>
+<li>父类（实例变量，普通代码块）</li>
+<li>父类（构造函数）</li>
+<li>子类（实例变量，普通代码块）</li>
+<li>子类（构造函数）</li>
+</ul>
+<p>继承：在继承关系之中，如果要实例化子类对象，会默认先调用父类构造，为父类之中的属性初始化，之后再调用子类构造，为子类之中的属性初始化，即：默认情况下，子类会找到父类之中的无参构造方法。 </p>
+<h2 id="牛客java"><a href="#牛客java" class="headerlink" title="牛客java"></a>牛客java</h2><ol>
+<li>捕捉到异常时 ， 程序就会停止运行 ，抛出异常</li>
+<li>重载 ：仅返回值类型不同时， 不足以构成重载  。<br>重载的基本条件 </li>
+</ol>
+<ul>
+<li>参数类型不同</li>
+<li>参数次序不通过</li>
+<li>参数个数不同</li>
+</ul>
+<ol start="3">
+<li>重写 ： 函数名， 函数参数，返回值 应该相同</li>
+<li>true false null  sizeof 不是java的关键字 ， 但是也不能当成java标识符用<br>const  goto 是java的保留字（关键字） </li>
+<li>boolean 的默认值是false</li>
+<li>this() 和 super()  为构造方法，作用是在jvm 堆中构建出一个对象 。因此避免多次创建对象，同一个方法中只能调用一次this（ ） 和super() . 且必须在第一行实现，避免操作对象时，对象还未构建成功。</li>
+<li>实例一个内部类</li>
+<li>异常通常分为编译时异常， 运行异常 。编译时异常需要手动进行捕捉处理（文件不存在），运行时异常只有在编译器编译运行才会出现，不需要自己手动捕捉（空指针异常，溢出）</li>
+<li>对于外部类来说 ， 只有两种修饰，public 和默认（default ）</li>
+<li>A  instanceOf B ,是判断对象A 是否属于B 或B的子类，子类接口实现类，实现类的实例。 </li>
+<li>final 类型的变量一定要初始化 ， 因为final 的变量不可更改。</li>
+<li>java 类是单继承 ，java 接口可以多继承。</li>
+<li>static 方法只能使用 static 变量 ， 想使用非静态变量， 只能通过实例化对象 ，再通过对象引用</li>
+<li>堆区 ： 只存放类对象 ， 线程共享    类中的成员变量， 存放在堆区<br>  栈区 ： 存放局部变量，线程不共享<br>  方法区 ： 静态存储区， 存放class文件 和静态数据。线程共享</li>
+<li>静态语句块中变量为局部变量，不影响静态变量的值。</li>
+<li>权限登记 ：public &gt; protected&gt; default&gt; private</li>
+<li>在JDK1.7中，如果通过无参构造的话，初始数组容量为0（应该也是10），当真正对数组进行添加时，才真正分配容量。<br>每次按照1.5倍（位运算）的比率通过copeOf的方式扩容。<br>在JKD1.6中，如果通过无参构造的话，初始数组容量为10.每次通过copeOf的方式扩容后容量为原来的1.5倍加1.以上就是动态扩容的原理。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">jdk8</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">grow</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// overflow-conscious code</span></span><br><span class="line">        <span class="keyword">int</span> oldCapacity = elementData.length;</span><br><span class="line">        <span class="keyword">int</span> newCapacity = oldCapacity + (oldCapacity &gt;&gt; <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (newCapacity - minCapacity &lt; <span class="number">0</span>)</span><br><span class="line">            newCapacity = minCapacity;</span><br><span class="line">        <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>)</span><br><span class="line">            newCapacity = hugeCapacity(minCapacity);</span><br><span class="line">        <span class="comment">// minCapacity is usually close to size, so this is a win:</span></span><br><span class="line">        elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><a href="https://blog.csdn.net/legendaryhaha/article/details/83663554" target="_blank" rel="noopener">jdk1.8后 关于arrayList 初始化和扩容详解</a></p>
+<ol start="18">
+<li><p>public:具有最大访问权限。 可以被同一项目下的任何类所调用，一般用于对外的情况。<br>protected:与public不同的是不同包下的类是不能使用的，但是其子孙类除外。所以我认为这是特意为子类设计的。<br>default:它是针对本包设计的，它所修饰的在本包下的其他类都访问。<br>private:只为类本身提供。是一种封装的体现<br><img src="https://img-blog.csdnimg.cn/20190530083019499.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MjI3NDA3Mg==,size_16,color_FFFFFF,t_70" alt="四个关键字作用域"></p>
+</li>
+<li><p>A. 非抽象类继承抽象类，必须将抽象类中的方法重写，否则需将方法再次申明为抽象。所以这个方法还可再次声明为抽象，而不用重写。而用重载也错了，重载是在同一个类中，重写、覆盖才是在父子类中。<br>B.抽象类可以没有抽象方法，接口是完全的抽象，只能出现抽象方法。<br>C.抽象类无法实例化，无法创建对象。现实生活中也有抽象类的类子，比如说人类是一个抽象类，无法创建一个叫人类的对象，人继承人类来创建对象。况且抽象类中的抽象方法只有声明，没有主体，如果实例化了，又如何去实现调用呢？<br>D因为类是单继承的，类继承了一个抽象类以后，就不能再继承其他类了。</p>
+</li>
+<li>静态方法是属于类的，当实例化该类时，静态会被优先加载并且只加载一次，不受实例化new 的影响，只要是使用了类，都会加载静态类。<strong>静态块只会执行一次。</strong></li>
+<li>鲁棒性(Robust,即健壮性)<br>Java在编译和运行程序时，都要对可能出现的问题进行检查，以消除错误的产生。它提供自动垃圾收集来进行内存管理，防止程序员在管理内存时容易产生 的错误。通过集成的面向对象的例外处理机制，在编译时，Java揭示出可能出现但未被处理的例外，帮助程序员正确地进行选择以防止系统的崩溃。另外， Java在编译时还可捕获类型声明中的许多常见错误，防止动态运行时不匹配问题的出现。</li>
+<li>Java中定义String数组，有两种定义方式：String a[]和String[] a</li>
+<li>byte能表示的范围[-128,127]</li>
+<li>类的继承，自动向上转型</li>
+<li>在定义方法参数时，通常总是应该优先使用父类或接口<ul>
+<li>对应成list ， 不需要定义多个对象</li>
+</ul>
+</li>
+<li>类里面只有属性和方法。 </li>
+<li>%取余操作，只适用于整型</li>
+<li>如某个JAVA进程的JVM参数配置如下：<br>-Xms1G -Xmx2G -Xmn500M -XX:MaxPermSize=64M -XX:+UseConcMarkSweepGC -XX:SurvivorRatio=3,<br>请问eden区最终分配的大小是多少？<br>java -Xmx2G -Xms1G -Xmn500M -Xss128k<br>-Xmx2G：设置JVM最大可用内存为2G。<br>-Xms1G：设置JVM促使内存为1G。此值可以设置与-Xmx相同，以避免每次垃圾回收完成后JVM重新分配内存。<br>-Xmn500M：设置年轻代大小为2G。整个JVM内存大小=年轻代大小 + 年老代大小 + 持久代大小。<br>-XX:SurvivorRatio=3:新生代中又会划分为 Eden 区，from Survivor、to Survivor 区。<br>其中 Eden 和 Survivor 区的比例默认是 8:1:1，当然也支持参数调整 -XX:SurvivorRatio=3的话就是3:1:1。<br>故该题为500*（1/3）=300M.</li>
+<li>interface中合法方法定义?()<br>public void main(String [] args);<br>没有关键字static，可以当成普通方法。</li>
+<li>Iterator和 ListIterator主要区别<ol>
+<li>ListItertor有add()方法，可以向list中添加对象，而 iterator不能。</li>
+<li>ListIterator 和 Iterator都有 hashNext()和 next()方法，可以实现顺序向后遍历。但是ListIterator 有 hasPrevious()和previous()方法，可以实现逆向遍历。Iterator就不可以</li>
+<li>ListIterator 可以定位当前的索引位置，nextIndex() 和 previousIndex()可以实现。Iterator没有此功能。</li>
+<li>都可实现删除对象，但是ListIterator可以实现对象的修改，set()方法可以实现。Iterator仅能遍历，不能修改。因为ListIterator的这些功能，可以实现对LinkedList等list数据结构的操作。</li>
+</ol>
+</li>
+<li>为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间。<br>包的作用<ol>
+<li>把功能相似或相关的类或接口组织在同一个包中，方便类的查找和使用。</li>
+<li>如同文件夹一样，包也采用了树形目录的存储方式。同一个包中的类名字是不同的，不同的包中的类的名字是可以相同的，当同时调用两个不同包中相同类名的类时，应该加上包名加以区别。因此，包可以避免名字冲突。</li>
+<li>包也限定了访问权限，拥有包访问权限的类才能访问某个包中的类。<br>Java 使用包（package）这种机制是为了防止命名冲突，访问控制，提供搜索和定位类（class）、接口、枚举（enumerations）和注释（annotation）等。</li>
+</ol>
+</li>
+<li>Garbage Collection：当对象的所有引用都消失后，对象使用的内存将自动回收</li>
+<li><p>cho $$ 当前登录shell 的PID<br>echo $? 最后运行的命令的结束代码（返回值）即执行上一个指令的返回值 (显示最后命令的退出状态。0表示没有错误，其他任何值表明有错误)</p>
+</li>
+<li><p>接口中的属性在不提供修饰符修饰的情况下，会自动加上public static final<br>注意（在1.8的编译器下可试）：<br>（1）属性不能用private，protected,default 修饰，因为默认是public<br>（2）如果属性是基本数据类型，需要赋初始值，若是引用类型，也需要初始化，因为默认有final修饰，必须赋初始值；<br>（3）接口中常规的来说不能够定义方法体，所以无法通过get和set方法获取属性值，所以属性不属于对象，属于类（接口），因为默认使用static修饰。</p>
+</li>
+<li>start方法会开启一个新的线程执行run方法，所以start方法执行完，不代表run方法执行完，线程也不一定销毁！</li>
+<li>可以有方法名与类名相同的普通方法</li>
+<li><img src="https://uploadfiles.nowcoder.com/images/20190727/5227440_1564208997208_C0C78CE31C2575E39A0EE7AE31E20FB8" alt="各种排序的时间复杂度"></li>
+</ol>
+<ol>
+<li>“is”+100+5 在字符串后面的会自动转成字符串<br>在字符串前面的不会转成字符串<h3 id="真题总结"><a href="#真题总结" class="headerlink" title="真题总结"></a>真题总结</h3></li>
+<li>内部类的访问规则</li>
+</ol>
+<ul>
+<li>可以直接访问外部类的成员，包括私有</li>
+<li>外部类要想访问内部类成员，必须创建对象</li>
+</ul>
+<ol start="2">
+<li>父子类中方法执行顺序</li>
+</ol>
+<ul>
+<li>静态优先，普通代码块，构造随后</li>
+<li>无论静态还是构造，先父再子</li>
+</ul>
+<ol start="3">
+<li>序列化：将数据转为n个byte序列的过程，也就是将数据结构转换称为二进制数据流或者文本流的过程。把对象转换为字节序列的过程，序列化后的数据方便在网络上传输和在硬盘上存储。<br>反序列化：与序列化相反，是将二进制数据流或者文本流转换称为易于处理和阅读的数据结构的过程。这是java进程之间通信的方式。</li>
+<li>按照流是否直接与特定的地方（如磁盘、内存、设备等）相连，分为节点流和处理流两类。</li>
+</ol>
+<ul>
+<li>节点流：可以从或向一个特定的地方（节点）读写数据。如FileReader.</li>
+<li>处理流：是对一个已存在的流的连接和封装，通过所封装的流的功能调用实现数据读写。如BufferedReader.处理流的构造方法总是要带一个其他的流对象做参数。一个流对象经过其他流的多次包装，称为流的链接。</li>
+</ul>
+<ol start="5">
+<li>JAVA常用的节点流：</li>
+</ol>
+<ul>
+<li>文 件 FileInputStream FileOutputStrean FileReader FileWriter 文件进行处理的节点流。</li>
+<li>字符串 StringReader StringWriter 对字符串进行处理的节点流。</li>
+<li>数 组 ByteArrayInputStream ByteArrayOutputStreamCharArrayReader CharArrayWriter 对数组进行处理的节点流（对应的不再是文件，而是内存中的一个数组）。</li>
+<li>管 道 PipedInputStream PipedOutputStream PipedReaderPipedWriter对管道进行处理的节点流。<br>常用处理流（关闭处理流使用关闭里面的节点流）<br>缓冲流：BufferedInputStrean BufferedOutputStream BufferedReader BufferedWriter  增加缓冲功能，避免频繁读写硬盘。<br>转换流：InputStreamReader OutputStreamReader 实现字节流和字符流之间的转换。<br>数据流 DataInputStream DataOutputStream  等-提供将基础数据类型写入到文件中，或者读取出来流的关闭顺序<br>一般情况下是：先打开的后关闭，后打开的先关闭<br>另一种情况：看依赖关系，如果流a依赖流b，应该先关闭流a，再关闭流b。例如，处理流a依赖节点流b，应该先关闭处理流a，再关闭节点流b<br>可以只关闭处理流，不用关闭节点流。处理流关闭的时候，会调用其处理的节点流的关闭方法。</li>
+</ul>
+<ol start="6">
+<li>接口是更抽象的东西，属性默认是：public static final的，方法默认是public abstract的！</li>
+<li>XML中DTD,XSD的区别<br>DTD和XSD相比：DTD 是使用非 XML 语法编写的。<br>DTD 不可扩展,不支持命名空间,只提供非常有限的数据类型 。<br>DTD即文档类型定义，是一种XML约束模式语言，是XML文件的验证机制,属于XML文件组成的一部分。<br>XML Schema语言也就是XSD。XML Schema描述了XML文档的结构。 </li>
+<li>JAVA中使用DOM方法解析XML文件<br>XML现在已经成为一种通用的数据交换格式，平台的无关性使得很多场合都需要用到XML，DOM解析是将XML文件全部载入到内存，组装成一颗DOM树，然后通过节点以及节点之间的关系来解析XML文件。</li>
+</ol>
+<h2 id="多线程相关"><a href="#多线程相关" class="headerlink" title="多线程相关"></a>多线程相关</h2><ol>
+<li>调用run()，与调用start()的区别<br>直接调用run()方法，并没有创建线程，跟调用普通方法是一样的。创建一个线程，需要覆盖Thread类的run（）方法，然后调用Thread类的start（）方法启动。<h2 id="Java集合体系"><a href="#Java集合体系" class="headerlink" title="Java集合体系"></a>Java集合体系</h2><img src="https://img-blog.csdn.net/20180612094225630?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt><h3 id="Connection接口"><a href="#Connection接口" class="headerlink" title="Connection接口:"></a>Connection接口:</h3>— List 有序,可重复<br>ArrayList<br>优点: 底层数据结构是数组，查询快，增删慢。<br>缺点: 线程不安全，效率高<br>Vector<br>优点: 底层数据结构是数组，查询快，增删慢。<br>缺点: 线程安全，效率低<br>LinkedList<br>优点: 底层数据结构是链表，查询慢，增删快。<br>缺点: 线程不安全，效率高</li>
+</ol>
+<p>—Set 无序,唯一<br>HashSet<br>底层数据结构是哈希表。(无序,唯一)<br>如何来保证元素唯一性?<br>1.依赖两个方法：hashCode()和equals()<br>LinkedHashSet<br>底层数据结构是链表和哈希表。(FIFO插入有序,唯一)<br>1.由链表保证元素有序<br>2.由哈希表保证元素唯一<br>TreeSet<br>底层数据结构是红黑树。(唯一，有序)</p>
+<ol>
+<li>如何保证元素排序的呢?<br>自然排序<br>比较器排序<br>2.如何保证元素唯一性的呢?<h3 id="Map接口"><a href="#Map接口" class="headerlink" title="Map接口"></a>Map接口</h3><img src="https://img-blog.csdn.net/20180612135157564?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3poYW5ncXVuc2h1YWk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt><h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2></li>
+<li>基本数据类型<br>包装类：包装类是对象，拥有方法和字段。 包装类型都是有重写equals方法<br>初始值不同，int是0，boolean是false,包装类初始值是null,在定义javabean时，通常使用包装类，为防止数据库中有null数据。更例如定义List中，数据具体类型也是用包装类。</li>
+<li>自动拆箱  包装类 ==》基本数据类型    int a = new Integer(100);    [-128,127]在这个范围内，会直接从缓存(堆中的常量池)中取。<br> 自动装箱       </li>
+<li>Double和BigDecimal<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">double d1 = 2.0;</span><br><span class="line">double d2 = 1.1;</span><br><span class="line">d1-d2 = 0.89999999;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>实际运用中，在对金额的运算，通常使用的是BigDecimal。<br>bigdecimal的equals方法，还会对数据中的小数点进行比较。<br>通常使用compareTO方法比较大小。 {-1：小于，  0 ：等于，   1：大于}<br>为了防止精度丢失，构造方法BigDecimal(“String”)来定义bigdecimal对象，禁止直接使用double。</p>
+<h2 id="类设计（jdk8新特性，接口中可以有方法）"><a href="#类设计（jdk8新特性，接口中可以有方法）" class="headerlink" title="类设计（jdk8新特性，接口中可以有方法）"></a>类设计（jdk8新特性，接口中可以有方法）</h2><ol>
+<li>接口默认是public,所有方法在接口中不能有实现（java8开始接口可以有默认实现 允许在接口中定义static方法和default方法（带方法体））</li>
+<li>接口本身可以通过extends关键字扩展多个接口</li>
+<li>StringBuffer 和StringBuilder的区别 <ul>
+<li>可变性 源码没有用final修饰，是可变的，String是final char[] ,不可变</li>
+<li>线程安全性     StringBuilder非线程安全</li>
+<li>性能    </li>
+</ul>
+</li>
+<li>hashset 去重。HashSet<teacher> ，通过重写teacher实体类中的eqauls和hashcode方法，定义去重原理。对list中存放对象，需重写equals方法和</teacher></li>
+<li>list == null || list.size()==0</li>
+<li>Date日期转换成指定格式的字符串日期。<br>SimpleDataFormat是线程不安全的类，建议使用DateFormateUtils工具包<br>// 日期String转Date<br>DateUtils.parseDate(“2019-08-04”,”YYYY-MM-DD”)</li>
+</ol>
+<h2 id="代码规范"><a href="#代码规范" class="headerlink" title="代码规范"></a>代码规范</h2><ol>
+<li>可以抽离代码<br> 鼠标右击 》Refactor 》Extract </li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第四周/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/25/实习第四周/" itemprop="url">实习第四周</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:34:10+08:00">
+                2019-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/实习/" itemprop="url" rel="index">
+                    <span itemprop="name">实习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  162
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="遗漏点"><a href="#遗漏点" class="headerlink" title="遗漏点"></a>遗漏点</h3><ol>
+<li>jpa技术</li>
+<li>h2 database </li>
+<li>spring mvc <ul>
+<li>@PathVariable</li>
+<li>method = RequestMethod.GET</li>
+<li>@ResponseStatus(HttpStatus.OK)返回状态码</li>
+<li>@JsonIgnore<br>作用：在json序列化时将java bean中的一些属性忽略掉，序列化和反序列化都受影响。<br>使用方法：一般标记在属性或者方法上，返回的json数据即不包含该属性。</li>
+</ul>
+</li>
+<li>date parse()返回的是一个Date类型数据，format返回的是一个StringBuffer类型的数据</li>
+<li>普通web项目<br>右击项目，Project Structure -&gt; Artifacts -&gt; Output Layout，新建lib文件夹，将基于maven导入的jar包全部加进去，重新运行，顺利解决。</li>
+<li>github记得.gitnore</li>
+<li>eclipse加上get/set shift+alt+s</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第三周/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/25/实习第三周/" itemprop="url">实习第三周</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:54+08:00">
+                2019-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/实习/" itemprop="url" rel="index">
+                    <span itemprop="name">实习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  157
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>新增功能节点之后，给用户分配职责。</p>
+<p>使用用户账号登录后，查看功能节点。</p>
+<p>用户分配角色，分配职责。</p>
+<h2 id="参照设置-nc65sql"><a href="#参照设置-nc65sql" class="headerlink" title="参照设置 nc65sql"></a>参照设置 nc65sql</h2><p>insert into bd_refinfo (CODE, DR, ISNEEDPARA, ISSPECIALREF, LAYER, METADATANAMESPACE,<br>METADATATYPENAME, MODULENAME, NAME, PARA1, PARA2, PARA3, PK_COUNTRY, PK_INDUSTRY, PK_REFINFO, REFCLASS, REFPATH,<br> REFSYSTEM, REFTYPE, RESERV1, RESERV2, RESERV3, RESID, RESIDPATH, TS, WHEREPART)<br>values (‘TR1010020’, 0,  null, null, null, ‘uap’, ‘CustVo’, ‘uap’, ‘客户分类’, null, null, null, null, null,<br>‘0001Z0100000002TRAIN’, ‘’, ‘nc.ui.train.pub.ref.CustClassRefModel’, null, 2, null, null, null, ‘客户分类’, ‘ref’,<br>‘2019-05-29 13:44:08’, null);<br>参照注意点：<br>METADATATYPENAME：设置为空，对应的是实体的属性。</p>
+<h2 id="ORA-12541-数据库服务未监听服务"><a href="#ORA-12541-数据库服务未监听服务" class="headerlink" title="ORA-12541 数据库服务未监听服务"></a>ORA-12541 数据库服务未监听服务</h2><p>管理员启动监听服务 –》lsnrctl start</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第二周/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -405,9 +1084,9 @@
       
         
           
-            <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (<span class="name">DESCRIPTION</span> =</span><br><span class="line">    (<span class="name">ADDRESS_LIST</span> =</span><br><span class="line">      (<span class="name">ADDRESS</span> = (<span class="name">PROTOCOL</span> = TCP)(<span class="name">HOST</span> = <span class="number">115.28</span>.**.**)(<span class="name">PORT</span> = <span class="number">1521</span>))</span><br><span class="line">    )</span><br><span class="line">    (<span class="name">CONNECT_DATA</span> =</span><br><span class="line">      (<span class="name">SERVICE_NAME</span> （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+            <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (DESCRIPTION =</span><br><span class="line">    (ADDRESS_LIST =</span><br><span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = 115.28.**.**)(PORT = 1521))</span><br><span class="line">    )</span><br><span class="line">    (CONNECT_DATA =</span><br><span class="line">      (SERVICE_NAME （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
 <p>nc63train/a</p>
-<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> [<span class="keyword">OR</span> <span class="keyword">REPLACE</span>] [&#123;<span class="keyword">FORCE</span>|NOFORCE&#125;] <span class="keyword">VIEW</span> view_name</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span>查询</span><br><span class="line">[<span class="keyword">WITH</span> <span class="keyword">READ</span> <span class="keyword">ONLY</span> <span class="keyword">CONSTRAINT</span>]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">or</span> <span class="keyword">REPLACE</span> <span class="keyword">view</span> p_rate</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">select</span> r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line"><span class="keyword">from</span> rate r,pro_user p <span class="keyword">where</span> r.userid=p.userid;</span><br></pre></td></tr></table></figure>
+<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE [OR REPLACE] [&#123;FORCE|NOFORCE&#125;] VIEW view_name</span><br><span class="line">AS</span><br><span class="line">SELECT查询</span><br><span class="line">[WITH READ ONLY CONSTRAINT]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line">create or REPLACE view p_rate</span><br><span class="line">AS</span><br><span class="line">select r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line">from rate r,pro_user p where r.userid=p.userid;</span><br></pre></td></tr></table></figure>
 <ol>
 <li>OR REPLACE：如果视图已经存在，则替换旧视图。</li>
 <li>FORCE：即使基表不存在，也可以创建该视图，但是该视图不能正常使用，当基表创建成功后，视图才能正常使用。</li>
@@ -1300,7 +1979,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  479
+                  487
                 </span>
               
 
@@ -1365,7 +2044,7 @@
 <li>APACHE配置</li>
 </ul>
 </li>
-<li>带cookie的跨域<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">        url : '<span class="type">http</span>://remote.domain.com/corsrequest',</span><br><span class="line">        data : <span class="type">data</span>,</span><br><span class="line">        dataType: <span class="symbol">'json</span>',</span><br><span class="line">        <span class="keyword">type</span> <span class="type">: </span><span class="symbol">'POST</span>',</span><br><span class="line">        xhrFields: &#123;</span><br><span class="line">            withCredentials: <span class="literal">true</span></span><br><span class="line">        &#125;,</span><br><span class="line">        crossDomain: <span class="literal">true</span>,</span><br><span class="line">        contentType: <span class="string">"application/json"</span>,</span><br></pre></td></tr></table></figure>
+<li>带cookie的跨域<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">        url : &apos;http://remote.domain.com/corsrequest&apos;,</span><br><span class="line">        data : data,</span><br><span class="line">        dataType: &apos;json&apos;,</span><br><span class="line">        type : &apos;POST&apos;,</span><br><span class="line">        xhrFields: &#123;</span><br><span class="line">            withCredentials: true</span><br><span class="line">        &#125;,</span><br><span class="line">        crossDomain: true,</span><br><span class="line">        contentType: &quot;application/json&quot;,</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 <p>通过设置 withCredentials: true ，发送Ajax时，Request header中便会带上 Cookie 信息。通过设置document里添加cookie</p>
@@ -1557,553 +2236,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/01/java容器/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/01/java容器/" itemprop="url">java容器</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-01T13:40:42+08:00">
-                2019-07-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  203
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="数组与链表的适用场景"><a href="#数组与链表的适用场景" class="headerlink" title="数组与链表的适用场景"></a>数组与链表的适用场景</h3><h4 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h4><ul>
-<li>优点<br>具有快速查找特性。O(1)。</li>
-<li>缺点<br>在内存中地址是连续的，当需要扩容时，将会重新新建数组空间，拷贝旧数组的内容到新数组。<br>每当删除，新增时，需要移动数组内容的位置。时间复杂度为O(N)。空间利用率低。<br>适合多查，少增改<h4 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h4></li>
-<li>优点<br>数据在内存中并不是连续的，当需要增改时，只需要改变指针位置。<br>每一个结点都有一个指针域和数据域。</li>
-<li>缺点<br>遍历查找时麻烦，需要从头遍历查找。</li>
-</ul>
-<h3 id="容器主要包括-Collection-和-Map-两种，Collection-存储着对象的集合，而-Map-存储着键值对（两个对象）的映射表。"><a href="#容器主要包括-Collection-和-Map-两种，Collection-存储着对象的集合，而-Map-存储着键值对（两个对象）的映射表。" class="headerlink" title="容器主要包括 Collection 和 Map 两种，Collection 存储着对象的集合，而 Map 存储着键值对（两个对象）的映射表。"></a>容器主要包括 Collection 和 Map 两种，Collection 存储着对象的集合，而 Map 存储着键值对（两个对象）的映射表。</h3>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/18/mysql数据库/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/18/mysql数据库/" itemprop="url">mysql数据库</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-18T12:22:50+08:00">
-                2019-06-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  301
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h3><p>mysql数据库引擎属于插件式存储引擎，基于业务可在不同的表上使用合适的存储引擎。在mysql5.5后，默认是InnoDB存储引擎。<br>InnoDB：InnoDB是造成mysql灵活性的技术的直接产品。<br>      <strong>支持事务处理，支持外键，行锁，当需要频繁的更新，删除操作时选择此引擎。</strong><br>MyISAM:不支持事务，支持表锁。读多写少可使用，查询效率更好。</p>
-<p>更换存储引擎：    Alter  table XXX engine = InnoDB<br>由于存储引擎不同，索引的结构也会相对不同。<br>Myisam 的索引结构（非聚集索引）<br>InnoDB表 （聚集索引） :即存数据又存索引</p>
-<h3 id="索引—–最常见的慢查询优化方式"><a href="#索引—–最常见的慢查询优化方式" class="headerlink" title="索引—–最常见的慢查询优化方式"></a>索引—–最常见的慢查询优化方式</h3><pre><code>是一种优化查询的数据结构，mysql是基于B+树实现的，可以优化查询速度。
-</code></pre><p>建索引原则：<br>适合 ： 频繁作为where条件的字段。关联字段可以建索引，例如外键。 Order bt col, Group by col.<br>不适合 ： where条件中用不到的字段，频繁更新的字段 ，数据值分布比较均匀的不适合建索引，例如男女 ， 真假值 ，表的数据量少</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/18/复习小结/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/18/复习小结/" itemprop="url">复习小结</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-18T12:09:01+08:00">
-                2019-06-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/复习/" itemprop="url" rel="index">
-                    <span itemprop="name">复习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  178
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="学习网站"><a href="#学习网站" class="headerlink" title="学习网站"></a>学习网站</h3><p><a href="https://www.runoob.com/" target="_blank" rel="noopener">https://www.runoob.com/</a></p>
-<h3 id="bootstrap布局"><a href="#bootstrap布局" class="headerlink" title="bootstrap布局"></a>bootstrap布局</h3><p><a href="http://www.ibootstrap.cn" target="_blank" rel="noopener">http://www.ibootstrap.cn</a></p>
-<h3 id="牛客备战网站"><a href="#牛客备战网站" class="headerlink" title="牛客备战网站"></a>牛客备战网站</h3><p><a href="https://www.nowcoder.com/studypath/1" target="_blank" rel="noopener">https://www.nowcoder.com/studypath/1</a></p>
-<h3 id="整理复习-常忘小结"><a href="#整理复习-常忘小结" class="headerlink" title="整理复习 常忘小结"></a>整理复习 常忘小结</h3><p>（三门基本课程：数据结构，计算机网络，操作系统）</p>
-<h4 id="计算机网络"><a href="#计算机网络" class="headerlink" title="计算机网络"></a>计算机网络</h4><ul>
-<li>http协议   </li>
-<li>TCP三次握手，四次挥手</li>
-<li>TCP滑动窗口机制<h4 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h4></li>
-<li>常用命令</li>
-<li>文件权限控制<h4 id="mysql数据库"><a href="#mysql数据库" class="headerlink" title="mysql数据库"></a>mysql数据库</h4></li>
-<li>两个常用存储引擎</li>
-<li>数据库优化（sql优化，索引，水平垂直分表）<h4 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h4></li>
-<li>对象的创建</li>
-<li>垃圾回收<h4 id="java小结"><a href="#java小结" class="headerlink" title="java小结"></a>java小结</h4></li>
-<li>java集合类大纲（全盘掌握）</li>
-<li>基本数据类型对象的创建（spring,int）常忘</li>
-<li>知识点小结<h4 id="框架小结"><a href="#框架小结" class="headerlink" title="框架小结"></a>框架小结</h4></li>
-<li>对于IOC，AOP的理解</li>
-<li>spring MVC工作流程<h3 id="java"><a href="#java" class="headerlink" title="java"></a>java</h3></li>
-<li>java 容器</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2156,7 +2288,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2178,7 +2310,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2252,7 +2384,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共53.6k字</span>
+  <span class="post-count">博客全站共80.7k字</span>
 </div>
 
         
