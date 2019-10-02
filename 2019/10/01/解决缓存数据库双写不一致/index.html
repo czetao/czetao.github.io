@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="在讲双写不一致的时候，先将为什么会发生双写不一致。数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改 一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中 数据变更的程序完成了数据库的修改 完了，数据库和缓存中的数据不一样了。。。。 hash路由的算法，跟HashMap中的hash算法是一样的。 通过线程池 +内存队列+通过同个商品的ID路由到同一个队">
+<meta name="description" content="在讲双写不一致的时候，先将为什么会发生双写不一致。数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改 一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中 数据变更的程序完成了数据库的修改 完了，数据库和缓存中的数据不一样了。。。。 hash路由的算法，跟HashMap中的hash算法是一样的。      直接调用hashcode函数，求得的hash值">
 <meta name="keywords" content="项目">
 <meta property="og:type" content="article">
 <meta property="og:title" content="解决缓存数据库双写不一致">
 <meta property="og:url" content="http://yoursite.com/2019/10/01/解决缓存数据库双写不一致/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="在讲双写不一致的时候，先将为什么会发生双写不一致。数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改 一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中 数据变更的程序完成了数据库的修改 完了，数据库和缓存中的数据不一样了。。。。 hash路由的算法，跟HashMap中的hash算法是一样的。 通过线程池 +内存队列+通过同个商品的ID路由到同一个队">
+<meta property="og:description" content="在讲双写不一致的时候，先将为什么会发生双写不一致。数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改 一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中 数据变更的程序完成了数据库的修改 完了，数据库和缓存中的数据不一样了。。。。 hash路由的算法，跟HashMap中的hash算法是一样的。      直接调用hashcode函数，求得的hash值">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-01T17:08:47.182Z">
+<meta property="og:updated_time" content="2019-10-02T01:50:50.882Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解决缓存数据库双写不一致">
-<meta name="twitter:description" content="在讲双写不一致的时候，先将为什么会发生双写不一致。数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改 一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中 数据变更的程序完成了数据库的修改 完了，数据库和缓存中的数据不一样了。。。。 hash路由的算法，跟HashMap中的hash算法是一样的。 通过线程池 +内存队列+通过同个商品的ID路由到同一个队">
+<meta name="twitter:description" content="在讲双写不一致的时候，先将为什么会发生双写不一致。数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改 一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中 数据变更的程序完成了数据库的修改 完了，数据库和缓存中的数据不一样了。。。。 hash路由的算法，跟HashMap中的hash算法是一样的。      直接调用hashcode函数，求得的hash值">
 
 
 
@@ -392,7 +392,10 @@
 <p>一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中</p>
 <p>数据变更的程序完成了数据库的修改</p>
 <p>完了，数据库和缓存中的数据不一样了。。。。</p>
-<p><strong>hash路由的算法，跟HashMap中的hash算法是一样的。</strong></p>
+<p><strong>hash路由的算法，跟HashMap中的hash算法是一样的。</strong>    </p>
+<ul>
+<li>直接调用hashcode函数，求得的hash值过大，不适合拿来直接做下标，所以要通过将hash做一次扰动再跟已有的队列-1再取模。</li>
+</ul>
 <p>通过线程池 +内存队列+通过同个商品的ID路由到同一个队列中，将写请求，和读请求做到一个串行化的效果。只有当写请求完成之后，工作线程才会进行读请求的进行。</p>
 <p>更新请求：删除缓存，修改数据库</p>
 <p>读请求：读缓存，发现空，进入队列中等待，排到了则读数据库，并将数据写入缓存，返回数据</p>
@@ -630,7 +633,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-count">36</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -641,7 +644,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -742,7 +745,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共84.1k字</span>
+  <span class="post-count">博客全站共68.2k字</span>
 </div>
 
         
