@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="java创建对象有几种方式  使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student(); 使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：St">
+<meta name="description" content="java创建对象有几种方式 使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student(); 使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：Stud">
 <meta name="keywords" content="模拟练习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="模拟第一天">
 <meta property="og:url" content="http://yoursite.com/2019/10/02/模拟第一天/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="java创建对象有几种方式  使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student(); 使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：St">
+<meta property="og:description" content="java创建对象有几种方式 使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student(); 使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：Stud">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://img-blog.csdn.net/20180903125233171?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNDA0Mzk1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
-<meta property="og:updated_time" content="2019-10-02T06:23:14.614Z">
+<meta property="og:updated_time" content="2019-10-02T15:59:40.048Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="模拟第一天">
-<meta name="twitter:description" content="java创建对象有几种方式  使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student(); 使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：St">
+<meta name="twitter:description" content="java创建对象有几种方式 使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student(); 使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：Stud">
 <meta name="twitter:image" content="https://img-blog.csdn.net/20180903125233171?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNDA0Mzk1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70">
 
 
@@ -353,7 +353,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1k
+                  1.5k
                 </span>
               
 
@@ -369,7 +369,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  3
+                  5
                 </span>
               
             </div>
@@ -390,29 +390,29 @@
       
 
       
-        <ol>
-<li><p>java创建对象有几种方式</p>
-<ol>
+        <h2 id="java创建对象有几种方式"><a href="#java创建对象有几种方式" class="headerlink" title="java创建对象有几种方式"></a>java创建对象有几种方式</h2><ol>
 <li>使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student();</li>
 <li>使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：Student student2 = (Student)Class.forName(“根路径.Student”).newInstance();　或者：Student stu = Student.class.newInstance();</li>
 <li>使用Constructor类的newInstance方法：本方法和Class类的newInstance方法很像，java.lang.relect.Constructor类里也有一个newInstance方法可以创建对象。我们可以通过这个newInstance方法调用有参数的和私有的构造函数。如： Constructor<student> constructor = Student.class.getInstance(); Student stu = constructor.newInstance();　这两种newInstance的方法就是大家所说的反射，事实上Class的newInstance方法内部调用Constructor的newInstance方法。这也是众多框架Spring、Hibernate、Struts等使用后者的原因。</student></li>
 <li>使用Clone的方法：无论何时我们调用一个对象的clone方法，JVM就会创建一个新的对象，将前面的对象的内容全部拷贝进去，用clone方法创建对象并不会调用任何构造函数。要使用clone方法，我们必须先实现Cloneable接口并实现其定义的clone方法。如：Student stu2 = <student>stu.clone();这也是原型模式的应用。</student></li>
 <li>使用反序列化：当我们序列化和反序列化一个对象，JVM会给我们创建一个单独的对象，在反序列化时，JVM创建对象并不会调用任何构造函数。为了反序列化一个对象，我们需要让我们的类实现Serializable接口。如：ObjectInputStream in = new ObjectInputStream (new FileInputStream(“data.obj”)); Student stu3 = (Student)in.readObject();</li>
 </ol>
-</li>
-<li><p>浅拷贝与深拷贝的区别？怎么实现深拷贝</p>
-<p>浅拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，如果字段是值类型的，那么对该字段执行复制；如果该字段是引用类型的话，则复制引用但不复制引用的对象。因此，原始对象及其副本引用同一个对象。</p>
+<h2 id="浅拷贝与深拷贝的区别？怎么实现深拷贝"><a href="#浅拷贝与深拷贝的区别？怎么实现深拷贝" class="headerlink" title="浅拷贝与深拷贝的区别？怎么实现深拷贝"></a>浅拷贝与深拷贝的区别？怎么实现深拷贝</h2><p>浅拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，如果字段是值类型的，那么对该字段执行复制；如果该字段是引用类型的话，则复制引用但不复制引用的对象。因此，原始对象及其副本引用同一个对象。</p>
 <p>深拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，无论该字段是值类型的还是引用类型，都复制独立的一份。当你修改其中一个对象的任何内容时，都不会影响另一个对象的内容。</p>
 <p>使用clone方法的对象需要是实现cloneable接口</p>
-<p> ①、让每个引用类型属性内部都重写clone() 方法<br> ②、利用序列化<br> <a href="https://blog.csdn.net/baiye_xing/article/details/71788741" target="_blank" rel="noopener">https://blog.csdn.net/baiye_xing/article/details/71788741</a></p>
-</li>
-<li><p>SQL注入原理，mybatis怎么实现sql注入</p>
-</li>
-<li><p>threadlocal使用需要注意什么问题？<br><a href="https://blog.csdn.net/LHQJ1992/article/details/52451136" target="_blank" rel="noopener">https://blog.csdn.net/LHQJ1992/article/details/52451136</a><br><a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a><br><img src="https://img-blog.csdn.net/20180903125233171?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNDA0Mzk1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt></p>
-</li>
-</ol>
+<p> ①、让每个引用类型属性内部都重写clone() 方法<br>②、利用序列化<br><a href="https://blog.csdn.net/baiye_xing/article/details/71788741" target="_blank" rel="noopener">https://blog.csdn.net/baiye_xing/article/details/71788741</a></p>
+<h2 id="SQL注入原理，mybatis怎么实现sql注入"><a href="#SQL注入原理，mybatis怎么实现sql注入" class="headerlink" title="SQL注入原理，mybatis怎么实现sql注入"></a>SQL注入原理，mybatis怎么实现sql注入</h2><p><a href="https://czetao.github.io/2019/10/01/SQL注入/" target="_blank" rel="noopener">https://czetao.github.io/2019/10/01/SQL%E6%B3%A8%E5%85%A5/</a></p>
+<h2 id="threadlocal使用需要注意什么问题？"><a href="#threadlocal使用需要注意什么问题？" class="headerlink" title="threadlocal使用需要注意什么问题？"></a>threadlocal使用需要注意什么问题？</h2><p>threadlocal–&gt;threadlocalmap —&gt;Entry&lt;threadlocal,value&gt;</p>
+<p><a href="https://blog.csdn.net/LHQJ1992/article/details/52451136" target="_blank" rel="noopener">https://blog.csdn.net/LHQJ1992/article/details/52451136</a><br><a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a></p>
+<p><img src="https://img-blog.csdn.net/20180903125233171?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNDA0Mzk1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt></p>
 <p>ThreadLocal的实现是这样的：每个Thread 维护一个 ThreadLocalMap 映射表，这个映射表的 key 是 ThreadLocal实例本身，value 是真正需要存储的 Object。<br>也就是说 ThreadLocal 本身并不存储值，它只是作为一个 key 来让线程从 ThreadLocalMap 获取 value。<br>值得注意的是图中的虚线，表示 ThreadLocalMap 是使用 ThreadLocal 的弱引用作为 Key 的，弱引用的对象在 GC 时会被回收。</p>
 <p>ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -&gt; Thread -&gt; ThreaLocalMap -&gt; Entry -&gt; value永远无法回收，造成内存泄漏。<br>————————————————<br>版权声明：本文为CSDN博主「WangCw的夏天」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a></p>
+<h3 id="为何HashMap的数组长度一定是2的次幂？"><a href="#为何HashMap的数组长度一定是2的次幂？" class="headerlink" title="为何HashMap的数组长度一定是2的次幂？"></a>为何HashMap的数组长度一定是2的次幂？</h3><p>hashMap的数组长度一定保持2的次幂，比如16的二进制表示为 10000，那么length-1就是15，二进制为01111，同理扩容后的数组长度为32，二进制表示为100000，length-1为31，二进制表示为011111。从下图可以我们也能看到这样会保证低位全为1，而扩容后只有一位差异，也就是多出了最左位的1，这样在通过 h&amp;(length-1)的时候，只要h对应的最左边的那一个差异位为0，就能保证得到的新的数组索引和老数组索引一致(大大减少了之前已经散列良好的老数组的数据位置重新调换)，个人理解。</p>
+<p> 还有，数组长度保持2的次幂，length-1的低位都为1，会使得获得的数组索引index更加均匀，比如：</p>
+<p>　　我们看到，上面的&amp;运算，高位是不会对结果产生影响的（hash函数采用各种位运算可能也是为了使得低位更加散列），我们只关注低位bit，如果低位全部为1，那么对于h低位部分来说，任何一位的变化都会对结果产生影响，也就是说，要得到index=21这个存储位置，h的低位只有这一种组合。这也是数组长度设计为必须为2的次幂的原因。</p>
+<p><strong>当length-1时，低位都是111，可以保证key低位的唯一性</strong></p>
+<p>　　如果不是2的次幂，也就是低位不是全为1此时，要使得index=21，h的低位部分不再具有唯一性了，哈希冲突的几率会变的更大，同时，index对应的这个bit位无论如何不会等于1了，而对应的那些数组位置也就被白白浪费了。</p>
+<p><a href="https://www.cnblogs.com/chengxiao/p/6059914.html#t3" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6059914.html#t3</a></p>
 
       
     </div>
@@ -452,6 +452,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/02/zookeeper-kafka/" rel="prev" title="zookeeper+kafka+nginx">
+                zookeeper+kafka+nginx <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -503,8 +507,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -521,7 +534,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-count">39</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -566,6 +579,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#java创建对象有几种方式"><span class="nav-number">1.</span> <span class="nav-text">java创建对象有几种方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#浅拷贝与深拷贝的区别？怎么实现深拷贝"><span class="nav-number">2.</span> <span class="nav-text">浅拷贝与深拷贝的区别？怎么实现深拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL注入原理，mybatis怎么实现sql注入"><span class="nav-number">3.</span> <span class="nav-text">SQL注入原理，mybatis怎么实现sql注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#threadlocal使用需要注意什么问题？"><span class="nav-number">4.</span> <span class="nav-text">threadlocal使用需要注意什么问题？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为何HashMap的数组长度一定是2的次幂？"><span class="nav-number">4.1.</span> <span class="nav-text">为何HashMap的数组长度一定是2的次幂？</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -617,7 +646,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共68.2k字</span>
+  <span class="post-count">博客全站共72.1k字</span>
 </div>
 
         
