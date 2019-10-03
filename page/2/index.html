@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next gemini use-motion" lang="zh-Hans">
+<html class="theme-next pisces use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -93,7 +93,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
     fancybox: true,
@@ -267,6 +267,471 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/扩展/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/29/扩展/" itemprop="url">扩展</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-29T20:07:54+08:00">
+                2019-09-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="9-28"><a href="#9-28" class="headerlink" title="9.28"></a>9.28</h1><p>在订单详情部分实现多缓存处理</p>
+<p>redis 分布式缓存 +  tomcat 堆缓存 二级缓存架构</p>
+<h4 id="redis搭建方案"><a href="#redis搭建方案" class="headerlink" title="redis搭建方案"></a>redis搭建方案</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">redis持久化+备份方案+容灾方案+replication（主从+读写分离）+sentinal（哨兵集群，3个节点，高可用性）</span><br><span class="line"></span><br><span class="line">可以支撑的数据量在10G以内，可以支撑的写QPS在几万左右，可以支撑的读QPS可以上10万以上（随你的需求，水平扩容slave节点就可以），可用性在99.99%</span><br><span class="line">可以用公司里的一些已有的数据，导入进去，几百万，一千万，进去</span><br><span class="line"></span><br><span class="line">做各种压力测试，性能，redis-benchmark，并发，QPS，高可用的演练，每台机器最大能存储多少数据量，横向扩容支撑更多数据</span><br><span class="line"></span><br><span class="line">基于测试环境还有测试数据，做各种演练，去摸索一些最适合自己的一些细节的东西</span><br></pre></td></tr></table></figure>
+<p>如果页面的数据有变更，及时监听到，并且写入缓存中，提供高并发，高性能的访问</p>
+<p>前端请求，请求服务器，先从redis中拿，redis中没有，本地搭建ehcache没有，再调用商品服务，从数据库中拿</p>
+<p>企业级的大型缓存架构</p>
+<h3 id="保证数据库与缓存的双写一致性"><a href="#保证数据库与缓存的双写一致性" class="headerlink" title="保证数据库与缓存的双写一致性"></a>保证数据库与缓存的双写一致性</h3><h3 id="分布式缓存重建问题，使用分布式锁实现"><a href="#分布式缓存重建问题，使用分布式锁实现" class="headerlink" title="分布式缓存重建问题，使用分布式锁实现"></a>分布式缓存重建问题，使用分布式锁实现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">详细在文章关于zookeeper搭建分布式锁中</span><br></pre></td></tr></table></figure>
+<h4 id="服务本地堆缓存，避免数据库直接裸奔"><a href="#服务本地堆缓存，避免数据库直接裸奔" class="headerlink" title="服务本地堆缓存，避免数据库直接裸奔"></a>服务本地堆缓存，避免数据库直接裸奔</h4><p>因为之前跟大家提过，三级缓存，多级缓存，服务本地堆缓存 + redis分布式缓存 + nginx本地缓存组成的</p>
+<p>每一层缓存在高并发的场景下，都有其特殊的用途，需要综合利用多级的缓存，才能支撑住高并发场景下各种各样的特殊情况</p>
+<p>服务本地堆缓存，作用，预防redis层的彻底崩溃，作为缓存的最后一道防线，避免数据库直接裸奔</p>
+<p>服务本地堆缓存，我们用什么来做缓存，难道我们自己手写一个类或者程序去管理内存吗？？？java最流行的缓存的框架，ehcache</p>
+<p>所以我们也是用ehcache来做本地的堆缓存</p>
+<p>spring boot + ehcache整合起来，演示一下是怎么使用的</p>
+<p>spring boot整合ehcache</p>
+<p>（1）依赖</p>
+<dependency><br>  <groupid>org.springframework.boot</groupid><br>  <artifactid>spring-boot-starter-data-jpa</artifactid><br></dependency><br><dependency><br>  <groupid>org.springframework</groupid><br>  <artifactid>spring-context-support</artifactid><br></dependency><br><dependency><br>  <groupid>net.sf.ehcache</groupid><br>  <artifactid>ehcache</artifactid><br>  <version>2.8.3</version><br></dependency>
+
+<p>（2）缓存配置管理类</p>
+<p>@Configuration<br>@EnableCaching<br>public class CacheConfiguration {</p>
+<pre><code>@Bean
+public EhCacheManagerFactoryBean ehCacheManagerFactoryBean(){
+  EhCacheManagerFactoryBean cacheManagerFactoryBean = new EhCacheManagerFactoryBean();
+  cacheManagerFactoryBean.setConfigLocation(new ClassPathResource(&quot;ehcache.xml&quot;));
+  cacheManagerFactoryBean.setShared(true);
+  return cacheManagerFactoryBean;
+}
+
+@Bean
+public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
+  return new EhCacheCacheManager(bean.getObject());
+}
+</code></pre><p>}</p>
+<p>（3）ehcache.xml</p>
+<p>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;</p>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nonamespaceschemalocation="http://ehcache.org/ehcache.xsd" updatecheck="false"><br><br>    <diskstore path="java.io.tmpdir/Tmp_EhCache"><br><br>    <defaultcache eternal="false" maxelementsinmemory="1000" overflowtodisk="false" diskpersistent="false" timetoidleseconds="0" timetoliveseconds="0" memorystoreevictionpolicy="LRU"><br><br>    <cache name="local" eternal="false" maxelementsinmemory="1000" overflowtodisk="false" diskpersistent="false" timetoidleseconds="0" timetoliveseconds="0" memorystoreevictionpolicy="LRU"><br><br></cache></defaultcache></diskstore></ehcache>
+
+<p>（4）CacheService</p>
+<p>@Service(“cacheService”)<br>public class CacheServiceImpl implements CacheService {</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String CACHE_NAME = <span class="string">"local"</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Cacheable</span>(value = CACHE_NAME, key = <span class="string">"'key_'+#id"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ProductInfo <span class="title">findById</span><span class="params">(Long id)</span></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="meta">@CachePut</span>(value = CACHE_NAME, key = <span class="string">"'key_'+#productInfo.getId()"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ProductInfo <span class="title">saveProductInfo</span><span class="params">(ProductInfo productInfo)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> productInfo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>}</p>
+<p>（5）写一个Controller测试一下ehcache的整合</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CacheTestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Resource</span></span><br><span class="line">  <span class="keyword">private</span> CacheService cacheService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/testPutCache"</span>)</span><br><span class="line">  <span class="meta">@ResponseBody</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPutCache</span><span class="params">(ProductInfo productInfo)</span> </span>&#123;</span><br><span class="line">    System.out.println(productInfo.getId() + <span class="string">":"</span> + productInfo.getName());  </span><br><span class="line">    cacheService.saveProductInfo(productInfo);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/testGetCache"</span>)</span><br><span class="line">  <span class="meta">@ResponseBody</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> ProductInfo <span class="title">testGetCache</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line">    ProductInfo productInfo = cacheService.findById(id);</span><br><span class="line">    System.out.println(productInfo.getId() + <span class="string">":"</span> + productInfo.getName()); </span><br><span class="line">    <span class="keyword">return</span> productInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ehcache已经整合进了我们的系统，spring boot</p>
+<p>封装好了对ehcache本地缓存进行添加和获取的方法和service</p>
+<p>小程序写入操作，防止并发中，HashMap的使用，改成使用ConcurrentHashMap</p>
+<h1 id="10-1"><a href="#10-1" class="headerlink" title="10.1"></a>10.1</h1><h3 id="商品详情页的多级缓存架构"><a href="#商品详情页的多级缓存架构" class="headerlink" title="商品详情页的多级缓存架构"></a>商品详情页的多级缓存架构</h3><p>我们之前的三十讲，主要是在讲解redis如何支撑海量数据、高并发读写、高可用服务的架构，redis架构</p>
+<p>redis架构，在我们的真正类似商品详情页读高并发的系统中，redis就是底层的缓存存储的支持</p>
+<p>从这一讲开始，我们正式开始做业务系统的开发</p>
+<p>亿级流量以上的电商网站的商品详情页的系统，商品详情页系统，大量的业务，十几个人做一两年，堆出来复杂的业务系统</p>
+<p>几十个小时的课程，讲解复杂的业务</p>
+<p>把整体的架构给大家讲解清楚，然后浓缩和精炼里面的业务，提取部分业务，做一些简化，把整个详情页系统的流程跑出来</p>
+<p>架构，骨架，有少量的业务，血和肉，把整个项目串起来，在业务背景下，去学习架构</p>
+<p>讲解商品详情页系统，缓存架构，90%大量的业务代码（没有什么技术含量），10%的最优技术含量的就是架构，上亿流量，每秒QPS几万，上十万的，读并发</p>
+<p>读并发，缓存架构</p>
+<p>1、上亿流量的商品详情页系统的多级缓存架构</p>
+<p>很多人以为，做个缓存，其实就是用一下redis，访问一下，就可以了，简单的缓存</p>
+<p>做复杂的缓存，支撑电商复杂的场景下的高并发的缓存，遇到的问题，非常非常之多，绝对不是说简单的访问一下redsi就可以了</p>
+<p>采用三级缓存：nginx本地缓存+redis分布式缓存+tomcat堆缓存的多级缓存架构</p>
+<p>时效性要求非常高的数据：库存</p>
+<p>一般来说，显示的库存，都是时效性要求会相对高一些，因为随着商品的不断的交易，库存会不断的变化</p>
+<p>当然，我们就希望当库存变化的时候，尽可能更快将库存显示到页面上去，而不是说等了很长时间，库存才反应到页面上去</p>
+<p>时效性要求不高的数据：商品的基本信息（名称、颜色、版本、规格参数，等等）</p>
+<p>时效性要求不高的数据，就还好，比如说你现在改变了商品的名称，稍微晚个几分钟反应到商品页面上，也还能接受</p>
+<p>商品价格/库存等时效性要求高的数据，而且种类较少，采取相关的服务系统每次发生了变更的时候，直接采取数据库和redis缓存双写的方案，这样缓存的时效性最高</p>
+<p>商品基本信息等时效性不高的数据，而且种类繁多，来自多种不同的系统，采取MQ异步通知的方式，写一个数据生产服务，监听MQ消息，然后异步拉取服务的数据，更新tomcat jvm缓存+redis缓存</p>
+<p>nginx+lua脚本做页面动态生成的工作，每次请求过来，优先从nginx本地缓存中提取各种数据，结合页面模板，生成需要的页面</p>
+<p>如果nginx本地缓存过期了，那么就从nginx到redis中去拉取数据，更新到nginx本地</p>
+<p>如果redis中也被LRU算法清理掉了，那么就从nginx走http接口到后端的服务中拉取数据，数据生产服务中，现在本地tomcat里的jvm堆缓存中找，ehcache，如果也被LRU清理掉了，那么就重新发送请求到源头的服务中去拉取数据，然后再次更新tomcat堆内存缓存+redis缓存，并返回数据给nginx，nginx缓存到本地</p>
+<p>2、多级缓存架构中每一层的意义</p>
+<p>nginx本地缓存，抗的是热数据的高并发访问，一般来说，商品的购买总是有热点的，比如每天购买iphone、nike、海尔等知名品牌的东西的人，总是比较多的</p>
+<p>这些热数据，利用nginx本地缓存，由于经常被访问，所以可以被锁定在nginx的本地缓存内</p>
+<p>大量的热数据的访问，就是经常会访问的那些数据，就会被保留在nginx本地缓存内，那么对这些热数据的大量访问，就直接走nginx就可以了</p>
+<p>那么大量的访问，直接就可以走到nginx就行了，不需要走后续的各种网络开销了</p>
+<p>redis分布式大规模缓存，抗的是很高的离散访问，支撑海量的数据，高并发的访问，高可用的服务</p>
+<p>redis缓存最大量的数据，最完整的数据和缓存，1T+数据; 支撑高并发的访问，QPS最高到几十万; 可用性，非常好，提供非常稳定的服务</p>
+<p>nginx本地内存有限，也就能cache住部分热数据，除了各种iphone、nike等热数据，其他相对不那么热的数据，可能流量会经常走到redis那里</p>
+<p>利用redis cluster的多master写入，横向扩容，1T+以上海量数据支持，几十万的读写QPS，99.99%高可用性，那么就可以抗住大量的离散访问请求</p>
+<p>tomcat jvm堆内存缓存，主要是抗redis大规模灾难的，如果redis出现了大规模的宕机，导致nginx大量流量直接涌入数据生产服务，那么最后的tomcat堆内存缓存至少可以再抗一下，不至于让数据库直接裸奔</p>
+<p>同时tomcat jvm堆内存缓存，也可以抗住redis没有cache住的最后那少量的部分缓存</p>
+<h3 id="Cache-Aside-Pattern缓存-数据库读写模式的分析"><a href="#Cache-Aside-Pattern缓存-数据库读写模式的分析" class="headerlink" title="Cache Aside Pattern缓存 + 数据库读写模式的分析"></a>Cache Aside Pattern缓存 + 数据库读写模式的分析</h3><p>最经典的缓存+数据库读写的模式，cache aside pattern</p>
+<p>1、Cache Aside Pattern</p>
+<p>（1）读的时候，先读缓存，缓存没有的话，那么就读数据库，然后取出数据后放入缓存，同时返回响应</p>
+<p>（2）更新的时候，先删除缓存，然后再更新数据库</p>
+<p>2、为什么是删除缓存，而不是更新缓存呢？</p>
+<p>原因很简单，很多时候，复杂点的缓存的场景，因为缓存有的时候，不简单是数据库中直接取出来的值</p>
+<p>商品详情页的系统，修改库存，只是修改了某个表的某些字段，但是要真正把这个影响的最终的库存计算出来，可能还需要从其他表查询一些数据，然后进行一些复杂的运算，才能最终计算出</p>
+<p>现在最新的库存是多少，然后才能将库存更新到缓存中去</p>
+<p>比如可能更新了某个表的一个字段，然后其对应的缓存，是需要查询另外两个表的数据，并进行运算，才能计算出缓存最新的值的</p>
+<p>更新缓存的代价是很高的</p>
+<p>是不是说，每次修改数据库的时候，都一定要将其对应的缓存去跟新一份？也许有的场景是这样的，但是对于比较复杂的缓存数据计算的场景，就不是这样了</p>
+<p>如果你频繁修改一个缓存涉及的多个表，那么这个缓存会被频繁的更新，频繁的更新缓存</p>
+<p>但是问题在于，这个缓存到底会不会被频繁访问到？？？</p>
+<p>举个例子，一个缓存涉及的表的字段，在1分钟内就修改了20次，或者是100次，那么缓存跟新20次，100次; 但是这个缓存在1分钟内就被读取了1次，有大量的冷数据</p>
+<p>28法则，黄金法则，20%的数据，占用了80%的访问量</p>
+<p>实际上，如果你只是删除缓存的话，那么1分钟内，这个缓存不过就重新计算一次而已，开销大幅度降低</p>
+<p>每次数据过来，就只是删除缓存，然后修改数据库，如果这个缓存，在1分钟内只是被访问了1次，那么只有那1次，缓存是要被重新计算的，用缓存才去算缓存</p>
+<p>其实删除缓存，而不是更新缓存，就是一个lazy计算的思想，不要每次都重新做复杂的计算，不管它会不会用到，而是让它到需要被使用的时候再重新计算</p>
+<p>mybatis，hibernate，懒加载，思想</p>
+<p>查询一个部门，部门带了一个员工的list，没有必要说每次查询部门，都里面的1000个员工的数据也同时查出来啊</p>
+<p>80%的情况，查这个部门，就只是要访问这个部门的信息就可以了</p>
+<p>先查部门，同时要访问里面的员工，那么这个时候只有在你要访问里面的员工的时候，才会去数据库里面查询1000个员工</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/28/网络零散知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/28/网络零散知识/" itemprop="url">网络零散知识</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-28T09:57:00+08:00">
+                2019-09-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机网络</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h2><p>（1）TCP是面向连接的，udp是无连接的即发送数据前不需要先建立链接。</p>
+<p>（2）TCP提供可靠的服务。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付，即不保证可靠交付。 并且因为tcp可靠，面向连接，不会丢失数据因此适合大数据量的交换。</p>
+<p>（3）TCP是面向字节流，UDP面向报文，并且网络出现拥塞不会使得发送速率降低（因此会出现丢包，对实时的应用比如IP电话和视频会议等）。</p>
+<p>（4）TCP只能是1对1的，UDP支持1对1,1对多。</p>
+<p>（5）TCP的首部较大为20字节，而UDP只有8字节。</p>
+<p>（6）TCP是面向连接的可靠性传输，而UDP是不可靠的。</p>
+<ul>
+<li>基于TCP的应用层协议有：POP3、SMTP（简单邮件传输协议）、TELNET（远程登陆协议）、HTTP（超文本传输协议）、HTTPS（超文本传输安全协议）、FTP（文件传输协议）</li>
+<li>基于UDP的应用层协议：TFTP（简单文件传输协议）、RIP（路由信息协议）、DHCP（动态主机设置协议）、BOOTP（引导程序协议，DHCP的前身）、IGMP（Internet组管理协议）</li>
+<li>基于TCP和UDP协议：DNS（域名系统）、ECHO（回绕协议）</li>
+</ul>
+<p>以下内容来自：公众号 前端指南，作者 前端指南</p>
+<h2 id="简述-http-1-1-与-http-1-0-的区别"><a href="#简述-http-1-1-与-http-1-0-的区别" class="headerlink" title="简述 http 1.1 与 http 1.0 的区别"></a>简述 http 1.1 与 http 1.0 的区别</h2><ul>
+<li>http 1.0 对于每个连接都得建立一次连接, 一次只能传送一个请求和响应, 请求就会关闭, http1.0 没有 Host 字段</li>
+<li>而 http1.1 在同一个连接中可以传送多个请求和响应, 多个请求可以重叠和同时进行, http1.1 必须有 host 字段</li>
+<li>http1.1 中引入了 ETag 头, 它的值 entity tag 可以用来唯一的描述一个资源. 请求消息中可以使用 If-None-Match 头域来匹配资源的 entitytag 是否有变化</li>
+<li>http1.1 新增了 Cache-Control 头域(消息请求和响应请求都可以使用), 它支持一个可扩展的指令子集</li>
+<li>http1.0 中只定义了 16 个状态响应码, 对错误或警告的提示不够具体. http1.1 引入了一个 Warning 头域, 增加对错误或警告信息的描述. 且新增了 24 个状态响应码</li>
+</ul>
+<h2 id="从输入-URL-到页面加载发生了什么-必考"><a href="#从输入-URL-到页面加载发生了什么-必考" class="headerlink" title="从输入 URL 到页面加载发生了什么[必考]"></a>从输入 URL 到页面加载发生了什么[必考]</h2><p>总体来说分为以下几个过程:</p>
+<ul>
+<li>DNS 解析</li>
+<li>TCP 连接</li>
+<li>发送 HTTP 请求</li>
+<li>服务器处理请求并返回 HTTP 报文</li>
+<li>浏览器解析渲染页面</li>
+<li>连接结束</li>
+</ul>
+<h2 id="Socket-连接与-HTTP-连接的联系与区别"><a href="#Socket-连接与-HTTP-连接的联系与区别" class="headerlink" title="Socket 连接与 HTTP 连接的联系与区别"></a>Socket 连接与 HTTP 连接的联系与区别</h2><p>由于通常情况下 Socket 连接就是 TCP 连接，因此 Socket 连接一旦建立，通信双方即可开始相互发送数据内容，直到双方连接断开。但在实际网络应用中，客户端到服务器之间的通信往往需要穿越多个中间节点，例如路由器、网关、防火墙等，大部分防火墙默认会关闭长时间处于非活跃状态的连接而导致 Socket 连接断连，因此需要通过轮询告诉网络，该连接处于活跃状态。</p>
+<p>而 HTTP 连接使用的是“请求—响应”的方式，不仅在请求时需要先建立连接，而且需要客户端向服务器发出请求后，服务器端才能回复数据。</p>
+<p>很多情况下，需要服务器端主动向客户端推送数据，保持客户端与服务器数据的实时与同步。此时若双方建立的是 Socket 连接，服务器就可以直接将数据传送给客户端;若双方建立的是 HTTP 连接，则服务器需要等到客户端发送一次请求后才能将数据传回给客户端，因此，客户端定时向服务器端发送连接请求，不仅可以保持在线，同时也是在“询问”服务器是否有新的数据，如果有就将数据传给客户端。</p>
+<h2 id="Http2-0-与-http1-x-相比有什么优点-常考"><a href="#Http2-0-与-http1-x-相比有什么优点-常考" class="headerlink" title="Http2.0 与 http1.x 相比有什么优点(常考)"></a>Http2.0 与 http1.x 相比有什么优点(常考)</h2><ul>
+<li>二进制格式:http1.x 是文本协议，而 http2.0 是二进制以帧为基本单位，是一个二进制协议，一帧中除了包含数据外同时还包含该帧的标识：Stream Identifier，即标识了该帧属于哪个 request,使得网络传输变得十分灵活。</li>
+<li>多路复用: 一个很大的改进，原先 http1.x 一个连接一个请求的情况有比较大的局限性，也引发了很多问题，如建立多个连接的消耗以及效率问题。</li>
+<li><ul>
+<li>http1.x 为了解决效率问题，可能会尽量多的发起并发的请求去加载资源，然而浏览器对于同一域名下的并发请求有限制，而优化的手段一般是将请求的资源放到不同的域名下来突破这种限制。</li>
+<li>而 http2.0 支持的多路复用可以很好的解决这个问题，多个请求共用一个 TCP 连接，多个请求可以同时在这个 TCP 连接上并发，一个是解决了建立多个 TCP 连接的消耗问题，一个也解决了效率的问题。那么是什么原理支撑多个请求可以在一个 TCP 连接上并发呢？基本原理就是上面的二进制分帧，因为每一帧都有一个身份标识，所以多个请求的不同帧可以并发的无序发送出去，在服务端会根据每一帧的身份标识，将其整理到对应的 request 中。</li>
+</ul>
+</li>
+<li>header 头部压缩:主要是通过压缩 header 来减少请求的大小，减少流量消耗，提高效率。因为之前存在一个问题是，每次请求都要带上 header，而这个 header 中的数据通常是一层不变的。</li>
+<li>支持服务端推送</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -1957,375 +2422,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/react框架/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/09/react框架/" itemprop="url">react框架</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-09T09:42:15+08:00">
-                2019-08-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/前端/" itemprop="url" rel="index">
-                    <span itemprop="name">前端</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  53
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="通过react脚手架创建项目"><a href="#通过react脚手架创建项目" class="headerlink" title="通过react脚手架创建项目"></a>通过react脚手架创建项目</h3><p>create-react-app [项目名]</p>
-<h3 id="启动脚手架"><a href="#启动脚手架" class="headerlink" title="启动脚手架"></a>启动脚手架</h3><p>npm start<br>打包生产环境<br>npm run build</p>
-<h3 id="JSX"><a href="#JSX" class="headerlink" title="JSX"></a>JSX</h3><p>JSX本身也是一种表达式</p>
-<h3 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h3><ul>
-<li>组件是可以复用的UI元素</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/08/前端学习网站/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/08/前端学习网站/" itemprop="url">前端学习网站</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-08T20:38:26+08:00">
-                2019-08-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/前端/" itemprop="url" rel="index">
-                    <span itemprop="name">前端</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  410
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>React官方文档 <a href="https://reactjs.org/" target="_blank" rel="noopener">https://reactjs.org/</a><br>ECMAScript 6入门 <a href="http://es6.ruanyifeng.com/" target="_blank" rel="noopener">http://es6.ruanyifeng.com/</a><br>（特别是解构赋值、箭头函数和 Class）<br>MDN - JavaScript <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript</a><br>（JS基础语法）<br>MDN - Array.prototype.map() <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" target="_blank" rel="noopener">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map</a><br>（数组map方法）</p>
-<h2 id="ES6入门"><a href="#ES6入门" class="headerlink" title="ES6入门"></a>ES6入门</h2><h2 id="javaScript"><a href="#javaScript" class="headerlink" title="javaScript"></a>javaScript</h2><ol>
-<li>JavaScript里一切皆对象，一切皆可储存在变量里。 let 声明变量。</li>
-<li>浏览器出现Cannot set property ‘onclick’ of null的问题<br>浏览器先加载玩按钮节点才执行的js ,所以当浏览器自顶向下解析时，找不到onclick绑定的按钮节点。因此，需要把js文件放在底部加载，就会避免该问题</li>
-<li><p>ES6 中let 命令，用来声明变量，所声明的变量，只在let命令所在的代码块中有效。<br>var命令声明的，在全局范围内都有效</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> for (let i = 0; i &lt; 3; i++) &#123;</span><br><span class="line">  let i = &apos;abc&apos;;</span><br><span class="line">  console.log(i);</span><br><span class="line">&#125;</span><br><span class="line">// abc</span><br><span class="line">// abc</span><br><span class="line">// abc</span><br></pre></td></tr></table></figure>
-<p>上面代码正确运行，输出了 3 次abc。let 命令在for循环中，函数内部变量的i,与循环变量i不在同一个作用域。</p>
-</li>
-<li><p>变量的结构赋值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">let [foo, [[bar], baz]] = [1, [[2], 3]];</span><br><span class="line">foo // 1</span><br><span class="line">bar // 2</span><br><span class="line">baz // 3</span><br><span class="line"></span><br><span class="line">let [ , , third] = [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;];</span><br><span class="line">third // &quot;baz&quot;</span><br><span class="line"></span><br><span class="line">let [x, , y] = [1, 2, 3];</span><br><span class="line">x // 1</span><br><span class="line">y // 3</span><br><span class="line"></span><br><span class="line">let [head, ...tail] = [1, 2, 3, 4];</span><br><span class="line">head // 1</span><br><span class="line">tail // [2, 3, 4]</span><br><span class="line"></span><br><span class="line">let [x, y, ...z] = [&apos;a&apos;];</span><br><span class="line">x // &quot;a&quot;</span><br><span class="line">y // undefined</span><br><span class="line">z // []</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>解构失败例子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let [foo] = [];</span><br><span class="line">let [bar, foo] = [1];</span><br></pre></td></tr></table></figure></p>
-<p> 等号左边的模式，只匹配一部分的等号右边的数组。这种情况下，解构依然可以成功。<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> let [x, y] = [1, 2, 3];</span><br><span class="line">x // 1</span><br><span class="line">y // 2</span><br><span class="line"></span><br><span class="line">let [a, [b], d] = [1, [2, 3], 4];</span><br><span class="line">a // 1</span><br><span class="line">b // 2</span><br><span class="line">d // 4</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2373,7 +2474,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">39</span>
+                  <span class="site-state-item-count">41</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2458,7 +2559,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -2469,7 +2570,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共72.1k字</span>
+  <span class="post-count">博客全站共75.2k字</span>
 </div>
 
         

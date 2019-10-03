@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next gemini use-motion" lang="zh-Hans">
+<html class="theme-next pisces use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -93,7 +93,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
     fancybox: true,
@@ -281,6 +281,359 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/03/缓存雪崩解决方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/03/缓存雪崩解决方案/" itemprop="url">缓存雪崩解决方案</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-03T11:36:38+08:00">
+                2019-10-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  681
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p> 相对来说，考虑的比较完善的一套方案，分为事前，事中，事后三个层次去思考怎么来应对缓存雪崩的场景</p>
+<p>1、事前解决方案</p>
+<p>发生缓存雪崩之前，事情之前，怎么去避免redis彻底挂掉</p>
+<p>redis本身的高可用性，复制，主从架构，操作主节点，读写，数据同步到从节点，一旦主节点挂掉，从节点跟上</p>
+<p>双机房部署，一套redis cluster，部分机器在一个机房，另一部分机器在另外一个机房</p>
+<p>还有一种部署方式，两套redis cluster，两套redis cluster之间做一个数据的同步，redis集群是可以搭建成树状的结构的</p>
+<p>一旦说单个机房出了故障，至少说另外一个机房还能有些redis实例提供服务</p>
+<p>2、事中解决方案</p>
+<p>redis cluster已经彻底崩溃了，已经开始大量的访问无法访问到redis了</p>
+<p>（1）ehcache本地缓存</p>
+<p>所做的多级缓存架构的作用上了，ehcache的缓存，应对零散的redis中数据被清除掉的现象，另外一个主要是预防redis彻底崩溃</p>
+<p>多台机器上部署的缓存服务实例的内存中，还有一套ehcache的缓存</p>
+<p>ehcache的缓存还能支撑一阵</p>
+<p>（2）对redis访问的资源隔离</p>
+<p>（3）对源服务访问的限流以及资源隔离</p>
+<p>3、事后解决方案</p>
+<p>（1）redis数据可以恢复，做了备份，redis数据备份和恢复，redis重新启动起来</p>
+<p>（2）redis数据彻底丢失了，或者数据过旧，快速缓存预热，redis重新启动起来</p>
+<p>redis对外提供服务</p>
+<p>缓存服务里，熔断策略，自动可以恢复，half-open，发现redis可以访问了，自动恢复了，自动就继续去访问redis了</p>
+<p>基于hystrix的高可用服务这块技术之后，先讲解缓存服务如何设计成高可用的架构</p>
+<p>缓存架构应对高并发下的缓存雪崩的解决方案，基于hystrix去做缓存服务的保护</p>
+<p>要带着大家去实现的有什么东西？事前和事后不用了吧</p>
+<p>事中，ehcache本身也做好了</p>
+<p>基于hystrix对redis的访问进行保护，对源服务的访问进行保护，讲解hystrix的时候，也说过对源服务的访问怎么怎么进行这种高可用的保护</p>
+<p>但是站的角度不同，源服务如果自己本身不知道什么原因出了故障，我们怎么去保护，调用商品服务的接口大量的报错、超时</p>
+<p>限流，资源隔离，降级</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/03/线程池学习及优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/03/线程池学习及优化/" itemprop="url">线程池学习及优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-03T10:51:47+08:00">
+                2019-10-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="多线程并发"><a href="#多线程并发" class="headerlink" title="多线程并发"></a>多线程并发</h3><p>生产环境里面，一个是线程池的大小怎么设置，timeout时长怎么</p>
+<p>不合理的话，问题还是很大的</p>
+<p>在生产环境中部署一个短路器，一开始需要将一些关键配置设置的大一些，比如timeout超时时长，线程池大小，或信号量容量</p>
+<p>然后逐渐优化这些配置，直到在一个生产系统中运作良好</p>
+<p>（1）一开始先不要设置timeout超时时长，默认就是1000ms，也就是1s<br>（2）一开始也不要设置线程池大小，默认就是10<br>（3）直接部署hystrix到生产环境，如果运行的很良好，那么就让它这样运行好了<br>（4）让hystrix应用，24小时运行在生产环境中<br>（5）依赖标准的监控和报警机制来捕获到系统的异常运行情况<br>（6）在24小时之后，看一下调用延迟的占比，以及流量，来计算出让短路器生效的最小的配置数字<br>（7）直接对hystrix配置进行热修改，然后继续在hystrix dashboard上监控<br>（8）看看修改配置后的系统表现有没有改善</p>
+<p>下面是根据系统表现优化和调整线程池大小，队列大小，信号量容量，以及timeout超时时间的经验</p>
+<p>假设对一个依赖服务的高峰调用QPS是每秒30次</p>
+<p>一开始如果默认的线程池大小是10</p>
+<p>我们想的是，理想情况下，每秒的高峰访问次数 <em> 99%的访问延时 + buffer = 30 </em> 0.2 + 4 = 10线程，10个线程每秒处理30次访问应该足够了，每个线程处理3次访问</p>
+<p>此时，我们合理的timeout设置应该为300ms，也就是99.5%的访问延时，计算方法是，因为判断每次访问延时最多在250ms（TP99如果是200ms的话），再加一次重试时间50ms，就是300ms，感觉也应该足够了</p>
+<p>因为如果timeout设置的太多了，比如400ms，比如如果实际上，在高峰期，还有网络情况较差的时候，可能每次调用要耗费350ms，也就是达到了最长的访问时长</p>
+<p>那么每个线程处理2个请求，就会执行700ms，然后处理第三个请求的时候，就超过1秒钟了，此时会导致线程池全部被占满，都在处理请求</p>
+<p>这个时候下一秒的30个请求再进来了，那么就会导致线程池已满，拒绝请求的情况，就会调用fallback降级机制</p>
+<p>因此对于短路器来说，timeout超时一般应该设置成TP99.5，比如设置成300ms，那么可以确保说，10个线程，每个线程处理3个访问，每个访问最多就允许执行300ms，过时就timeout了</p>
+<p>这样才能保证说每个线程都在1s内执行完，才不会导致线程池被占满，然后后续的请求过来大量的reject</p>
+<p>对于线程池大小来说，一般应该控制在10个左右，20个以内，最少5个，不要太多，也不要太少</p>
+<p>大家可能会想，每秒的高峰访问次数是30次，如果是300次，甚至是3000次，30000次呢？？？</p>
+<p>30000 * 0.2 = 6000 + buffer = 6100，一个服务器内一个线程池给6000个线程把</p>
+<p>如果你一个依赖服务占据的线程数量太多的话，会导致其他的依赖服务对应的线程池里没有资源可以用了</p>
+<p>6000 / 20 = 300台虚拟机也是ok的</p>
+<p>虚拟机，4个cpu core，4G内存，虚拟机，300台</p>
+<p>物理机，十几个cpu core，几十个G的内存，5~8个虚拟机，300个虚拟机 = 50台物理机</p>
+<p>你要真的说是，你的公司服务的用户量，或者数据量，或者请求量，真要是到了每秒几万的QPS，</p>
+<p>3万QPS，60 * 3 = 180万访问量，1800，1亿8千，1亿，10个小时，10亿的访问量，app，系统</p>
+<p>几十台服务器去支撑，我觉得很正常</p>
+<p>QPS每秒在几千都算多的了</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/03/zookeeper分布式锁/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -344,7 +697,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.3k
+                  2.6k
                 </span>
               
 
@@ -360,7 +713,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  10
                 </span>
               
             </div>
@@ -416,6 +769,30 @@
 <p>zk，做分布式协调这一块，还是很流行的，大数据应用里面，hadoop，storm，都是基于zk去做分布式协调</p>
 <p>zk分布式锁的解决并发冲突的方案</p>
 <p>（1）变更缓存重建以及空缓存请求重建，更新redis之前，都需要先获取对应商品id的分布式锁<br>（2）拿到分布式锁之后，需要根据时间版本去比较一下，如果自己的版本新于redis中的版本，那么就更新，否则就不更新<br>（3）如果拿不到分布式锁，那么就等待，不断轮询等待，直到自己获取到分布式的锁</p>
+<h3 id="分布锁实现一"><a href="#分布锁实现一" class="headerlink" title="分布锁实现一"></a>分布锁实现一</h3><p>zk分布式锁的代码封装</p>
+<p>zookeeper java client api去封装连接zk，以及获取分布式锁，还有释放分布式锁的代码</p>
+<p>先简单介绍一下zk分布式锁的原理</p>
+<p>我们通过去创建zk的一个临时node，来模拟给摸一个商品id加锁</p>
+<p>zk会给你保证说，只会创建一个临时node，其他请求过来如果再要创建临时node，就会报错，NodeExistsException</p>
+<p>那么所以说，我们的所谓上锁，其实就是去创建某个product id对应的一个临时node</p>
+<p>如果临时node创建成功了，那么说明我们成功加锁了，此时就可以去执行对redis立面数据的操作</p>
+<p>如果临时node创建失败了，说明有人已经在拿到锁了，在操作reids中的数据，那么就不断的等待，直到自己可以获取到锁为止</p>
+<p>基于zk client api，去封装上面的这个代码逻辑</p>
+<p>释放一个分布式锁，去删除掉那个临时node就可以了，就代表释放了一个锁，那么此时其他的机器就可以成功创建临时node，获取到锁</p>
+<p>即使是用zk去实现一个分布式锁，也有很多种做法，有复杂的，也有简单的</p>
+<p>应该说，我演示的这种分布式锁的做法，是非常简单的一种，但是很实用，大部分情况下，用这种简单的分布式锁都能搞定</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">连接zookeeper客户端实例代码逻辑：</span><br><span class="line">使用countdownlauch来控制多线程的并发。</span><br><span class="line">CountDownLatch connectedSemaphore = new CountDownLatch(1);</span><br><span class="line">zookeeper在连接客户端的时候，是一个异步的过程，在连接的下一步中通过connectedSemaphore.await()阻塞线程。封装一个监听器，监听zookeeper连接，当连接成功的时候，connectedSemaphore.countdown(),释放线程。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分布式加锁封装逻辑：</span><br><span class="line">通过商品id创建一个zookeeper临时节点，如果创建失败，说明此时有人已经创建了。会抛出异常，那么在catch中进入死循环，不断的尝试创建临时节点，直到创建成功，跳出死循环。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分布式释放锁的逻辑：</span><br><span class="line">释放一个分布式锁，只要删除这个商品id创建的临时节点就可以。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.4.5&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * ZooKeeperSession</span><br><span class="line"> * @author Administrator</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">public class ZooKeeperSession &#123;</span><br><span class="line">	</span><br><span class="line">	private static CountDownLatch connectedSemaphore = new CountDownLatch(1);</span><br><span class="line">	</span><br><span class="line">	private ZooKeeper zookeeper;</span><br><span class="line"></span><br><span class="line">	public ZooKeeperSession() &#123;</span><br><span class="line">		// 去连接zookeeper server，创建会话的时候，是异步去进行的</span><br><span class="line">		// 所以要给一个监听器，说告诉我们什么时候才是真正完成了跟zk server的连接</span><br><span class="line">		try &#123;</span><br><span class="line">			this.zookeeper = new ZooKeeper(</span><br><span class="line">					&quot;192.168.31.187:2181,192.168.31.19:2181,192.168.31.227:2181&quot;, </span><br><span class="line">					50000, </span><br><span class="line">					new ZooKeeperWatcher());</span><br><span class="line">			// 给一个状态CONNECTING，连接中</span><br><span class="line">			System.out.println(zookeeper.getState());</span><br><span class="line">			</span><br><span class="line">			try &#123;</span><br><span class="line">				// CountDownLatch</span><br><span class="line">				// java多线程并发同步的一个工具类</span><br><span class="line">				// 会传递进去一些数字，比如说1,2 ，3 都可以</span><br><span class="line">				// 然后await()，如果数字不是0，那么久卡住，等待</span><br><span class="line">				</span><br><span class="line">				// 其他的线程可以调用coutnDown()，减1</span><br><span class="line">				// 如果数字减到0，那么之前所有在await的线程，都会逃出阻塞的状态</span><br><span class="line">				// 继续向下运行</span><br><span class="line">				</span><br><span class="line">				connectedSemaphore.await();</span><br><span class="line">			&#125; catch(InterruptedException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">	</span><br><span class="line">			System.out.println(&quot;ZooKeeper session established......&quot;);</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取分布式锁</span><br><span class="line">	 * @param productId</span><br><span class="line">	 */</span><br><span class="line">	public void acquireDistributedLock(Long productId) &#123;</span><br><span class="line">		String path = &quot;/product-lock-&quot; + productId;</span><br><span class="line">	</span><br><span class="line">		try &#123;</span><br><span class="line">			zookeeper.create(path, &quot;&quot;.getBytes(), </span><br><span class="line">					Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">			System.out.println(&quot;success to acquire lock for product[id=&quot; + productId + &quot;]&quot;);  </span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			// 如果那个商品对应的锁的node，已经存在了，就是已经被别人加锁了，那么就这里就会报错</span><br><span class="line">			// NodeExistsException</span><br><span class="line">			int count = 0;</span><br><span class="line">			while(true) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					Thread.sleep(20); </span><br><span class="line">					zookeeper.create(path, &quot;&quot;.getBytes(), </span><br><span class="line">							Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">				&#125; catch (Exception e2) &#123;</span><br><span class="line">					e2.printStackTrace();</span><br><span class="line">					count++;</span><br><span class="line">					continue;</span><br><span class="line">				&#125;</span><br><span class="line">				System.out.println(&quot;success to acquire lock for product[id=&quot; + productId + &quot;] after &quot; + count + &quot; times try......&quot;);</span><br><span class="line">				break;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 释放掉一个分布式锁</span><br><span class="line">	 * @param productId</span><br><span class="line">	 */</span><br><span class="line">	public void releaseDistributedLock(Long productId) &#123;</span><br><span class="line">		String path = &quot;/product-lock-&quot; + productId;</span><br><span class="line">		try &#123;</span><br><span class="line">			zookeeper.delete(path, -1); </span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 建立zk session的watcher</span><br><span class="line">	 * @author Administrator</span><br><span class="line">	 *</span><br><span class="line">	 */</span><br><span class="line">	private class ZooKeeperWatcher implements Watcher &#123;</span><br><span class="line"></span><br><span class="line">		public void process(WatchedEvent event) &#123;</span><br><span class="line">			System.out.println(&quot;Receive watched event: &quot; + event.getState());</span><br><span class="line">			if(KeeperState.SyncConnected == event.getState()) &#123;</span><br><span class="line">				connectedSemaphore.countDown();</span><br><span class="line">			&#125; </span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 封装单例的静态内部类</span><br><span class="line">	 * @author Administrator</span><br><span class="line">	 *</span><br><span class="line">	 */</span><br><span class="line">	private static class Singleton &#123;</span><br><span class="line">		</span><br><span class="line">		private static ZooKeeperSession instance;</span><br><span class="line">		</span><br><span class="line">		static &#123;</span><br><span class="line">			instance = new ZooKeeperSession();</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		public static ZooKeeperSession getInstance() &#123;</span><br><span class="line">			return instance;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取单例</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static ZooKeeperSession getInstance() &#123;</span><br><span class="line">		return Singleton.getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 初始化单例的便捷方法</span><br><span class="line">	 */</span><br><span class="line">	public static void init() &#123;</span><br><span class="line">		getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="获取分布式锁写缓存的业务逻辑"><a href="#获取分布式锁写缓存的业务逻辑" class="headerlink" title="获取分布式锁写缓存的业务逻辑"></a>获取分布式锁写缓存的业务逻辑</h3><p>业务代码</p>
+<p>1、主动更新</p>
+<p>监听kafka消息队列，获取到一个商品变更的消息之后，去哪个源服务中调用接口拉取数据，更新到ehcache和redis中</p>
+<p>先获取分布式锁，然后才能更新redis，同时更新时要比较时间版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">先获取分布式锁，从redis中拿取相同key的商品id的缓存数据，比较时间版本，如果时间更新，则覆盖缓存，反之，不更新缓存。</span><br></pre></td></tr></table></figure>
+<p>2、被动重建 </p>
+<p>直接读取源头数据，直接返回给nginx，同时推送一条消息到一个队列，后台线程异步消费</p>
+<p>后台现成负责先获取分布式锁，然后才能更新redis，同时要比较时间版本</p>
 
           
         
@@ -2272,476 +2649,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/扩展/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/29/扩展/" itemprop="url">扩展</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-29T20:07:54+08:00">
-                2019-09-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  3.1k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  11
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="9-28"><a href="#9-28" class="headerlink" title="9.28"></a>9.28</h1><p>在订单详情部分实现多缓存处理</p>
-<p>redis 分布式缓存 +  tomcat 堆缓存 二级缓存架构</p>
-<h4 id="redis搭建方案"><a href="#redis搭建方案" class="headerlink" title="redis搭建方案"></a>redis搭建方案</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">redis持久化+备份方案+容灾方案+replication（主从+读写分离）+sentinal（哨兵集群，3个节点，高可用性）</span><br><span class="line"></span><br><span class="line">可以支撑的数据量在10G以内，可以支撑的写QPS在几万左右，可以支撑的读QPS可以上10万以上（随你的需求，水平扩容slave节点就可以），可用性在99.99%</span><br><span class="line">可以用公司里的一些已有的数据，导入进去，几百万，一千万，进去</span><br><span class="line"></span><br><span class="line">做各种压力测试，性能，redis-benchmark，并发，QPS，高可用的演练，每台机器最大能存储多少数据量，横向扩容支撑更多数据</span><br><span class="line"></span><br><span class="line">基于测试环境还有测试数据，做各种演练，去摸索一些最适合自己的一些细节的东西</span><br></pre></td></tr></table></figure>
-<p>如果页面的数据有变更，及时监听到，并且写入缓存中，提供高并发，高性能的访问</p>
-<p>前端请求，请求服务器，先从redis中拿，redis中没有，本地搭建ehcache没有，再调用商品服务，从数据库中拿</p>
-<p>企业级的大型缓存架构</p>
-<h3 id="保证数据库与缓存的双写一致性"><a href="#保证数据库与缓存的双写一致性" class="headerlink" title="保证数据库与缓存的双写一致性"></a>保证数据库与缓存的双写一致性</h3><h3 id="分布式缓存重建问题，使用分布式锁实现"><a href="#分布式缓存重建问题，使用分布式锁实现" class="headerlink" title="分布式缓存重建问题，使用分布式锁实现"></a>分布式缓存重建问题，使用分布式锁实现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">详细在文章关于zookeeper搭建分布式锁中</span><br></pre></td></tr></table></figure>
-<h4 id="服务本地堆缓存，避免数据库直接裸奔"><a href="#服务本地堆缓存，避免数据库直接裸奔" class="headerlink" title="服务本地堆缓存，避免数据库直接裸奔"></a>服务本地堆缓存，避免数据库直接裸奔</h4><p>因为之前跟大家提过，三级缓存，多级缓存，服务本地堆缓存 + redis分布式缓存 + nginx本地缓存组成的</p>
-<p>每一层缓存在高并发的场景下，都有其特殊的用途，需要综合利用多级的缓存，才能支撑住高并发场景下各种各样的特殊情况</p>
-<p>服务本地堆缓存，作用，预防redis层的彻底崩溃，作为缓存的最后一道防线，避免数据库直接裸奔</p>
-<p>服务本地堆缓存，我们用什么来做缓存，难道我们自己手写一个类或者程序去管理内存吗？？？java最流行的缓存的框架，ehcache</p>
-<p>所以我们也是用ehcache来做本地的堆缓存</p>
-<p>spring boot + ehcache整合起来，演示一下是怎么使用的</p>
-<p>spring boot整合ehcache</p>
-<p>（1）依赖</p>
-<dependency><br>  <groupid>org.springframework.boot</groupid><br>  <artifactid>spring-boot-starter-data-jpa</artifactid><br></dependency><br><dependency><br>  <groupid>org.springframework</groupid><br>  <artifactid>spring-context-support</artifactid><br></dependency><br><dependency><br>  <groupid>net.sf.ehcache</groupid><br>  <artifactid>ehcache</artifactid><br>  <version>2.8.3</version><br></dependency>
-
-<p>（2）缓存配置管理类</p>
-<p>@Configuration<br>@EnableCaching<br>public class CacheConfiguration {</p>
-<pre><code>@Bean
-public EhCacheManagerFactoryBean ehCacheManagerFactoryBean(){
-  EhCacheManagerFactoryBean cacheManagerFactoryBean = new EhCacheManagerFactoryBean();
-  cacheManagerFactoryBean.setConfigLocation(new ClassPathResource(&quot;ehcache.xml&quot;));
-  cacheManagerFactoryBean.setShared(true);
-  return cacheManagerFactoryBean;
-}
-
-@Bean
-public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
-  return new EhCacheCacheManager(bean.getObject());
-}
-</code></pre><p>}</p>
-<p>（3）ehcache.xml</p>
-<p>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;</p>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nonamespaceschemalocation="http://ehcache.org/ehcache.xsd" updatecheck="false"><br><br>    <diskstore path="java.io.tmpdir/Tmp_EhCache"><br><br>    <defaultcache eternal="false" maxelementsinmemory="1000" overflowtodisk="false" diskpersistent="false" timetoidleseconds="0" timetoliveseconds="0" memorystoreevictionpolicy="LRU"><br><br>    <cache name="local" eternal="false" maxelementsinmemory="1000" overflowtodisk="false" diskpersistent="false" timetoidleseconds="0" timetoliveseconds="0" memorystoreevictionpolicy="LRU"><br><br></cache></defaultcache></diskstore></ehcache>
-
-<p>（4）CacheService</p>
-<p>@Service(“cacheService”)<br>public class CacheServiceImpl implements CacheService {</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String CACHE_NAME = <span class="string">"local"</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Cacheable</span>(value = CACHE_NAME, key = <span class="string">"'key_'+#id"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ProductInfo <span class="title">findById</span><span class="params">(Long id)</span></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="meta">@CachePut</span>(value = CACHE_NAME, key = <span class="string">"'key_'+#productInfo.getId()"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ProductInfo <span class="title">saveProductInfo</span><span class="params">(ProductInfo productInfo)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> productInfo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>}</p>
-<p>（5）写一个Controller测试一下ehcache的整合</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CacheTestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Resource</span></span><br><span class="line">  <span class="keyword">private</span> CacheService cacheService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/testPutCache"</span>)</span><br><span class="line">  <span class="meta">@ResponseBody</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPutCache</span><span class="params">(ProductInfo productInfo)</span> </span>&#123;</span><br><span class="line">    System.out.println(productInfo.getId() + <span class="string">":"</span> + productInfo.getName());  </span><br><span class="line">    cacheService.saveProductInfo(productInfo);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/testGetCache"</span>)</span><br><span class="line">  <span class="meta">@ResponseBody</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> ProductInfo <span class="title">testGetCache</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line">    ProductInfo productInfo = cacheService.findById(id);</span><br><span class="line">    System.out.println(productInfo.getId() + <span class="string">":"</span> + productInfo.getName()); </span><br><span class="line">    <span class="keyword">return</span> productInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>ehcache已经整合进了我们的系统，spring boot</p>
-<p>封装好了对ehcache本地缓存进行添加和获取的方法和service</p>
-<p>小程序写入操作，防止并发中，HashMap的使用，改成使用ConcurrentHashMap</p>
-<h1 id="10-1"><a href="#10-1" class="headerlink" title="10.1"></a>10.1</h1><h3 id="商品详情页的多级缓存架构"><a href="#商品详情页的多级缓存架构" class="headerlink" title="商品详情页的多级缓存架构"></a>商品详情页的多级缓存架构</h3><p>我们之前的三十讲，主要是在讲解redis如何支撑海量数据、高并发读写、高可用服务的架构，redis架构</p>
-<p>redis架构，在我们的真正类似商品详情页读高并发的系统中，redis就是底层的缓存存储的支持</p>
-<p>从这一讲开始，我们正式开始做业务系统的开发</p>
-<p>亿级流量以上的电商网站的商品详情页的系统，商品详情页系统，大量的业务，十几个人做一两年，堆出来复杂的业务系统</p>
-<p>几十个小时的课程，讲解复杂的业务</p>
-<p>把整体的架构给大家讲解清楚，然后浓缩和精炼里面的业务，提取部分业务，做一些简化，把整个详情页系统的流程跑出来</p>
-<p>架构，骨架，有少量的业务，血和肉，把整个项目串起来，在业务背景下，去学习架构</p>
-<p>讲解商品详情页系统，缓存架构，90%大量的业务代码（没有什么技术含量），10%的最优技术含量的就是架构，上亿流量，每秒QPS几万，上十万的，读并发</p>
-<p>读并发，缓存架构</p>
-<p>1、上亿流量的商品详情页系统的多级缓存架构</p>
-<p>很多人以为，做个缓存，其实就是用一下redis，访问一下，就可以了，简单的缓存</p>
-<p>做复杂的缓存，支撑电商复杂的场景下的高并发的缓存，遇到的问题，非常非常之多，绝对不是说简单的访问一下redsi就可以了</p>
-<p>采用三级缓存：nginx本地缓存+redis分布式缓存+tomcat堆缓存的多级缓存架构</p>
-<p>时效性要求非常高的数据：库存</p>
-<p>一般来说，显示的库存，都是时效性要求会相对高一些，因为随着商品的不断的交易，库存会不断的变化</p>
-<p>当然，我们就希望当库存变化的时候，尽可能更快将库存显示到页面上去，而不是说等了很长时间，库存才反应到页面上去</p>
-<p>时效性要求不高的数据：商品的基本信息（名称、颜色、版本、规格参数，等等）</p>
-<p>时效性要求不高的数据，就还好，比如说你现在改变了商品的名称，稍微晚个几分钟反应到商品页面上，也还能接受</p>
-<p>商品价格/库存等时效性要求高的数据，而且种类较少，采取相关的服务系统每次发生了变更的时候，直接采取数据库和redis缓存双写的方案，这样缓存的时效性最高</p>
-<p>商品基本信息等时效性不高的数据，而且种类繁多，来自多种不同的系统，采取MQ异步通知的方式，写一个数据生产服务，监听MQ消息，然后异步拉取服务的数据，更新tomcat jvm缓存+redis缓存</p>
-<p>nginx+lua脚本做页面动态生成的工作，每次请求过来，优先从nginx本地缓存中提取各种数据，结合页面模板，生成需要的页面</p>
-<p>如果nginx本地缓存过期了，那么就从nginx到redis中去拉取数据，更新到nginx本地</p>
-<p>如果redis中也被LRU算法清理掉了，那么就从nginx走http接口到后端的服务中拉取数据，数据生产服务中，现在本地tomcat里的jvm堆缓存中找，ehcache，如果也被LRU清理掉了，那么就重新发送请求到源头的服务中去拉取数据，然后再次更新tomcat堆内存缓存+redis缓存，并返回数据给nginx，nginx缓存到本地</p>
-<p>2、多级缓存架构中每一层的意义</p>
-<p>nginx本地缓存，抗的是热数据的高并发访问，一般来说，商品的购买总是有热点的，比如每天购买iphone、nike、海尔等知名品牌的东西的人，总是比较多的</p>
-<p>这些热数据，利用nginx本地缓存，由于经常被访问，所以可以被锁定在nginx的本地缓存内</p>
-<p>大量的热数据的访问，就是经常会访问的那些数据，就会被保留在nginx本地缓存内，那么对这些热数据的大量访问，就直接走nginx就可以了</p>
-<p>那么大量的访问，直接就可以走到nginx就行了，不需要走后续的各种网络开销了</p>
-<p>redis分布式大规模缓存，抗的是很高的离散访问，支撑海量的数据，高并发的访问，高可用的服务</p>
-<p>redis缓存最大量的数据，最完整的数据和缓存，1T+数据; 支撑高并发的访问，QPS最高到几十万; 可用性，非常好，提供非常稳定的服务</p>
-<p>nginx本地内存有限，也就能cache住部分热数据，除了各种iphone、nike等热数据，其他相对不那么热的数据，可能流量会经常走到redis那里</p>
-<p>利用redis cluster的多master写入，横向扩容，1T+以上海量数据支持，几十万的读写QPS，99.99%高可用性，那么就可以抗住大量的离散访问请求</p>
-<p>tomcat jvm堆内存缓存，主要是抗redis大规模灾难的，如果redis出现了大规模的宕机，导致nginx大量流量直接涌入数据生产服务，那么最后的tomcat堆内存缓存至少可以再抗一下，不至于让数据库直接裸奔</p>
-<p>同时tomcat jvm堆内存缓存，也可以抗住redis没有cache住的最后那少量的部分缓存</p>
-<h3 id="Cache-Aside-Pattern缓存-数据库读写模式的分析"><a href="#Cache-Aside-Pattern缓存-数据库读写模式的分析" class="headerlink" title="Cache Aside Pattern缓存 + 数据库读写模式的分析"></a>Cache Aside Pattern缓存 + 数据库读写模式的分析</h3><p>最经典的缓存+数据库读写的模式，cache aside pattern</p>
-<p>1、Cache Aside Pattern</p>
-<p>（1）读的时候，先读缓存，缓存没有的话，那么就读数据库，然后取出数据后放入缓存，同时返回响应</p>
-<p>（2）更新的时候，先删除缓存，然后再更新数据库</p>
-<p>2、为什么是删除缓存，而不是更新缓存呢？</p>
-<p>原因很简单，很多时候，复杂点的缓存的场景，因为缓存有的时候，不简单是数据库中直接取出来的值</p>
-<p>商品详情页的系统，修改库存，只是修改了某个表的某些字段，但是要真正把这个影响的最终的库存计算出来，可能还需要从其他表查询一些数据，然后进行一些复杂的运算，才能最终计算出</p>
-<p>现在最新的库存是多少，然后才能将库存更新到缓存中去</p>
-<p>比如可能更新了某个表的一个字段，然后其对应的缓存，是需要查询另外两个表的数据，并进行运算，才能计算出缓存最新的值的</p>
-<p>更新缓存的代价是很高的</p>
-<p>是不是说，每次修改数据库的时候，都一定要将其对应的缓存去跟新一份？也许有的场景是这样的，但是对于比较复杂的缓存数据计算的场景，就不是这样了</p>
-<p>如果你频繁修改一个缓存涉及的多个表，那么这个缓存会被频繁的更新，频繁的更新缓存</p>
-<p>但是问题在于，这个缓存到底会不会被频繁访问到？？？</p>
-<p>举个例子，一个缓存涉及的表的字段，在1分钟内就修改了20次，或者是100次，那么缓存跟新20次，100次; 但是这个缓存在1分钟内就被读取了1次，有大量的冷数据</p>
-<p>28法则，黄金法则，20%的数据，占用了80%的访问量</p>
-<p>实际上，如果你只是删除缓存的话，那么1分钟内，这个缓存不过就重新计算一次而已，开销大幅度降低</p>
-<p>每次数据过来，就只是删除缓存，然后修改数据库，如果这个缓存，在1分钟内只是被访问了1次，那么只有那1次，缓存是要被重新计算的，用缓存才去算缓存</p>
-<p>其实删除缓存，而不是更新缓存，就是一个lazy计算的思想，不要每次都重新做复杂的计算，不管它会不会用到，而是让它到需要被使用的时候再重新计算</p>
-<p>mybatis，hibernate，懒加载，思想</p>
-<p>查询一个部门，部门带了一个员工的list，没有必要说每次查询部门，都里面的1000个员工的数据也同时查出来啊</p>
-<p>80%的情况，查这个部门，就只是要访问这个部门的信息就可以了</p>
-<p>先查部门，同时要访问里面的员工，那么这个时候只有在你要访问里面的员工的时候，才会去数据库里面查询1000个员工</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/28/网络零散知识/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/28/网络零散知识/" itemprop="url">网络零散知识</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-28T09:57:00+08:00">
-                2019-09-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机网络</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.5k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h2><p>（1）TCP是面向连接的，udp是无连接的即发送数据前不需要先建立链接。</p>
-<p>（2）TCP提供可靠的服务。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付，即不保证可靠交付。 并且因为tcp可靠，面向连接，不会丢失数据因此适合大数据量的交换。</p>
-<p>（3）TCP是面向字节流，UDP面向报文，并且网络出现拥塞不会使得发送速率降低（因此会出现丢包，对实时的应用比如IP电话和视频会议等）。</p>
-<p>（4）TCP只能是1对1的，UDP支持1对1,1对多。</p>
-<p>（5）TCP的首部较大为20字节，而UDP只有8字节。</p>
-<p>（6）TCP是面向连接的可靠性传输，而UDP是不可靠的。</p>
-<ul>
-<li>基于TCP的应用层协议有：POP3、SMTP（简单邮件传输协议）、TELNET（远程登陆协议）、HTTP（超文本传输协议）、HTTPS（超文本传输安全协议）、FTP（文件传输协议）</li>
-<li>基于UDP的应用层协议：TFTP（简单文件传输协议）、RIP（路由信息协议）、DHCP（动态主机设置协议）、BOOTP（引导程序协议，DHCP的前身）、IGMP（Internet组管理协议）</li>
-<li>基于TCP和UDP协议：DNS（域名系统）、ECHO（回绕协议）</li>
-</ul>
-<p>以下内容来自：公众号 前端指南，作者 前端指南</p>
-<h2 id="简述-http-1-1-与-http-1-0-的区别"><a href="#简述-http-1-1-与-http-1-0-的区别" class="headerlink" title="简述 http 1.1 与 http 1.0 的区别"></a>简述 http 1.1 与 http 1.0 的区别</h2><ul>
-<li>http 1.0 对于每个连接都得建立一次连接, 一次只能传送一个请求和响应, 请求就会关闭, http1.0 没有 Host 字段</li>
-<li>而 http1.1 在同一个连接中可以传送多个请求和响应, 多个请求可以重叠和同时进行, http1.1 必须有 host 字段</li>
-<li>http1.1 中引入了 ETag 头, 它的值 entity tag 可以用来唯一的描述一个资源. 请求消息中可以使用 If-None-Match 头域来匹配资源的 entitytag 是否有变化</li>
-<li>http1.1 新增了 Cache-Control 头域(消息请求和响应请求都可以使用), 它支持一个可扩展的指令子集</li>
-<li>http1.0 中只定义了 16 个状态响应码, 对错误或警告的提示不够具体. http1.1 引入了一个 Warning 头域, 增加对错误或警告信息的描述. 且新增了 24 个状态响应码</li>
-</ul>
-<h2 id="从输入-URL-到页面加载发生了什么-必考"><a href="#从输入-URL-到页面加载发生了什么-必考" class="headerlink" title="从输入 URL 到页面加载发生了什么[必考]"></a>从输入 URL 到页面加载发生了什么[必考]</h2><p>总体来说分为以下几个过程:</p>
-<ul>
-<li>DNS 解析</li>
-<li>TCP 连接</li>
-<li>发送 HTTP 请求</li>
-<li>服务器处理请求并返回 HTTP 报文</li>
-<li>浏览器解析渲染页面</li>
-<li>连接结束</li>
-</ul>
-<h2 id="Socket-连接与-HTTP-连接的联系与区别"><a href="#Socket-连接与-HTTP-连接的联系与区别" class="headerlink" title="Socket 连接与 HTTP 连接的联系与区别"></a>Socket 连接与 HTTP 连接的联系与区别</h2><p>由于通常情况下 Socket 连接就是 TCP 连接，因此 Socket 连接一旦建立，通信双方即可开始相互发送数据内容，直到双方连接断开。但在实际网络应用中，客户端到服务器之间的通信往往需要穿越多个中间节点，例如路由器、网关、防火墙等，大部分防火墙默认会关闭长时间处于非活跃状态的连接而导致 Socket 连接断连，因此需要通过轮询告诉网络，该连接处于活跃状态。</p>
-<p>而 HTTP 连接使用的是“请求—响应”的方式，不仅在请求时需要先建立连接，而且需要客户端向服务器发出请求后，服务器端才能回复数据。</p>
-<p>很多情况下，需要服务器端主动向客户端推送数据，保持客户端与服务器数据的实时与同步。此时若双方建立的是 Socket 连接，服务器就可以直接将数据传送给客户端;若双方建立的是 HTTP 连接，则服务器需要等到客户端发送一次请求后才能将数据传回给客户端，因此，客户端定时向服务器端发送连接请求，不仅可以保持在线，同时也是在“询问”服务器是否有新的数据，如果有就将数据传给客户端。</p>
-<h2 id="Http2-0-与-http1-x-相比有什么优点-常考"><a href="#Http2-0-与-http1-x-相比有什么优点-常考" class="headerlink" title="Http2.0 与 http1.x 相比有什么优点(常考)"></a>Http2.0 与 http1.x 相比有什么优点(常考)</h2><ul>
-<li>二进制格式:http1.x 是文本协议，而 http2.0 是二进制以帧为基本单位，是一个二进制协议，一帧中除了包含数据外同时还包含该帧的标识：Stream Identifier，即标识了该帧属于哪个 request,使得网络传输变得十分灵活。</li>
-<li>多路复用: 一个很大的改进，原先 http1.x 一个连接一个请求的情况有比较大的局限性，也引发了很多问题，如建立多个连接的消耗以及效率问题。</li>
-<li><ul>
-<li>http1.x 为了解决效率问题，可能会尽量多的发起并发的请求去加载资源，然而浏览器对于同一域名下的并发请求有限制，而优化的手段一般是将请求的资源放到不同的域名下来突破这种限制。</li>
-<li>而 http2.0 支持的多路复用可以很好的解决这个问题，多个请求共用一个 TCP 连接，多个请求可以同时在这个 TCP 连接上并发，一个是解决了建立多个 TCP 连接的消耗问题，一个也解决了效率的问题。那么是什么原理支撑多个请求可以在一个 TCP 连接上并发呢？基本原理就是上面的二进制分帧，因为每一帧都有一个身份标识，所以多个请求的不同帧可以并发的无序发送出去，在服务端会根据每一帧的身份标识，将其整理到对应的 request 中。</li>
-</ul>
-</li>
-<li>header 头部压缩:主要是通过压缩 header 来减少请求的大小，减少流量消耗，提高效率。因为之前存在一个问题是，每次请求都要带上 header，而这个 header 中的数据通常是一层不变的。</li>
-<li>支持服务端推送</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2789,7 +2701,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">39</span>
+                  <span class="site-state-item-count">41</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2874,7 +2786,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -2885,7 +2797,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共72.1k字</span>
+  <span class="post-count">博客全站共75.2k字</span>
 </div>
 
         

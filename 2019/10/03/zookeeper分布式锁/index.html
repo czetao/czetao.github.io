@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next gemini use-motion" lang="zh-Hans">
+<html class="theme-next pisces use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ddd `Blog">
 <meta property="og:description" content="缓存重建问题及解决整个三级缓存的架构已经走通了 我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了 这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中 分布式重建缓存的并发冲突问题 重建缓存：比如我们这里，数据在所有的缓存中都不存在了（LRU算法弄掉了），就需要重新查">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T17:04:19.795Z">
+<meta property="og:updated_time" content="2019-10-03T02:12:59.129Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zookeeper分布式锁">
 <meta name="twitter:description" content="缓存重建问题及解决整个三级缓存的架构已经走通了 我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了 这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中 分布式重建缓存的并发冲突问题 重建缓存：比如我们这里，数据在所有的缓存中都不存在了（LRU算法弄掉了），就需要重新查">
@@ -98,7 +98,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
     fancybox: true,
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.3k
+                  2.6k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  10
                 </span>
               
             </div>
@@ -421,6 +421,30 @@
 <p>zk，做分布式协调这一块，还是很流行的，大数据应用里面，hadoop，storm，都是基于zk去做分布式协调</p>
 <p>zk分布式锁的解决并发冲突的方案</p>
 <p>（1）变更缓存重建以及空缓存请求重建，更新redis之前，都需要先获取对应商品id的分布式锁<br>（2）拿到分布式锁之后，需要根据时间版本去比较一下，如果自己的版本新于redis中的版本，那么就更新，否则就不更新<br>（3）如果拿不到分布式锁，那么就等待，不断轮询等待，直到自己获取到分布式的锁</p>
+<h3 id="分布锁实现一"><a href="#分布锁实现一" class="headerlink" title="分布锁实现一"></a>分布锁实现一</h3><p>zk分布式锁的代码封装</p>
+<p>zookeeper java client api去封装连接zk，以及获取分布式锁，还有释放分布式锁的代码</p>
+<p>先简单介绍一下zk分布式锁的原理</p>
+<p>我们通过去创建zk的一个临时node，来模拟给摸一个商品id加锁</p>
+<p>zk会给你保证说，只会创建一个临时node，其他请求过来如果再要创建临时node，就会报错，NodeExistsException</p>
+<p>那么所以说，我们的所谓上锁，其实就是去创建某个product id对应的一个临时node</p>
+<p>如果临时node创建成功了，那么说明我们成功加锁了，此时就可以去执行对redis立面数据的操作</p>
+<p>如果临时node创建失败了，说明有人已经在拿到锁了，在操作reids中的数据，那么就不断的等待，直到自己可以获取到锁为止</p>
+<p>基于zk client api，去封装上面的这个代码逻辑</p>
+<p>释放一个分布式锁，去删除掉那个临时node就可以了，就代表释放了一个锁，那么此时其他的机器就可以成功创建临时node，获取到锁</p>
+<p>即使是用zk去实现一个分布式锁，也有很多种做法，有复杂的，也有简单的</p>
+<p>应该说，我演示的这种分布式锁的做法，是非常简单的一种，但是很实用，大部分情况下，用这种简单的分布式锁都能搞定</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">连接zookeeper客户端实例代码逻辑：</span><br><span class="line">使用countdownlauch来控制多线程的并发。</span><br><span class="line">CountDownLatch connectedSemaphore = new CountDownLatch(1);</span><br><span class="line">zookeeper在连接客户端的时候，是一个异步的过程，在连接的下一步中通过connectedSemaphore.await()阻塞线程。封装一个监听器，监听zookeeper连接，当连接成功的时候，connectedSemaphore.countdown(),释放线程。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分布式加锁封装逻辑：</span><br><span class="line">通过商品id创建一个zookeeper临时节点，如果创建失败，说明此时有人已经创建了。会抛出异常，那么在catch中进入死循环，不断的尝试创建临时节点，直到创建成功，跳出死循环。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分布式释放锁的逻辑：</span><br><span class="line">释放一个分布式锁，只要删除这个商品id创建的临时节点就可以。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.4.5&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * ZooKeeperSession</span><br><span class="line"> * @author Administrator</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">public class ZooKeeperSession &#123;</span><br><span class="line">	</span><br><span class="line">	private static CountDownLatch connectedSemaphore = new CountDownLatch(1);</span><br><span class="line">	</span><br><span class="line">	private ZooKeeper zookeeper;</span><br><span class="line"></span><br><span class="line">	public ZooKeeperSession() &#123;</span><br><span class="line">		// 去连接zookeeper server，创建会话的时候，是异步去进行的</span><br><span class="line">		// 所以要给一个监听器，说告诉我们什么时候才是真正完成了跟zk server的连接</span><br><span class="line">		try &#123;</span><br><span class="line">			this.zookeeper = new ZooKeeper(</span><br><span class="line">					&quot;192.168.31.187:2181,192.168.31.19:2181,192.168.31.227:2181&quot;, </span><br><span class="line">					50000, </span><br><span class="line">					new ZooKeeperWatcher());</span><br><span class="line">			// 给一个状态CONNECTING，连接中</span><br><span class="line">			System.out.println(zookeeper.getState());</span><br><span class="line">			</span><br><span class="line">			try &#123;</span><br><span class="line">				// CountDownLatch</span><br><span class="line">				// java多线程并发同步的一个工具类</span><br><span class="line">				// 会传递进去一些数字，比如说1,2 ，3 都可以</span><br><span class="line">				// 然后await()，如果数字不是0，那么久卡住，等待</span><br><span class="line">				</span><br><span class="line">				// 其他的线程可以调用coutnDown()，减1</span><br><span class="line">				// 如果数字减到0，那么之前所有在await的线程，都会逃出阻塞的状态</span><br><span class="line">				// 继续向下运行</span><br><span class="line">				</span><br><span class="line">				connectedSemaphore.await();</span><br><span class="line">			&#125; catch(InterruptedException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">	</span><br><span class="line">			System.out.println(&quot;ZooKeeper session established......&quot;);</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取分布式锁</span><br><span class="line">	 * @param productId</span><br><span class="line">	 */</span><br><span class="line">	public void acquireDistributedLock(Long productId) &#123;</span><br><span class="line">		String path = &quot;/product-lock-&quot; + productId;</span><br><span class="line">	</span><br><span class="line">		try &#123;</span><br><span class="line">			zookeeper.create(path, &quot;&quot;.getBytes(), </span><br><span class="line">					Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">			System.out.println(&quot;success to acquire lock for product[id=&quot; + productId + &quot;]&quot;);  </span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			// 如果那个商品对应的锁的node，已经存在了，就是已经被别人加锁了，那么就这里就会报错</span><br><span class="line">			// NodeExistsException</span><br><span class="line">			int count = 0;</span><br><span class="line">			while(true) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					Thread.sleep(20); </span><br><span class="line">					zookeeper.create(path, &quot;&quot;.getBytes(), </span><br><span class="line">							Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">				&#125; catch (Exception e2) &#123;</span><br><span class="line">					e2.printStackTrace();</span><br><span class="line">					count++;</span><br><span class="line">					continue;</span><br><span class="line">				&#125;</span><br><span class="line">				System.out.println(&quot;success to acquire lock for product[id=&quot; + productId + &quot;] after &quot; + count + &quot; times try......&quot;);</span><br><span class="line">				break;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 释放掉一个分布式锁</span><br><span class="line">	 * @param productId</span><br><span class="line">	 */</span><br><span class="line">	public void releaseDistributedLock(Long productId) &#123;</span><br><span class="line">		String path = &quot;/product-lock-&quot; + productId;</span><br><span class="line">		try &#123;</span><br><span class="line">			zookeeper.delete(path, -1); </span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 建立zk session的watcher</span><br><span class="line">	 * @author Administrator</span><br><span class="line">	 *</span><br><span class="line">	 */</span><br><span class="line">	private class ZooKeeperWatcher implements Watcher &#123;</span><br><span class="line"></span><br><span class="line">		public void process(WatchedEvent event) &#123;</span><br><span class="line">			System.out.println(&quot;Receive watched event: &quot; + event.getState());</span><br><span class="line">			if(KeeperState.SyncConnected == event.getState()) &#123;</span><br><span class="line">				connectedSemaphore.countDown();</span><br><span class="line">			&#125; </span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 封装单例的静态内部类</span><br><span class="line">	 * @author Administrator</span><br><span class="line">	 *</span><br><span class="line">	 */</span><br><span class="line">	private static class Singleton &#123;</span><br><span class="line">		</span><br><span class="line">		private static ZooKeeperSession instance;</span><br><span class="line">		</span><br><span class="line">		static &#123;</span><br><span class="line">			instance = new ZooKeeperSession();</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		public static ZooKeeperSession getInstance() &#123;</span><br><span class="line">			return instance;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取单例</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static ZooKeeperSession getInstance() &#123;</span><br><span class="line">		return Singleton.getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 初始化单例的便捷方法</span><br><span class="line">	 */</span><br><span class="line">	public static void init() &#123;</span><br><span class="line">		getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="获取分布式锁写缓存的业务逻辑"><a href="#获取分布式锁写缓存的业务逻辑" class="headerlink" title="获取分布式锁写缓存的业务逻辑"></a>获取分布式锁写缓存的业务逻辑</h3><p>业务代码</p>
+<p>1、主动更新</p>
+<p>监听kafka消息队列，获取到一个商品变更的消息之后，去哪个源服务中调用接口拉取数据，更新到ehcache和redis中</p>
+<p>先获取分布式锁，然后才能更新redis，同时更新时要比较时间版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">先获取分布式锁，从redis中拿取相同key的商品id的缓存数据，比较时间版本，如果时间更新，则覆盖缓存，反之，不更新缓存。</span><br></pre></td></tr></table></figure>
+<p>2、被动重建 </p>
+<p>直接读取源头数据，直接返回给nginx，同时推送一条消息到一个队列，后台线程异步消费</p>
+<p>后台现成负责先获取分布式锁，然后才能更新redis，同时要比较时间版本</p>
 
       
     </div>
@@ -460,6 +484,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/03/线程池学习及优化/" rel="prev" title="线程池学习及优化">
+                线程池学习及优化 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -538,7 +566,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">39</span>
+                  <span class="site-state-item-count">41</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -593,7 +621,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存重建问题及解决"><span class="nav-number">1.</span> <span class="nav-text">缓存重建问题及解决</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存重建问题及解决"><span class="nav-number">1.</span> <span class="nav-text">缓存重建问题及解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布锁实现一"><span class="nav-number">2.</span> <span class="nav-text">分布锁实现一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取分布式锁写缓存的业务逻辑"><span class="nav-number">3.</span> <span class="nav-text">获取分布式锁写缓存的业务逻辑</span></a></li></ol></div>
             
 
           </div>
@@ -639,7 +667,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -650,7 +678,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共72.1k字</span>
+  <span class="post-count">博客全站共75.2k字</span>
 </div>
 
         
