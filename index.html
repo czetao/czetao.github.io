@@ -521,7 +521,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.1k
+                  1.3k
                 </span>
               
 
@@ -537,7 +537,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  3
+                  4
                 </span>
               
             </div>
@@ -586,6 +586,14 @@
 <p>3万QPS，60 * 3 = 180万访问量，1800，1亿8千，1亿，10个小时，10亿的访问量，app，系统</p>
 <p>几十台服务器去支撑，我觉得很正常</p>
 <p>QPS每秒在几千都算多的了</p>
+<p>##为什么要用线程池?</p>
+<p>线程池提供了一种限制和管理资源（包括执行一个任务）。 每个线程池还维护一些基本统计信息，例如已完成任务 </p>
+<p>的数量。 </p>
+<p>这里借用《Java并发编程的艺术》提到的来说一下使用线程池的好处： </p>
+<p><strong>降低资源消耗。</strong> 通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 </p>
+<p><strong>提高响应速度。</strong> 当任务到达时，任务可以不需要的等到线程创建就能立即执行。 </p>
+<p><strong>提高线程的可管理性。</strong> 线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性， </p>
+<p>使用线程池可以进行统一的分配，调优和监控。 </p>
 
           
         
@@ -2797,7 +2805,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共75.2k字</span>
+  <span class="post-count">博客全站共75.4k字</span>
 </div>
 
         
