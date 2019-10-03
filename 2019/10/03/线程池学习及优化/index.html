@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ddd `Blog">
 <meta property="og:description" content="多线程并发生产环境里面，一个是线程池的大小怎么设置，timeout时长怎么 不合理的话，问题还是很大的 在生产环境中部署一个短路器，一开始需要将一些关键配置设置的大一些，比如timeout超时时长，线程池大小，或信号量容量 然后逐渐优化这些配置，直到在一个生产系统中运作良好 （1）一开始先不要设置timeout超时时长，默认就是1000ms，也就是1s（2）一开始也不要设置线程池大小，默认就是10">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-03T07:11:00.673Z">
+<meta property="og:updated_time" content="2019-10-03T07:32:12.854Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="线程池学习及优化">
 <meta name="twitter:description" content="多线程并发生产环境里面，一个是线程池的大小怎么设置，timeout时长怎么 不合理的话，问题还是很大的 在生产环境中部署一个短路器，一开始需要将一些关键配置设置的大一些，比如timeout超时时长，线程池大小，或信号量容量 然后逐渐优化这些配置，直到在一个生产系统中运作良好 （1）一开始先不要设置timeout超时时长，默认就是1000ms，也就是1s（2）一开始也不要设置线程池大小，默认就是10">
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.3k
+                  1.6k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  5
                 </span>
               
             </div>
@@ -414,14 +414,53 @@
 <p>3万QPS，60 * 3 = 180万访问量，1800，1亿8千，1亿，10个小时，10亿的访问量，app，系统</p>
 <p>几十台服务器去支撑，我觉得很正常</p>
 <p>QPS每秒在几千都算多的了</p>
-<p>##为什么要用线程池?</p>
-<p>线程池提供了一种限制和管理资源（包括执行一个任务）。 每个线程池还维护一些基本统计信息，例如已完成任务 </p>
+<h3 id="为什么要用线程池"><a href="#为什么要用线程池" class="headerlink" title="为什么要用线程池?"></a>为什么要用线程池?</h3><p>线程池提供了一种限制和管理资源（包括执行一个任务）。 每个线程池还维护一些基本统计信息，例如已完成任务 </p>
 <p>的数量。 </p>
 <p>这里借用《Java并发编程的艺术》提到的来说一下使用线程池的好处： </p>
-<p><strong>降低资源消耗。</strong> 通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 </p>
-<p><strong>提高响应速度。</strong> 当任务到达时，任务可以不需要的等到线程创建就能立即执行。 </p>
-<p><strong>提高线程的可管理性。</strong> 线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性， </p>
+<ul>
+<li><p><strong>降低资源消耗。</strong> 通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 </p>
+</li>
+<li><p><strong>提高响应速度。</strong> 当任务到达时，任务可以不需要的等到线程创建就能立即执行。 </p>
+</li>
+<li><p><strong>提高线程的可管理性。</strong> 线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性， </p>
+</li>
+</ul>
 <p>使用线程池可以进行统一的分配，调优和监控。 </p>
+<h2 id="线程池的核心原理和实现方法，7大参数讲一下"><a href="#线程池的核心原理和实现方法，7大参数讲一下" class="headerlink" title="线程池的核心原理和实现方法，7大参数讲一下"></a>线程池的核心原理和实现方法，7大参数讲一下</h2><p>线程池有7大参数</p>
+<ul>
+<li><p>corePoolSize核心线程数</p>
+</li>
+<li><p>maxPoolSize最大线程数</p>
+</li>
+<li><p>runableBlockQueue任务队列</p>
+</li>
+<li><p>keepAlivetTime 线程存活时间  </p>
+<p>当线程池中的工作线程空闲后，保持存活的时间。</p>
+</li>
+<li><p>timeunit 时间单位</p>
+<p>线程活动保持时间的单位</p>
+</li>
+<li><p>ThreadFactory 线程工厂</p>
+<p>用于设置创建线程的工厂，可以通过线程工厂给每个创建线程设置更有意义的名字。</p>
+</li>
+<li><p>RejectedExecutionHandler拒绝策略</p>
+</li>
+</ul>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><ol>
+<li><p>线程池判断核心线程池是否都在执行任务。如果不是，则创建一个新的工作线程执行任务，如果都在执行任务，则进入下一个流程</p>
+</li>
+<li><p>线程池判断工作队列是否已经满了，如果不是，则将新提交的任务存储在这个工作队列中。如果工作队列满了，则进入下一个流程。</p>
+</li>
+<li><p>线程池判断线程池中的线程是否都处于工作状态，如果没有，则创建一个新的工作线程来执行任务，如果满了，则交给饱和策略来处理这个任务。</p>
+</li>
+</ol>
+<p>提交线程有execute和submit方法，execute方法用于没有返回值的任务，submit处理有返回的callable</p>
+<h4 id="饱和策略"><a href="#饱和策略" class="headerlink" title="饱和策略"></a>饱和策略</h4><ol>
+<li>直接抛出异常</li>
+<li>只用调用者所在线程来运行任务</li>
+<li>将工作队列中最近的一次任务丢弃，并执行当前任务</li>
+<li>不运行，抛弃</li>
+</ol>
 
       
     </div>
@@ -598,7 +637,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程并发"><span class="nav-number">1.</span> <span class="nav-text">多线程并发</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程并发"><span class="nav-number">1.</span> <span class="nav-text">多线程并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要用线程池"><span class="nav-number">2.</span> <span class="nav-text">为什么要用线程池?</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的核心原理和实现方法，7大参数讲一下"><span class="nav-number"></span> <span class="nav-text">线程池的核心原理和实现方法，7大参数讲一下</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">0.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#饱和策略"><span class="nav-number">0.2.</span> <span class="nav-text">饱和策略</span></a></li></ol></li></div>
             
 
           </div>
@@ -655,7 +694,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共75.4k字</span>
+  <span class="post-count">博客全站共76.5k字</span>
 </div>
 
         
