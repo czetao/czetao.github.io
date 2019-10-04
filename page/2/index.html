@@ -281,6 +281,499 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/01/JAVA锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/01/JAVA锁/" itemprop="url">JAVA锁</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-01T17:48:43+08:00">
+                2019-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="JAVA锁"><a href="#JAVA锁" class="headerlink" title="JAVA锁"></a>JAVA锁</h1><p>Java SE1.6为了减少获得锁和释放锁所带来的性能消耗，引入了“偏向锁”和“轻量级锁”，所以在Java SE1.6里锁一共有四种状态，无锁状态，偏向锁状态，轻量级锁状态和重量级锁状态，它会随着竞争情况逐渐升级。<strong>锁可以升级但不能降级，意味着偏向锁升级成轻量级锁后不能降级成偏向锁。这种锁升级却不能降级的策略，目的是为了提高获得锁和释放锁的效率。</strong></p>
+<h3 id="悲观锁与乐观锁"><a href="#悲观锁与乐观锁" class="headerlink" title="悲观锁与乐观锁"></a>悲观锁与乐观锁</h3><h4 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h4><p>总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁，读锁，写锁等，都是在做操作之前先上锁。JAVA中synchronize和ReentrantLock等独占锁就是悲观锁思想的实现。</p>
+<h4 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h4><p>总是假设最好的情况，每次拿数据都认为别人不会修改，所以不会上锁。<strong>但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号机制和CAS算法实现。</strong></p>
+<p>乐观锁适用于多读的应用类型，这样可以提高吞吐量。</p>
+<p><strong>java中的4种锁，分别是重量级锁，自旋锁，轻量级锁和偏向锁。重量级锁是悲观锁的一种，自旋锁，轻量级锁和偏向锁属于乐观锁。</strong></p>
+<h5 id="乐观锁常见的两种实现方式"><a href="#乐观锁常见的两种实现方式" class="headerlink" title="乐观锁常见的两种实现方式"></a>乐观锁常见的两种实现方式</h5><blockquote>
+<p><strong>乐观锁一般会使用版本号机制或CAS算法实现。</strong></p>
+</blockquote>
+<h4 id="1-版本号机制"><a href="#1-版本号机制" class="headerlink" title="1. 版本号机制"></a>1. 版本号机制</h4><p>一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。当线程A要更新数据值时，在读取数据的同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</p>
+<p><strong>举一个简单的例子：</strong> 假设数据库中帐户信息表中有一个 version 字段，当前值为 1 ；而当前帐户余额字段（ balance ）为 $100 。</p>
+<ol>
+<li>操作员 A 此时将其读出（ version=1 ），并从其帐户余额中扣除 $50（ $100-$50 ）。</li>
+<li>在操作员 A 操作的过程中，操作员B 也读入此用户信息（ version=1 ），并从其帐户余额中扣除 $20 （ $100-$20 ）。</li>
+<li>操作员 A 完成了修改工作，将数据版本号加一（ version=2 ），连同帐户扣除后余额（ balance=$50 ），提交至数据库更新，此时由于提交数据版本大于数据库记录当前版本，数据被更新，数据库记录 version 更新为 2 。</li>
+<li>操作员 B 完成了操作，也将版本号加一（ version=2 ）试图向数据库提交数据（ balance=$80 ），但此时比对数据库记录版本时发现，操作员 B 提交的数据版本号为 2 ，数据库记录当前版本也为 2 ，不满足 “ 提交版本必须大于记录当前版本才能执行更新 “ 的乐观锁策略，因此，操作员 B 的提交被驳回。</li>
+</ol>
+<p>这样，就避免了操作员 B 用基于 version=1 的旧数据修改的结果覆盖操作员A 的操作结果的可能。</p>
+<h4 id="2-简单回顾一下CAS算法"><a href="#2-简单回顾一下CAS算法" class="headerlink" title="2.简单回顾一下CAS算法"></a>2.简单回顾一下CAS算法</h4><p><strong>CAS算法</strong> 即compare and swap（比较与交换），是一种有名的无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。CAS算法涉及到三个操作数</p>
+<ul>
+<li>需要读写的内存值 V</li>
+<li>进行比较的值 A</li>
+<li>拟写入的新值 B</li>
+</ul>
+<p>当且仅当 V 的值等于 A时，CAS通过原子方式用新值B来更新V的值，否则不会执行任何操作（比较和替换是一个原子操作）。一般情况下是一个自旋操作，即不断的重试。</p>
+<h3 id="乐观锁的缺点"><a href="#乐观锁的缺点" class="headerlink" title="乐观锁的缺点"></a>乐观锁的缺点</h3><blockquote>
+<p>ABA 问题是乐观锁一个常见的问题</p>
+</blockquote>
+<h4 id="1-ABA-问题"><a href="#1-ABA-问题" class="headerlink" title="1 ABA 问题"></a>1 ABA 问题</h4><p>如果一个变量V初次读取的时候是A值，并且在准备赋值的时候检查到它仍然是A值，那我们就能说明它的值没有被其他线程修改过了吗？很明显是不能的，因为在这段时间它的值可能被改为其他值，然后又改回A，那CAS操作就会误认为它从来没有被修改过。这个问题被称为CAS操作的 <strong>“ABA”问题。</strong></p>
+<p>JDK 1.5 以后的 <code>AtomicStampedReference 类</code>就提供了此种能力，其中的 <code>compareAndSet 方法</code>就是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。</p>
+<h4 id="2-循环时间长开销大"><a href="#2-循环时间长开销大" class="headerlink" title="2 循环时间长开销大"></a>2 循环时间长开销大</h4><p><strong>自旋CAS（也就是不成功就一直循环执行直到成功）如果长时间不成功，会给CPU带来非常大的执行开销。</strong> 如果JVM能支持处理器提供的pause指令那么效率会有一定的提升，pause指令有两个作用，第一它可以延迟流水线执行指令（de-pipeline）,使CPU不会消耗过多的执行资源，延迟的时间取决于具体实现的版本，在一些处理器上延迟时间是零。第二它可以避免在退出循环的时候因内存顺序冲突（memory order violation）而引起CPU流水线被清空（CPU pipeline flush），从而提高CPU的执行效率。</p>
+<h4 id="3-只能保证一个共享变量的原子操作"><a href="#3-只能保证一个共享变量的原子操作" class="headerlink" title="3 只能保证一个共享变量的原子操作"></a>3 只能保证一个共享变量的原子操作</h4><p>CAS 只对单个共享变量有效，当操作涉及跨多个共享变量时 CAS 无效。但是从 JDK 1.5开始，提供了<code>AtomicReference类</code>来保证引用对象之间的原子性，你可以把多个变量放在一个对象里来进行 CAS 操作.所以我们可以使用锁或者利用<code>AtomicReference类</code>把多个共享变量合并成一个共享变量来操作。</p>
+<h3 id="什么是自旋锁？"><a href="#什么是自旋锁？" class="headerlink" title="什么是自旋锁？"></a>什么是自旋锁？</h3><p>自旋锁（spinlock）：是指当一个线程在获取锁的时候，如果锁已经被其它线程获取，那么该线程将循环等待，然后不断的判断锁是否能够被成功获取，直到获取到锁才会退出循环。</p>
+<p>获取锁的线程一直处于活跃状态，但是并没有执行任何有效的任务，使用这种锁会造成<a href="https://en.wikipedia.org/wiki/Busy_waiting" target="_blank" rel="noopener">busy-waiting</a>。</p>
+<p>它是为实现保护共享资源而提出一种锁机制。其实，自旋锁与互斥锁比较类似，它们都是为了解决对某项资源的互斥使用。无论是互斥锁，还是自旋锁，在任何时刻，最多只能有一个保持者，也就说，在任何时刻最多只能有一个执行单元获得锁。但是两者在调度机制上略有不同。对于互斥锁，如果资源已经被占用，资源申请者只能进入睡眠状态。但是自旋锁不会引起调用者睡眠，如果自旋锁已经被别的执行单元保持，调用者就一直循环在那里看是否该自旋锁的保持者已经释放了锁，”自旋”一词就是因此而得名。</p>
+<h3 id="Java如何实现自旋锁？"><a href="#Java如何实现自旋锁？" class="headerlink" title="Java如何实现自旋锁？"></a>Java如何实现自旋锁？</h3><p>下面是个简单的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpinLock</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> AtomicReference&lt;Thread&gt; cas = <span class="keyword">new</span> AtomicReference&lt;Thread&gt;();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread current = Thread.currentThread();</span><br><span class="line">        <span class="comment">// 利用CAS</span></span><br><span class="line">        <span class="keyword">while</span> (!cas.compareAndSet(<span class="keyword">null</span>, current)) &#123;</span><br><span class="line">            <span class="comment">// DO nothing</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread current = Thread.currentThread();</span><br><span class="line">        cas.compareAndSet(current, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="number">1234567891011121314</span></span><br></pre></td></tr></table></figure>
+<p>lock（)方法利用的CAS，当第一个线程A获取锁的时候，能够成功获取到，不会进入while循环，如果此时线程A没有释放锁，另一个线程B又来获取锁，此时由于不满足CAS，所以就会进入while循环，不断判断是否满足CAS，直到A线程调用unlock方法释放了该锁。</p>
+<h3 id="自旋锁存在的问题"><a href="#自旋锁存在的问题" class="headerlink" title="自旋锁存在的问题"></a>自旋锁存在的问题</h3><ol>
+<li>如果某个线程持有锁的时间过长，就会导致其它等待获取锁的线程进入循环等待，消耗CPU。使用不当会造成CPU使用率极高。</li>
+<li>上面Java实现的自旋锁不是公平的，即无法满足等待时间最长的线程优先获取锁。不公平的锁就会存在“线程饥饿”问题。</li>
+</ol>
+<h3 id="自旋锁的优点"><a href="#自旋锁的优点" class="headerlink" title="自旋锁的优点"></a>自旋锁的优点</h3><ol>
+<li>自旋锁不会使线程状态发生切换，一直处于用户态，即线程一直都是active的；不会使线程进入阻塞状态，减少了不必要的上下文切换，执行速度快</li>
+<li>非自旋锁在获取不到锁的时候会进入阻塞状态，从而进入内核态，当获取到锁的时候需要从内核态恢复，需要线程上下文切换。 （线程被阻塞后便进入内核（Linux）调度状态，这个会导致系统在用户态与内核态之间来回切换，严重影响锁的性能）</li>
+</ol>
+<h3 id="TicketLock主要解决的是公平性的问题。"><a href="#TicketLock主要解决的是公平性的问题。" class="headerlink" title="TicketLock主要解决的是公平性的问题。"></a>TicketLock主要解决的是公平性的问题。</h3><p>思路：每当有线程获取锁的时候，就给该线程分配一个递增的id，我们称之为排队号，同时，锁对应一个服务号，每当有线程释放锁，服务号就会递增，此时如果服务号与某个线程排队号一致，那么该线程就获得锁，由于排队号是递增的，所以就保证了最先请求获取锁的线程可以最先获取到锁，就实现了公平性。</p>
+<p>可以想象成银行办理业务排队，排队的每一个顾客都代表一个需要请求锁的线程，而银行服务窗口表示锁，每当有窗口服务完成就把自己的服务号加一，此时在排队的所有顾客中，只有自己的排队号与服务号一致的才可以得到服务。</p>
+<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>Java偏向锁(Biased Locking)是Java6引入的一项多线程优化。<br>偏向锁，顾名思义，它会偏向于第一个访问锁的线程，如果在运行过程中，同步锁只有一个线程访问，不存在多线程争用的情况，则线程是不需要触发同步的，这种情况下，就会给线程加一个偏向锁。<br><strong>如果在运行过程中，遇到了其他线程抢占锁，则持有偏向锁的线程会被挂起，JVM会消除它身上的偏向锁，将锁恢复到标准的轻量级锁。</strong></p>
+<p>它通过消除资源无竞争情况下的同步原语，进一步提高了程序的运行性能。</p>
+<h4 id="偏向锁的实现"><a href="#偏向锁的实现" class="headerlink" title="偏向锁的实现"></a>偏向锁的实现</h4><p>偏向锁获取过程：</p>
+<ol>
+<li>访问Mark Word中偏向锁的标识是否设置成1，锁标志位是否为01，确认为可偏向状态。</li>
+<li>如果为可偏向状态，则测试线程ID是否指向当前线程，如果是，进入步骤5，否则进入步骤3。</li>
+<li>如果线程ID并未指向当前线程，则通过CAS操作竞争锁。如果竞争成功，则将Mark Word中线程ID设置为当前线程ID，然后执行5；如果竞争失败，执行4。</li>
+<li>如果CAS获取偏向锁失败，则表示有竞争。当到达全局安全点（safepoint）时获得偏向锁的线程被挂起，偏向锁升级为轻量级锁，然后被阻塞在安全点的线程继续往下执行同步代码。（撤销偏向锁的时候会导致stop the word）</li>
+<li>执行同步代码。</li>
+</ol>
+<p>注意：第四步中到达安全点safepoint会导致stop the word，时间很短。</p>
+<h4 id="偏向锁的释放："><a href="#偏向锁的释放：" class="headerlink" title="偏向锁的释放："></a>偏向锁的释放：</h4><p>偏向锁的撤销在上述第四步骤中有提到。偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，<strong>线程不会主动去释放偏向锁。</strong>偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，判断锁对象是否处于被锁定状态，撤销偏向锁后恢复到未锁定（标志位为“01”）或轻量级锁（标志位为“00”）的状态。</p>
+<h4 id="偏向锁的适用场景"><a href="#偏向锁的适用场景" class="headerlink" title="偏向锁的适用场景"></a>偏向锁的适用场景</h4><p>始终只有一个线程在执行同步块，在它没有执行完释放锁之前，没有其它线程去执行同步块，在锁无竞争的情况下使用，一旦有了竞争就升级为轻量级锁，升级为轻量级锁的时候需要撤销偏向锁，撤销偏向锁的时候会导致stop the word操作；<br>在有锁的竞争时，偏向锁会多做很多额外操作，尤其是撤销偏向所的时候会导致进入安全点，安全点会导致stw，导致性能下降，这种情况下应当禁用； </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h3 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h3><p>线程的阻塞和唤醒需要CPU从用户态转为核心态，频繁的阻塞和唤醒对CPU来说是一件负担很重的工作。同时我们可以发现，很多对象锁的锁定状态只会持续很短的一段时间，例如整数的自加操作，在很短的时间内阻塞并唤醒线程显然不值得，为此引入了自旋锁。</p>
+<p>所谓“自旋”，就是让线程去执行一个无意义的循环，循环结束后再去重新竞争锁，如果竞争不到继续循环，循环过程中线程会一直处于running状态，但是基于JVM的线程调度，会出让时间片，所以其他线程依旧有申请锁和释放锁的机会。</p>
+<p>自旋锁省去了阻塞锁的时间空间（队列的维护等）开销，但是长时间自旋就变成了“忙式等待”，忙式等待显然还不如阻塞锁。所以自旋的次数一般控制在一个范围内，例如10,100等，在超出这个范围后，自旋锁会升级为阻塞锁。（即从轻量级锁转变为重量级锁）</p>
+<h3 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h3><p>加锁</p>
+<p>线程在执行同步块之前，JVM会先在当前线程的栈桢中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中，官方称为Displaced Mark Word。<strong>然后线程尝试使用CAS将对象头中的Mark Word替换为指向锁记录的指针。如果成功，当前线程获得锁，如果失败，则自旋获取锁，当自旋获取锁仍然失败时，表示存在其他线程竞争锁(两条或两条以上的线程竞争同一个锁)，则轻量级锁会膨胀成重量级锁。</strong></p>
+<p>解锁</p>
+<p><strong>轻量级解锁时，会使用原子的CAS操作来将Displaced Mark Word替换回到对象头，如果成功，则表示同步过程已完成。</strong>如果失败，表示有其他线程尝试过获取该锁，则要在释放锁的同时唤醒被挂起的线程。</p>
+<h3 id="重量级锁"><a href="#重量级锁" class="headerlink" title="重量级锁"></a>重量级锁</h3><p>重量锁在JVM中又叫对象监视器（Monitor），它很像C中的Mutex，除了具备Mutex(0|1)互斥的功能，它还负责实现了Semaphore(信号量)的功能，也就是说它至少包含一个竞争锁的队列，和一个信号阻塞队列（wait队列），前者负责做互斥，后一个用于做线程同步。</p>
+<p><strong>如果说轻量级锁是在无竞争的情况下使用CAS操作去消除同步使用的互斥量，那偏向锁就是在无竞争的情况下把整个同步都消除掉，连CAS都不做了。</strong></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/01/解决缓存数据库双写不一致/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/01/解决缓存数据库双写不一致/" itemprop="url">解决缓存数据库双写不一致</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-01T17:19:51+08:00">
+                2019-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.8k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在讲双写不一致的时候，先将为什么会发生双写不一致。<br>数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改</p>
+<p>一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中</p>
+<p>数据变更的程序完成了数据库的修改</p>
+<p>完了，数据库和缓存中的数据不一样了。。。。</p>
+<p><strong>hash路由的算法，跟HashMap中的hash算法是一样的。</strong>    </p>
+<ul>
+<li>直接调用hashcode函数，求得的hash值过大，不适合拿来直接做下标，所以要通过将hash做一次扰动再跟已有的队列-1再取模。</li>
+</ul>
+<p>通过线程池 +内存队列+通过同个商品的ID路由到同一个队列中，将写请求，和读请求做到一个串行化的效果。只有当写请求完成之后，工作线程才会进行读请求的进行。</p>
+<p>更新请求：删除缓存，修改数据库</p>
+<p>读请求：读缓存，发现空，进入队列中等待，排到了则读数据库，并将数据写入缓存，返回数据</p>
+<p>问题1：当写请求不断积压，读请求等待的时间过长，超过最大等待时间，会直接读数据库，造成双写不一致。</p>
+<p>所以在这时候需要添加机器，分散队列的写请求服务。</p>
+<p>少量情况下，可能遇到读跟数据更新冲突的情况，如上所述，那么此时更新操作如果先入队列，之后可能会瞬间来了对这个数据大量的读请求，但是因为做了去重的优化，所以也就一个更新缓存的操作跟在它后面</p>
+<p>等数据更新完了，读请求触发的缓存更新操作也完成，然后临时等待的读请求全部可以读到缓存中的数据</p>
+<p>问题2：大量的读请求在服务上等待。</p>
+<p>当有大量的读请求时，此时若缓存为空，那么会通过去重，只让一个读请求进入队列中等待操作。</p>
+<p>但可能发生，队列中的读操作还没完成，大量的读请求在服务中等待，造成服务宕机。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">进入队列后，读请求会有一个等待的时间，等待同步更新操作完成，这样的话，一个数据变更的操作，先执行，删除缓存，然后再去更新数据库，但是还没完成更新</span><br><span class="line"></span><br><span class="line">此时如果一个读请求过来，读到了空的缓存，那么可以先将缓存更新的请求发送到队列中，此时会在队列中积压，然后同步等待缓存更新完成</span><br><span class="line">这里有一个优化点，一个队列中，其实多个更新缓存请求串在一起是没意义的，因此可以做过滤，如果发现队列中已经有一个更新缓存的请求了，那么就不用再放个更新请求操作进去了，直接等待前面的更新操作请求完成即可</span><br><span class="line"></span><br><span class="line">待那个队列对应的工作线程完成了上一个操作的数据库的修改之后，才会去执行下一个操作，也就是缓存更新的操作，此时会从数据库中读取最新的值，然后写入缓存中</span><br><span class="line"></span><br><span class="line">如果请求还在等待时间范围内，不断轮询发现可以取到值了，那么就直接返回; 如果请求等待的时间超过一定时长，那么这一次直接从数据库中读取当前的旧值</span><br></pre></td></tr></table></figure>
+<h3 id="高并发下的缓存与-数据库双写不一致问题分析与设计"><a href="#高并发下的缓存与-数据库双写不一致问题分析与设计" class="headerlink" title="高并发下的缓存与+数据库双写不一致问题分析与设计"></a>高并发下的缓存与+数据库双写不一致问题分析与设计</h3><p>马上开始去开发业务系统</p>
+<p>从哪一步开始做，从比较简单的那一块开始做，实时性要求比较高的那块数据的缓存去做</p>
+<p>实时性比较高的数据缓存，选择的就是库存的服务</p>
+<p>库存可能会修改，每次修改都要去更新这个缓存数据; 每次库存的数据，在缓存中一旦过期，或者是被清理掉了，前端的nginx服务都会发送请求给库存服务，去获取相应的数据</p>
+<p>库存这一块，写数据库的时候，直接更新redis缓存</p>
+<p>实际上没有这么的简单，这里，其实就涉及到了一个问题，<strong>数据库与缓存双写，数据不一致的问题</strong></p>
+<p>围绕和结合实时性较高的库存服务，把数据库与缓存双写不一致问题以及其解决方案，给大家讲解一下</p>
+<p>数据库与缓存双写不一致，很常见的问题，大型的缓存架构中，第一个解决方案</p>
+<p>大型的缓存架构全部讲解完了以后，整套架构是非常复杂，架构可以应对各种各样奇葩和极端的情况</p>
+<p>也有一种可能，不是说，来讲课的就是超人，万能的</p>
+<p>讲课，就跟写书一样，很可能会写错，也可能有些方案里的一些地方，我没考虑到</p>
+<p>也可能说，有些方案只是适合某些场景，在某些场景下，可能需要你进行方案的优化和调整才能适用于你自己的项目</p>
+<p>大家觉得对这些方案有什么疑问或者见解，都可以找我，沟通一下</p>
+<p>如果的确我觉得是我讲解的不对，或者有些地方考虑不周，那么我可以在视频里补录，更新到网站上面去</p>
+<p>多多包涵</p>
+<p>1、最初级的缓存不一致问题以及解决方案</p>
+<p>问题：先修改数据库，再删除缓存，如果删除缓存失败了，那么会导致数据库中是新数据，缓存中是旧数据，数据出现不一致</p>
+<p>解决思路</p>
+<p>先删除缓存，再修改数据库，如果删除缓存成功了，如果修改数据库失败了，那么数据库中是旧数据，缓存中是空的，那么数据不会不一致</p>
+<p>因为读的时候缓存没有，则读数据库中旧数据，然后更新到缓存中</p>
+<p>2、比较复杂的数据不一致问题分析</p>
+<p>数据发生了变更，先删除了缓存，然后要去修改数据库，此时还没修改</p>
+<p>一个请求过来，去读缓存，发现缓存空了，去查询数据库，查到了修改前的旧数据，放到了缓存中</p>
+<p>数据变更的程序完成了数据库的修改</p>
+<p>完了，数据库和缓存中的数据不一样了。。。。</p>
+<p>3、为什么上亿流量高并发场景下，缓存会出现这个问题？</p>
+<p>只有在对一个数据在并发的进行读写的时候，才可能会出现这种问题</p>
+<p>其实如果说你的并发量很低的话，特别是读并发很低，每天访问量就1万次，那么很少的情况下，会出现刚才描述的那种不一致的场景</p>
+<p>但是问题是，如果每天的是上亿的流量，每秒并发读是几万，每秒只要有数据更新的请求，就可能会出现上述的数据库+缓存不一致的情况</p>
+<p>高并发了以后，问题是很多的</p>
+<p><strong>4、数据库与缓存更新与读取操作进行异步串行化</strong></p>
+<p>更新数据的时候，根据数据的唯一标识，将操作路由之后，发送到一个jvm内部的队列中</p>
+<p>读取数据的时候，如果发现数据不在缓存中，那么将重新读取数据+更新缓存的操作，根据唯一标识路由之后，也发送同一个jvm内部的队列中</p>
+<p>一个队列对应一个工作线程</p>
+<p>每个工作线程串行拿到对应的操作，然后一条一条的执行</p>
+<p>这样的话，一个数据变更的操作，先执行，删除缓存，然后再去更新数据库，但是还没完成更新</p>
+<p>此时如果一个读请求过来，读到了空的缓存，那么可以先将缓存更新的请求发送到队列中，此时会在队列中积压，然后同步等待缓存更新完成</p>
+<p>这里有一个优化点，一个队列中，其实多个更新缓存请求串在一起是没意义的，因此可以做过滤，如果发现队列中已经有一个更新缓存的请求了，那么就不用再放个更新请求操作进去了，直接等待前面的更新操作请求完成即可</p>
+<p>待那个队列对应的工作线程完成了上一个操作的数据库的修改之后，才会去执行下一个操作，也就是缓存更新的操作，此时会从数据库中读取最新的值，然后写入缓存中</p>
+<p>如果请求还在等待时间范围内，不断轮询发现可以取到值了，那么就直接返回; 如果请求等待的时间超过一定时长，那么这一次直接从数据库中读取当前的旧值</p>
+<p>5、高并发的场景下，该解决方案要注意的问题</p>
+<p><strong>（1）读请求长时阻塞</strong></p>
+<p>由于读请求进行了非常轻度的异步化，所以一定要注意读超时的问题，每个读请求必须在超时时间范围内返回</p>
+<p>该解决方案，最大的风险点在于说，可能数据更新很频繁，导致队列中积压了大量更新操作在里面，然后读请求会发生大量的超时，最后导致大量的请求直接走数据库</p>
+<p>务必通过一些模拟真实的测试，看看更新数据的频繁是怎样的</p>
+<p>另外一点，因为一个队列中，可能会积压针对多个数据项的更新操作，因此需要根据自己的业务情况进行测试，可能需要部署多个服务，每个服务分摊一些数据的更新操作</p>
+<p>如果一个内存队列里居然会挤压100个商品的库存修改操作，每隔库存修改操作要耗费10ms区完成，那么最后一个商品的读请求，可能等待10 * 100 = 1000ms = 1s后，才能得到数据</p>
+<p>这个时候就导致读请求的长时阻塞</p>
+<p>一定要做根据实际业务系统的运行情况，去进行一些压力测试，和模拟线上环境，去看看最繁忙的时候，内存队列可能会挤压多少更新操作，可能会导致最后一个更新操作对应的读请求，会hang多少时间，如果读请求在200ms返回，如果你计算过后，哪怕是最繁忙的时候，积压10个更新操作，最多等待200ms，那还可以的</p>
+<p>如果一个内存队列可能积压的更新操作特别多，那么你就要加机器，让每个机器上部署的服务实例处理更少的数据，那么每个内存队列中积压的更新操作就会越少</p>
+<p>其实根据之前的项目经验，一般来说数据的写频率是很低的，因此实际上正常来说，在队列中积压的更新操作应该是很少的</p>
+<p>针对读高并发，读缓存架构的项目，一般写请求相对读来说，是非常非常少的，每秒的QPS能到几百就不错了</p>
+<p>一秒，500的写操作，5份，每200ms，就100个写操作</p>
+<p>单机器，20个内存队列，每个内存队列，可能就积压5个写操作，每个写操作性能测试后，一般在20ms左右就完成</p>
+<p>那么针对每个内存队列中的数据的读请求，也就最多hang一会儿，200ms以内肯定能返回了</p>
+<p>写QPS扩大10倍，但是经过刚才的测算，就知道，单机支撑写QPS几百没问题，那么就扩容机器，扩容10倍的机器，10台机器，每个机器20个队列，200个队列</p>
+<p>大部分的情况下，应该是这样的，大量的读请求过来，都是直接走缓存取到数据的</p>
+<p>少量情况下，可能遇到读跟数据更新冲突的情况，如上所述，那么此时更新操作如果先入队列，之后可能会瞬间来了对这个数据大量的读请求，但是因为做了去重的优化，所以也就一个更新缓存的操作跟在它后面</p>
+<p>等数据更新完了，读请求触发的缓存更新操作也完成，然后临时等待的读请求全部可以读到缓存中的数据</p>
+<p>（2）读请求并发量过高</p>
+<p>这里还必须做好压力测试，确保恰巧碰上上述情况的时候，还有一个风险，就是突然间大量读请求会在几十毫秒的延时hang在服务上，看服务能不能抗的住，需要多少机器才能抗住最大的极限情况的峰值</p>
+<p>但是因为并不是所有的数据都在同一时间更新，缓存也不会同一时间失效，所以每次可能也就是少数数据的缓存失效了，然后那些数据对应的读请求过来，并发量应该也不会特别大</p>
+<p>按1:99的比例计算读和写的请求，每秒5万的读QPS，可能只有500次更新操作</p>
+<p>如果一秒有500的写QPS，那么要测算好，可能写操作影响的数据有500条，这500条数据在缓存中失效后，可能导致多少读请求，发送读请求到库存服务来，要求更新缓存</p>
+<p>一般来说，1:1，1:2，1:3，每秒钟有1000个读请求，会hang在库存服务上，每个读请求最多hang多少时间，200ms就会返回</p>
+<p>在同一时间最多hang住的可能也就是单机200个读请求，同时hang住</p>
+<p>单机hang200个读请求，还是ok的</p>
+<p>1:20，每秒更新500条数据，这500秒数据对应的读请求，会有20 * 500 = 1万</p>
+<p>1万个读请求全部hang在库存服务上，就死定了</p>
+<p>（3）多服务实例部署的请求路由</p>
+<p>可能这个服务部署了多个实例，那么必须保证说，执行数据更新操作，以及执行缓存更新操作的请求，都通过nginx服务器路由到相同的服务实例上</p>
+<p>（4）热点商品的路由问题，导致请求的倾斜</p>
+<p>万一某个商品的读写请求特别高，全部打到相同的机器的相同的队列里面去了，可能造成某台机器的压力过大</p>
+<p>就是说，因为只有在商品数据更新的时候才会清空缓存，然后才会导致读写并发，所以更新频率不是太高的话，这个问题的影响并不是特别大</p>
+<p>但是的确可能某些机器的负载会高一些</p>
+<h3 id="在库存服务中实现缓存与数据库双写一致性保障方案"><a href="#在库存服务中实现缓存与数据库双写一致性保障方案" class="headerlink" title="在库存服务中实现缓存与数据库双写一致性保障方案"></a>在库存服务中实现缓存与数据库双写一致性保障方案</h3><p>更新数据的时候，根据数据的唯一标识，将操作路由之后，发送到一个jvm内部的队列中</p>
+<p>读取数据的时候，如果发现数据 不在缓存中，那么将重新读取数据+更新缓存的操作，根据唯一标识路由之后，也发送同一个jvm内部的队列中</p>
+<p>一个队列对应一个工作线程</p>
+<p>每个工作线程串行拿到对应的操作，然后一条一条的执行</p>
+<p>这样的话，一个数据变更的操作，先执行，删除缓存，然后再去更新数据库，但是还没完成更新</p>
+<p>此时如果一个读请求过来，读到了空的缓存，那么可以先将缓存更新的请求发送到队列中，此时会在队列中积压，然后同步等待缓存更新完成</p>
+<p>这里有一个优化点，一个队列中，其实多个更新缓存请求串在一起是没意义的，因此可以做过滤，如果发现队列中已经有一个更新缓存的请求了，那么就不用再放个更新请求操作进去了，直接等待前面的更新操作请求完成即可</p>
+<p>待那个队列对应的工作线程完成了上一个操作的数据库的修改之后，才会去执行下一个操作，也就是缓存更新的操作，此时会从数据库中读取最新的值，然后写入缓存中</p>
+<p>如果请求还在等待时间范围内，不断轮询发现可以取到值了，那么就直接返回; 如果请求等待的时间超过一定时长，那么这一次直接从数据库中读取当前的旧值</p>
+<p>int h;<br>return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);</p>
+<p>(queueNum - 1) &amp; hash</p>
+<p>1、线程池+内存队列 化</p>
+<p>@Bean<br>public ServletListenerRegistrationBean servletListenerRegistrationBean(){<br>    ServletListenerRegistrationBean servletListenerRegistrationBean = new ServletListenerRegistrationBean();<br>    servletListenerRegistrationBean.setListener(new InitListener());<br>    return servletListenerRegistrationBean;<br>}</p>
+<p>java web应用，做系统的初始化，一般在哪里做呢？</p>
+<p>ServletContextListener里面做，listener，会跟着整个web应用的启动，就初始化，类似于线程池初始化的构建</p>
+<p><strong>使用单例初始化线程池，基于静态内部类（静态代码块）初始化线程池的方式，</strong></p>
+<p>spring boot应用，Application，搞一个listener的注册</p>
+<p>2、两种请求对象封装</p>
+<p>3、请求异步执行Service封装</p>
+<p>4、两种请求Controller接口封装</p>
+<p>5、读请求去重优化</p>
+<p>6、空数据读请求过滤优化</p>
+<p>队列</p>
+<p>对一个商品的库存的数据库更新操作已经在内存队列中了</p>
+<p>然后对这个商品的库存的读取操作，要求读取数据库的库存数据，然后更新到缓存中，多个读</p>
+<p>这多个读，其实只要有一个读请求操作压到队列里就可以了</p>
+<p>其他的读操作，全部都wait那个读请求的操作，刷新缓存，就可以读到缓存中的最新数据了</p>
+<p>如果读请求发现redis缓存中没有数据，就会发送读请求给库存服务，但是此时缓存中为空，可能是因为写请求先删除了缓存，也可能是数据库里压根儿没这条数据</p>
+<p>如果是数据库中压根儿没这条数据的场景，那么就不应该将读请求操作给压入队列中，而是直接返回空就可以了</p>
+<p>都是为了减少内存队列中的请求积压，内存队列中积压的请求越多，就可能导致每个读请求hang住的时间越长，也可能导致多个读请求被hang住</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/扩展/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1462,179 +1955,6 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/07/图/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/07/图/" itemprop="url">图</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-07T10:15:41+08:00">
-                2019-09-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  5
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="图"><a href="#图" class="headerlink" title="图"></a>图</h2><p>是大大大</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/07/位运算符/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2271,157 +2591,6 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/21/递归/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/21/递归/" itemprop="url">递归</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-21T15:15:23+08:00">
-                2019-08-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  5
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="http://lylblog.cn/blog/4" target="_blank" rel="noopener">http://lylblog.cn/blog/4</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2474,7 +2643,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2496,7 +2665,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2570,7 +2739,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共76.5k字</span>
+  <span class="post-count">博客全站共79.4k字</span>
 </div>
 
         

@@ -88,7 +88,7 @@
 <meta property="og:description" content="HTTPS的工作原理（1）客户使用https的URL访问Web服务器，要求与Web服务器建立SSL连接。 　　（2）Web服务器收到客户端请求后，会将网站的证书信息（证书中包含公钥）传送一份给客户端。 　　（3）客户端的浏览器与Web服务器开始协商SSL连接的安全等级，也就是信息加密的等级。 　　（4）客户端的浏览器根据双方同意的安全等级，建立会话密钥，然后利用网站的公钥将会话密钥加密，并传送给网">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://pic002.cnblogs.com/images/2012/339704/2012071410212142.gif">
-<meta property="og:updated_time" content="2019-10-03T08:02:37.362Z">
+<meta property="og:updated_time" content="2019-10-03T15:13:17.297Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="模拟第二天">
 <meta name="twitter:description" content="HTTPS的工作原理（1）客户使用https的URL访问Web服务器，要求与Web服务器建立SSL连接。 　　（2）Web服务器收到客户端请求后，会将网站的证书信息（证书中包含公钥）传送一份给客户端。 　　（3）客户端的浏览器与Web服务器开始协商SSL连接的安全等级，也就是信息加密的等级。 　　（4）客户端的浏览器根据双方同意的安全等级，建立会话密钥，然后利用网站的公钥将会话密钥加密，并传送给网">
@@ -353,7 +353,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  945
+                  2k
                 </span>
               
 
@@ -369,7 +369,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  3
+                  7
                 </span>
               
             </div>
@@ -409,6 +409,15 @@
 <p>Condition是JDK1.5之后才有的，它具有很好的灵活性，比如可以实现多路通知功能也就是在一个Lock对象中可以创建多个Condition实例（即对象监视器），线程对象可以注册在指定的Condition中，从而可以有选择性的进行线程通知，在调度线程上更加灵活。 在使用notify/notifyAll()方法进行通知时，被通知的线程是由JVM选择的，用ReentrantLock类结合Condition实例可以实现”选择性通知”，这个功能非常重要，而且是Condition接口默认提供的。而 synchronized关键字就相当于整个Lock对象中只有一个Condition实例，所有的线程都注册在它一个身上。如果执行notifyAll()方法的话就会通知所有处于等待状态的线程这样会造成很大的效率问题，而Condition实例的 signalAll()方法 只会唤醒注册在该Condition实例中的所有等待线程。 </p>
 </li>
 </ul>
+<h3 id="聚簇索引和非聚簇索引（二级索引）"><a href="#聚簇索引和非聚簇索引（二级索引）" class="headerlink" title="聚簇索引和非聚簇索引（二级索引）"></a>聚簇索引和非聚簇索引（二级索引）</h3><p><strong>myisam索引：因为myisam的索引和数据是分开存储存储的，myisam通过key_buffer把索引先缓存到内存中，当需要访问数据时（通过索引访问数据），在内存中直接搜索索引，然后通过索引找到磁盘相应数据，这也就是为什么索引不在key buffer命中时，速度慢的原因  </strong></p>
+<p><strong>innodb索引：innodb的数据和索引放在一起，当找到索引也就找到了数据</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MySQL的BTree索引使用的是B树中的B+Tree，但对于主要的两种存储引擎的实现方式是不同的。</span><br><span class="line"></span><br><span class="line">MyISAM: B+Tree叶节点的data域存放的是数据记录的地址。在索引检索的时候，首先按照B+Tree搜索算法搜索索引，如果指定的Key存在，则取出其 data 域的值，然后以 data 域的值为地址读取相应的数据记录。这被称为“非聚簇索引”。</span><br><span class="line">InnoDB: 其数据文件本身就是索引文件。相比MyISAM，索引文件和数据文件是分离的，其表数据文件本身就是按B+Tree组织的一个索引结构，树的叶节点data域保存了完整的数据记录。这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。这被称为“聚簇索引（或聚集索引）”。而其余的索引都作为辅助索引，辅助索引的data域存储相应记录主键的值而不是地址，这也是和MyISAM不同的地方。在根据主索引搜索时，直接找到key所在的节点即可取出数据；在根据辅助索引查找时，则需要先取出主键的值，再走一遍主索引。 因此，在设计表的时候，不建议使用过长的字段作为主键，也不建议使用非单调的字段作为主键，这样会造成主索引频繁分裂。 PS：整理自《Java工程师修炼之道》</span><br></pre></td></tr></table></figure>
+<p>mysql的聚簇索引是指innodb引擎的特性，mysiam并没有，如果需要该索引，只要将索引指定为主键（primary key）就可以了。</p>
+<p>比如：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> blog_user</span><br><span class="line">(</span><br><span class="line">  user_Name <span class="built_in">char</span>(<span class="number">15</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">check</span>(user_Name !=<span class="string">''</span>),</span><br><span class="line">  user_Password <span class="built_in">char</span>(<span class="number">15</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">  user_emial <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">unique</span>,</span><br><span class="line">  primary <span class="keyword">key</span>(user_Name)          </span><br><span class="line"></span><br><span class="line">)<span class="keyword">engine</span>=<span class="keyword">innodb</span> <span class="keyword">default</span> <span class="keyword">charset</span>=utf8 auto_increment=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>其中的 primary key(user_Name) 这个就是聚簇索引索引了；<br>聚簇索引的叶节点就是数据节点，而非聚簇索引的叶节点仍然是索引节点，并保留一个链接指向对应数据块。</p>
+<p>聚簇索引主键的插入速度要比非聚簇索引主键的插入速度慢很多。相比之下，聚簇索引适合排序，非聚簇索引（也叫二级索引）不适合用在排序的场合。<br>因为聚簇索引本身已经是按照物理顺序放置的，排序很快。非聚簇索引则没有按序存放，需要额外消耗资源来排序。<br>当你需要取出一定范围内的数据时，用聚簇索引也比用非聚簇索引好。<br>另外，二级索引需要两次索引查找，而不是一次才能取到数据，因为存储引擎第一次需要通过二级索引找到索引的叶子节点，从而找到数据的主键，然后在聚簇索引中用主键再次查找索引，再找到数据。</p>
+<p>innodb索引分类：<br>聚簇索引(clustered index)<br>    1)  有主键时，根据主键创建聚簇索引<br>    2)  没有主键时，会用一个唯一且不为空的索引列做为主键，成为此表的聚簇索引<br>    3) 如果以上两个都不满足那innodb自己创建一个虚拟的聚集索引<br>辅助索引(secondary index)<br>   非聚簇索引都是辅助索引，像复合索引、前缀索引、唯一索引<br>————————————————<br>版权声明：本文为CSDN博主「大树叶」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/bigtree_3721/article/details/51335479" target="_blank" rel="noopener">https://blog.csdn.net/bigtree_3721/article/details/51335479</a></p>
 
       
     </div>
@@ -530,7 +539,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-count">42</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -552,7 +561,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -585,7 +594,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS的工作原理"><span class="nav-number">1.</span> <span class="nav-text">HTTPS的工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Synchronized和ReentrantLock的区别"><span class="nav-number">2.</span> <span class="nav-text">Synchronized和ReentrantLock的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#①-两者都是可重入锁"><span class="nav-number">2.1.</span> <span class="nav-text">① 两者都是可重入锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#②synchronized依赖于JVM而ReenTrantLock依赖于API"><span class="nav-number">2.2.</span> <span class="nav-text">②synchronized依赖于JVM而ReenTrantLock依赖于API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#③ReenTrantLock比synchronized增加了一些高级功能"><span class="nav-number">2.3.</span> <span class="nav-text">③ReenTrantLock比synchronized增加了一些高级功能</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS的工作原理"><span class="nav-number">1.</span> <span class="nav-text">HTTPS的工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Synchronized和ReentrantLock的区别"><span class="nav-number">2.</span> <span class="nav-text">Synchronized和ReentrantLock的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#①-两者都是可重入锁"><span class="nav-number">2.1.</span> <span class="nav-text">① 两者都是可重入锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#②synchronized依赖于JVM而ReenTrantLock依赖于API"><span class="nav-number">2.2.</span> <span class="nav-text">②synchronized依赖于JVM而ReenTrantLock依赖于API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#③ReenTrantLock比synchronized增加了一些高级功能"><span class="nav-number">2.3.</span> <span class="nav-text">③ReenTrantLock比synchronized增加了一些高级功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#聚簇索引和非聚簇索引（二级索引）"><span class="nav-number">3.</span> <span class="nav-text">聚簇索引和非聚簇索引（二级索引）</span></a></li></ol></div>
             
 
           </div>
@@ -642,7 +651,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共76.5k字</span>
+  <span class="post-count">博客全站共79.4k字</span>
 </div>
 
         
