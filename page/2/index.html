@@ -281,6 +281,392 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/02/zookeeper-kafka/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/02/zookeeper-kafka/" itemprop="url">zookeeper+kafka+nginx</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-02T19:37:21+08:00">
+                2019-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.9k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="zookeeper-与-kafka集群的搭建"><a href="#zookeeper-与-kafka集群的搭建" class="headerlink" title="zookeeper 与 kafka集群的搭建"></a>zookeeper 与 kafka集群的搭建</h3><p>多级缓存的架构</p>
+<p>主要是用来解决什么样的数据的缓存的更新的啊？？？</p>
+<p>时效性不高的数据，比如一些商品的基本信息，如果发生了变更，假设在5分钟之后再更新到页面中，供用户观察到，也是ok的</p>
+<p>时效性要求不高的数据，那么我们采取的是异步更新缓存的策略</p>
+<p>时效性要求很高的数据，库存，采取的是数据库+缓存双写的技术方案，也解决了双写的一致性的问题</p>
+<p>缓存数据生产服务，监听一个消息队列，然后数据源服务（商品信息管理服务）发生了数据变更之后，就将数据变更的消息推送到消息队列中</p>
+<p>缓存数据生产服务可以去消费到这个数据变更的消息，然后根据消息的指示提取一些参数，然后调用对应的数据源服务的接口，拉去数据，这个时候一般是从mysql库中拉去的</p>
+<p>消息队列是什么东西？采取打的就是kafka</p>
+<p>我工作的时候，很多项目是跟大数据相关的，当然也有很多是纯java系统的架构，最近用kafka用得比较多</p>
+<p>kafka比较简单易用，讲课来说，很方便</p>
+<p>解释一下，我们当然是不可能对课程中涉及的各种技术都深入浅出的讲解的了，kafka，花上20个小时给你讲解一下，不可能的</p>
+<p>所以说呢，在这里，一些技术的组合，用什么都ok</p>
+<p>笑傲江湖中的风清扬，手中无剑胜有剑，还有任何东西都可以当做兵器，哪怕是一根草也可以</p>
+<p>搞技术，kafka和activemq肯定有区别，但是说，在有些场景下，其实可能没有那么大的区分度，kafka和activemq其实是一样的</p>
+<p>生产者+消费者的场景，kafka+activemq都ok</p>
+<p>涉及的这种架构，对时效性要求高和时效性要求低的数据，分别采取什么技术方案？数据库+缓存双写一致性？异步+多级缓存架构？大缓存的维度化拆分？</p>
+<p>你要关注的，是一些架构上的东西和思想，而不是具体的什么mq的使用</p>
+<p>activemq的课程，书籍，资料</p>
+<p>kafka集群，zookeeper集群，先搭建zookeeper集群，再搭建kafka集群</p>
+<p>kafka另外一个原因：kafka，本来就要搭建zookeeper，zookeeper这个东西，后面我们还要用呢，缓存的分布式并发更新的问题，分布式锁解决</p>
+<p>zookeeper + kafka的集群，都是三节点</p>
+<p>java高级工程师的思想，在干活儿，在思考，jvm，宏观的思考，通盘去考虑整个架构，还有未来的技术规划，业务的发展方向，架构的演进方向和路线</p>
+<p>把课程里讲解的各种技术方案组合成、修改成你需要的适合你的业务的缓存架构</p>
+<p>1、zookeeper集群搭建</p>
+<p>将课程提供的zookeeper-3.4.5.tar.gz使用WinSCP拷贝到/usr/local目录下。<br>对zookeeper-3.4.5.tar.gz进行解压缩：tar -zxvf zookeeper-3.4.5.tar.gz。<br>对zookeeper目录进行重命名：mv zookeeper-3.4.5 zk</p>
+<p>配置zookeeper相关的环境变量<br>vi ~/.bashrc<br>export ZOOKEEPER_HOME=/usr/local/zk<br>export PATH=$PATH:$ZOOKEEPER_HOME/bin</p>
+<p>source ~/.bashrc</p>
+<p>cd zk/conf<br>cp zoo_sample.cfg zoo.cfg</p>
+<p>vi zoo.cfg<br>修改：dataDir=/usr/local/zk/data<br>新增：<br>server.0=eshop-cache01:2888:3888<br>server.1=eshop-cache02:2888:3888<br>server.2=eshop-cache03:2888:3888</p>
+<p>cd zk<br>mkdir data<br>cd data</p>
+<p>vi myid<br>0</p>
+<p>在另外两个节点上按照上述步骤配置ZooKeeper，使用scp将zk和.bashrc拷贝到eshop-cache02和eshop-cache03上即可。唯一的区别是标识号分别设置为1和2。</p>
+<p>分别在三台机器上执行：zkServer.sh start。<br>检查ZooKeeper状态：zkServer.sh status，应该是一个leader，两个follower<br>jps：检查三个节点是否都有QuromPeerMain进程</p>
+<p>2、kafka集群搭建</p>
+<p>scala，我就不想多说了，就是一门编程语言，现在比较火，很多比如大数据领域里面的spark（计算引擎）就是用scala编写的</p>
+<p>将课程提供的scala-2.11.4.tgz使用WinSCP拷贝到/usr/local目录下。<br>对scala-2.11.4.tgz进行解压缩：tar -zxvf scala-2.11.4.tgz。<br>对scala目录进行重命名：mv scala-2.11.4 scala</p>
+<p>配置scala相关的环境变量<br>vi ~/.bashrc<br>export SCALA_HOME=/usr/local/scala<br>export PATH=$SCALA_HOME/bin<br>source ~/.bashrc</p>
+<p>查看scala是否安装成功：scala -version</p>
+<p>按照上述步骤在其他机器上都安装好scala。使用scp将scala和.bashrc拷贝到另外两台机器上即可。</p>
+<p>将课程提供的kafka_2.9.2-0.8.1.tgz使用WinSCP拷贝到/usr/local目录下。<br>对kafka_2.9.2-0.8.1.tgz进行解压缩：tar -zxvf kafka_2.9.2-0.8.1.tgz。<br>对kafka目录进行改名：mv kafka_2.9.2-0.8.1 kafka</p>
+<p>配置kafka<br>vi /usr/local/kafka/config/server.properties<br>broker.id：依次增长的整数，0、1、2，集群中Broker的唯一id<br>zookeeper.connect=192.168.31.187:2181,192.168.31.19:2181,192.168.31.227:2181</p>
+<p>安装slf4j<br>将课程提供的slf4j-1.7.6.zip上传到/usr/local目录下<br>unzip slf4j-1.7.6.zip<br>把slf4j中的slf4j-nop-1.7.6.jar复制到kafka的libs目录下面</p>
+<p>解决kafka Unrecognized VM option ‘UseCompressedOops’问题</p>
+<p>vi /usr/local/kafka/bin/kafka-run-class.sh </p>
+<p>if [ -z “$KAFKA_JVM_PERFORMANCE_OPTS” ]; then<br>  KAFKA_JVM_PERFORMANCE_OPTS=”-server  -XX:+UseCompressedOops -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+CMSScavengeBeforeRemark -XX:+DisableExplicitGC -Djava.awt.headless=true”<br>fi</p>
+<p>去掉-XX:+UseCompressedOops即可</p>
+<p>按照上述步骤在另外两台机器分别安装kafka。用scp把kafka拷贝到其他机器即可。<br>唯一区别的，就是server.properties中的broker.id，要设置为1和2</p>
+<p>在三台机器上的kafka目录下，分别执行以下命令：nohup bin/kafka-server-start.sh config/server.properties &amp;</p>
+<p>使用jps检查启动是否成功</p>
+<p>使用基本命令检查kafka是否搭建成功</p>
+<p>bin/kafka-topics.sh –zookeeper 192.168.229.7:2181,192.168.229.8:2181,192.168.229.9:2181 –topic test –replication-factor 1 –partitions 1 –create</p>
+<p>bin/kafka-console-producer.sh –broker-list 192.168.229.7:9092,192.168.229.8:9092,192.168.229.9:9092 –topic test</p>
+<p>bin/kafka-console-consumer.sh –bootstrap-server 192.168.229.7:9092,192.168.229.8:9092,192.168.229.9:9092 –topic test –from-beginning</p>
+<h3 id="基于“分发层-应用层”双层nginx架构提升缓存命中率"><a href="#基于“分发层-应用层”双层nginx架构提升缓存命中率" class="headerlink" title="基于“分发层+应用层”双层nginx架构提升缓存命中率"></a>基于“分发层+应用层”双层nginx架构提升缓存命中率</h3><p>1、缓存命中率低</p>
+<p>缓存数据生产服务那一层已经搞定了，相当于三层缓存架构中的本地堆缓存+redis分布式缓存都搞定了</p>
+<p>就要来做三级缓存中的nginx那一层的缓存了</p>
+<p>如果一般来说，你默认会部署多个nginx，在里面都会放一些缓存，就默认情况下，此时缓存命中率是比较低的</p>
+<p>2、如何提升缓存命中率</p>
+<p>分发层+应用层，双层nginx</p>
+<p>分发层nginx，负责流量分发的逻辑和策略，这个里面它可以根据你自己定义的一些规则，比如根据productId去进行hash，然后对后端的nginx数量取模</p>
+<p>将某一个商品的访问的请求，就固定路由到一个nginx后端服务器上去，保证说只会从redis中获取一次缓存数据，后面全都是走nginx本地缓存了</p>
+<p>后端的nginx服务器，就称之为应用服务器; 最前端的nginx服务器，被称之为分发服务器</p>
+<p>看似很简单，其实很有用，在实际的生产环境中，可以大幅度提升你的nginx本地缓存这一层的命中率，大幅度减少redis后端的压力，提升性能</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/02/模拟第一天/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/02/模拟第一天/" itemprop="url">模拟第一天</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-02T11:06:55+08:00">
+                2019-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="java创建对象有几种方式"><a href="#java创建对象有几种方式" class="headerlink" title="java创建对象有几种方式"></a>java创建对象有几种方式</h2><ol>
+<li>使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student();</li>
+<li>使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：Student student2 = (Student)Class.forName(“根路径.Student”).newInstance();　或者：Student stu = Student.class.newInstance();</li>
+<li>使用Constructor类的newInstance方法：本方法和Class类的newInstance方法很像，java.lang.relect.Constructor类里也有一个newInstance方法可以创建对象。我们可以通过这个newInstance方法调用有参数的和私有的构造函数。如： Constructor<student> constructor = Student.class.getInstance(); Student stu = constructor.newInstance();　这两种newInstance的方法就是大家所说的反射，事实上Class的newInstance方法内部调用Constructor的newInstance方法。这也是众多框架Spring、Hibernate、Struts等使用后者的原因。</student></li>
+<li>使用Clone的方法：无论何时我们调用一个对象的clone方法，JVM就会创建一个新的对象，将前面的对象的内容全部拷贝进去，用clone方法创建对象并不会调用任何构造函数。要使用clone方法，我们必须先实现Cloneable接口并实现其定义的clone方法。如：Student stu2 = <student>stu.clone();这也是原型模式的应用。</student></li>
+<li>使用反序列化：当我们序列化和反序列化一个对象，JVM会给我们创建一个单独的对象，在反序列化时，JVM创建对象并不会调用任何构造函数。为了反序列化一个对象，我们需要让我们的类实现Serializable接口。如：ObjectInputStream in = new ObjectInputStream (new FileInputStream(“data.obj”)); Student stu3 = (Student)in.readObject();</li>
+</ol>
+<h2 id="浅拷贝与深拷贝的区别？怎么实现深拷贝"><a href="#浅拷贝与深拷贝的区别？怎么实现深拷贝" class="headerlink" title="浅拷贝与深拷贝的区别？怎么实现深拷贝"></a>浅拷贝与深拷贝的区别？怎么实现深拷贝</h2><p>浅拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，如果字段是值类型的，那么对该字段执行复制；如果该字段是引用类型的话，则复制引用但不复制引用的对象。因此，原始对象及其副本引用同一个对象。</p>
+<p>深拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，无论该字段是值类型的还是引用类型，都复制独立的一份。当你修改其中一个对象的任何内容时，都不会影响另一个对象的内容。</p>
+<p>使用clone方法的对象需要是实现cloneable接口</p>
+<p> ①、让每个引用类型属性内部都重写clone() 方法<br>②、利用序列化<br><a href="https://blog.csdn.net/baiye_xing/article/details/71788741" target="_blank" rel="noopener">https://blog.csdn.net/baiye_xing/article/details/71788741</a></p>
+<h2 id="SQL注入原理，mybatis怎么实现sql注入"><a href="#SQL注入原理，mybatis怎么实现sql注入" class="headerlink" title="SQL注入原理，mybatis怎么实现sql注入"></a>SQL注入原理，mybatis怎么实现sql注入</h2><p><a href="https://czetao.github.io/2019/10/01/SQL注入/" target="_blank" rel="noopener">https://czetao.github.io/2019/10/01/SQL%E6%B3%A8%E5%85%A5/</a></p>
+<h2 id="threadlocal使用需要注意什么问题？"><a href="#threadlocal使用需要注意什么问题？" class="headerlink" title="threadlocal使用需要注意什么问题？"></a>threadlocal使用需要注意什么问题？</h2><p>threadlocal–&gt;threadlocalmap —&gt;Entry&lt;threadlocal,value&gt;</p>
+<p><a href="https://blog.csdn.net/LHQJ1992/article/details/52451136" target="_blank" rel="noopener">https://blog.csdn.net/LHQJ1992/article/details/52451136</a><br><a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a></p>
+<p><img src="https://img-blog.csdn.net/20180903125233171?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNDA0Mzk1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt></p>
+<p>ThreadLocal的实现是这样的：每个Thread 维护一个 ThreadLocalMap 映射表，这个映射表的 key 是 ThreadLocal实例本身，value 是真正需要存储的 Object。<br>也就是说 ThreadLocal 本身并不存储值，它只是作为一个 key 来让线程从 ThreadLocalMap 获取 value。<br>值得注意的是图中的虚线，表示 ThreadLocalMap 是使用 ThreadLocal 的弱引用作为 Key 的，弱引用的对象在 GC 时会被回收。</p>
+<p>ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -&gt; Thread -&gt; ThreaLocalMap -&gt; Entry -&gt; value永远无法回收，造成内存泄漏。<br>————————————————<br>版权声明：本文为CSDN博主「WangCw的夏天」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a></p>
+<h3 id="为何HashMap的数组长度一定是2的次幂？"><a href="#为何HashMap的数组长度一定是2的次幂？" class="headerlink" title="为何HashMap的数组长度一定是2的次幂？"></a>为何HashMap的数组长度一定是2的次幂？</h3><p>hashMap的数组长度一定保持2的次幂，比如16的二进制表示为 10000，那么length-1就是15，二进制为01111，同理扩容后的数组长度为32，二进制表示为100000，length-1为31，二进制表示为011111。从下图可以我们也能看到这样会保证低位全为1，而扩容后只有一位差异，也就是多出了最左位的1，这样在通过 h&amp;(length-1)的时候，只要h对应的最左边的那一个差异位为0，就能保证得到的新的数组索引和老数组索引一致(大大减少了之前已经散列良好的老数组的数据位置重新调换)，个人理解。</p>
+<p> 还有，数组长度保持2的次幂，length-1的低位都为1，会使得获得的数组索引index更加均匀，比如：</p>
+<p>　　我们看到，上面的&amp;运算，高位是不会对结果产生影响的（hash函数采用各种位运算可能也是为了使得低位更加散列），我们只关注低位bit，如果低位全部为1，那么对于h低位部分来说，任何一位的变化都会对结果产生影响，也就是说，要得到index=21这个存储位置，h的低位只有这一种组合。这也是数组长度设计为必须为2的次幂的原因。</p>
+<p><strong>当length-1时，低位都是111，可以保证key低位的唯一性</strong></p>
+<p>　　如果不是2的次幂，也就是低位不是全为1此时，要使得index=21，h的低位部分不再具有唯一性了，哈希冲突的几率会变的更大，同时，index对应的这个bit位无论如何不会等于1了，而对应的那些数组位置也就被白白浪费了。</p>
+<p><a href="https://www.cnblogs.com/chengxiao/p/6059914.html#t3" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6059914.html#t3</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/01/redis详解、/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2535,386 +2921,6 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/事务/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/10/事务/" itemprop="url">事务</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-10T21:44:39+08:00">
-                2019-09-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/事务/" itemprop="url" rel="index">
-                    <span itemprop="name">事务</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.2k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  8
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="事务的概念"><a href="#事务的概念" class="headerlink" title="事务的概念"></a>事务的概念</h2><p><strong>事务就是一组原子性的sql,或者说一个独立的工作单元。事务就是说，要么MySql引擎会全部执行这一组SQL语句，要么全部都不执行。</strong></p>
-<h3 id="事务的ACID"><a href="#事务的ACID" class="headerlink" title="事务的ACID"></a>事务的ACID</h3><p>Atomicity，原子性：一个事务必须保证其中的操作要么全部执行，要么全部回滚，不可能存在只执行了一部分这种情况出现。<br>Consistency，一致性：事务必须保证从一种一致性状态转换为另一种一致性状态。<br>Isolation,隔离性：事务互相隔离，在一个事务未执行完毕时，通常会保证其他Session无法看到这个事务的执行结果。<br>Durability，持久性：事务一旦commit，则数据就会保存下来，即使提交完之后系统崩溃，数据也不会丢失。</p>
-<h3 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h3><p>以下，我们来详细来说一说隔离性<br>我们都知道，事务控制的太严格，程序在并发訪问的情况下，会减少程序的性能。<br>所以。人们总是想让事务为性能做出让步。那么就分出了四种隔离级别：<br><strong>为未提交读、提交读、可重复度读、序列化。</strong><br><img src="https://www.javazhiyin.com/wp-content/uploads/2019/03/java1-1551760079.jpg" alt><br>可是。因为隔离界别限制的程度不同，那么就会产生脏读、不可反复读、幻读的情况。</p>
-<ol>
-<li>脏读：脏读就是指当一个事务正在訪问数据，而且对数据进行了改动，而这样的改动还没有提交到数据库中，这时。另外一个事务也訪问这个数据，然后使用了这个数据。</li>
-<li>不可反复读：是指在一个事务内，多次读同一数据。在这个事务还没有结束时。另外一个事务也訪问该同一数据。那么，在第一个事务中的两次读数据之间，因为第二个事务的改动，那么第一个事务两次读到的的数据可能是不一样的。<br>这样就发生了在一个事务内两次读到的数据是不一样的，因此称为是不可反复读。比如。一个编辑人员两次读取同一文档，但在两次读取之间，作者重写了该文档。当编辑人员第二次读取文档时，文档已更改。<br>原始读取不可反复。假设仅仅有在作者所有完毕编写后编辑人员才干够读取文档，则能够避免该问题。</li>
-<li>幻读:是指当事务不是独立运行时发生的一种现象，比如第一个事务对一个表中的数据进行了改动，这样的改动涉及到表中的所有数据行。同一时候。第二个事务也改动这个表中的数据。这样的改动是向表中插入一行新数据。那么，以后就会发生操作第一个事务的用户发现表中还有没有改动的数据行，就好象发生了幻觉一样。<br>比如。一个编辑人员更改作者提交的文档。但当生产部门将其更改内容合并到该文档的主复本时，发现作者已将未编辑的新材料加入到该文档中。<h3 id="事务并发下隔离级别的场景"><a href="#事务并发下隔离级别的场景" class="headerlink" title="事务并发下隔离级别的场景"></a>事务并发下隔离级别的场景</h3></li>
-</ol>
-<ul>
-<li>未提交读<br>公司发工资了，领导把5000元打到singo的账号上，但是该事务并未提交，而singo正好去查看账户，发现工资已经到账，是5000元整。很高兴。但是不幸的是。领导发现发给singo的工资金额不正确。是2000元。于是迅速回滚了事务，改动金额后，将事务提交，最后singo实际的工资仅仅有2000元，singo空欢喜一场。<br>出现上述情况，即我们所说的脏读。两个并发的事务，“事务A：领导给singo发工资”、“事务B：singo查询工资账户”，事务B读取了事务A尚未提交的数据。<br>当隔离级别设置为Readuncommitted时，就可能出现脏读，怎样避免脏读。请看下一个隔离级别。</li>
-<li>读提交<br>singo拿着工资卡去消费。系统读取到卡里确实有2000元。而此时她的老婆也正好在网上转账，把singo工资卡的2000元转到还有一账户，并在singo之前提交了事务，当singo扣款时，系统检查到singo的工资卡已经没有钱，扣款失败，singo十分纳闷，明明卡里有钱，为何……<br>出现上述情况，即我们所说的不可反复读。两个并发的事务，“事务A：singo消费”、“事务B：singo的老婆网上转账”。事务A事先读取了数据。事务B紧接了更新了数据，并提交了事务，而事务A再次读取该数据时，数据已经发生了改变。<br>当隔离级别设置为Readcommitted时，避免了脏读。可是可能会造成不可反复读。<br>大多数数据库的默认级别就是Readcommitted。比方Sql Server , Oracle。怎样解决不可反复读这一问题。请看下一个隔离级别。</li>
-<li>反复读<br>当隔离级别设置为Repeatableread时。能够避免不可反复读。当singo拿着工资卡去消费时。一旦系统開始读取工资卡信息（即事务開始）。singo的老婆就不可能对该记录进行改动，也就是singo的老婆不能在此时转账。<br>尽管Repeatableread避免了不可反复读，但还有可能出现幻读。<br>singo的老婆工作在银行部门。她时常通过银行内部系统查看singo的信用卡消费记录。有一天，她正在查询到singo当月信用卡的总消费金额（select sum(amount) from transaction where month =本月）为80元。而singo此时正好在外面胡吃海塞后在收银台买单。消费1000元，即新增了一条1000元的消费记录（insert transaction… ）。并提交了事务。随后singo的老婆将singo当月信用卡消费的明细打印到A4纸上。却发现消费总额为1080元，singo的老婆非常诧异，以为出现了幻觉。幻读就这样产生了。<br>注：Mysql的默认隔离级别就是Repeatableread。</li>
-<li>序列化<br>Serializable是最高的事务隔离级别。同一时候代价也花费最高，性能非常低，一般非常少使用，在该级别下，事务顺序运行，不仅能够避免脏读、不可反复读，还避免了幻像读。<h2 id="mysql开启事务"><a href="#mysql开启事务" class="headerlink" title="mysql开启事务"></a>mysql开启事务</h2>默认情况下，mysql每执行一条sql语句都是一条事务，自动提交。如果一条事务有多条sql语句需要执行，要开启一个新的事务<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">开启事务</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span></span><br><span class="line">....</span><br><span class="line">结束事务</span><br><span class="line"><span class="keyword">commit</span>/<span class="keyword">rollback</span></span><br><span class="line">或  </span><br><span class="line">通过AutoCommit设置事务开启或关闭</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">"autocommit"</span></span><br><span class="line"><span class="keyword">set</span> autocommit = <span class="number">0</span>; //0表示AutoCommit关闭</span><br><span class="line"><span class="keyword">set</span> autocommit = <span class="number">1</span>； //<span class="number">1</span>表示AutoCommit开启</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>在执行SQL语句之前，先执行start transaction，这就开启了一个事务（事务的起点），然后可以去执行多条SQL语句，最后要结束事务，commit表示提交，即事务中的多条SQL语句所作出的影响会持久到数据库中，或者rollback，表示回滚到事务的起点，之前做的所有操作都被撤销了。</p>
-<h2 id="jdbc-开启事务"><a href="#jdbc-开启事务" class="headerlink" title="jdbc 开启事务"></a>jdbc 开启事务</h2><p>默认自动提交事务，若要手动提交，则关闭事务。<br>在JDBC中处理事务，都是通过Connection完成的。<br>同一事务中所有的操作，都在使用同一个Connection对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">con.setAutoCommit(<span class="keyword">false</span>) 表示开启事务。</span><br><span class="line">...(进行多条sql)</span><br><span class="line">commit（）：提交结束事务。</span><br><span class="line">rollback（）：回滚结束事务。</span><br></pre></td></tr></table></figure></p>
-<h4 id="附上jdbc代码练习"><a href="#附上jdbc代码练习" class="headerlink" title="附上jdbc代码练习"></a>附上jdbc代码练习</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException </span>&#123;</span><br><span class="line">       Connection conn= <span class="keyword">null</span>;</span><br><span class="line">       String driver = <span class="string">"com.mysql.jdbc.Driver"</span>;</span><br><span class="line">       <span class="comment">//时区问题，serverTimezone=UTC</span></span><br><span class="line">       String url = <span class="string">"jdbc:mysql://localhost:3306/czt?characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC"</span>;</span><br><span class="line">       String name = <span class="string">"root"</span>;</span><br><span class="line">       String password = <span class="string">"666666"</span>;</span><br><span class="line">       <span class="comment">//先获取链接驱动</span></span><br><span class="line">       Class.forName(driver);</span><br><span class="line">       String sql =<span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">       	<span class="comment">//通过driverManager获取链接</span></span><br><span class="line">           conn = DriverManager.getConnection(url, name, password);</span><br><span class="line">           <span class="keyword">if</span> (conn != <span class="keyword">null</span> )&#123;</span><br><span class="line">               System.out.println(<span class="string">"成功连接"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//通过链接，发送statement    preperStatement的区别是，可以预编译sql语句，再注入参数，</span></span><br><span class="line">           Statement statement = conn.createStatement();</span><br><span class="line">           sql = <span class="string">"create table student(NO char(20),name varchar(20),primary key(NO))"</span>;</span><br><span class="line">           <span class="comment">//返回影响行数</span></span><br><span class="line">           <span class="keyword">int</span> i = statement.executeUpdate(sql);</span><br><span class="line">           <span class="keyword">if</span> (i!=-<span class="number">1</span>)&#123;</span><br><span class="line">               System.out.println(<span class="string">"修改成功"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           conn.close();</span><br><span class="line">       &#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
-<h2 id="spring-开启事务"><a href="#spring-开启事务" class="headerlink" title="spring 开启事务"></a>spring 开启事务</h2><p><a href="https://juejin.im/post/5b00c52ef265da0b95276091" target="_blank" rel="noopener">spring 事务管理详解</a><br>在xml配置文件中<br><strong>第一步</strong>：配置事务管理器<br><strong>第二步</strong>：开启事务注解</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 第一步：配置事务管理器 (和配置文件方式一样)--&gt;</span><br><span class="line">	&lt;bean id=<span class="string">"dataSourceTransactionManager"</span></span><br><span class="line">		<span class="class"><span class="keyword">class</span></span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span><br><span class="line">		&lt;!-- 注入dataSource --&gt;</span><br><span class="line">		&lt;property name="dataSource" ref="dataSource"&gt;&lt;/property&gt;</span><br><span class="line">	&lt;/bean&gt;</span><br><span class="line">	</span><br><span class="line">	&lt;!-- 第二步： 开启事务注解 --&gt;</span><br><span class="line">	&lt;tx:annotation-driven transaction-manager=<span class="string">"dataSourceTransactionManager"</span> /&gt;</span><br><span class="line">	&lt;!-- 第三步 在方法所在类上加注解 --&gt;</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/07/位运算符/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/07/位运算符/" itemprop="url">位运算符</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-07T09:19:44+08:00">
-                2019-09-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.2k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  4
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="二进制的正负"><a href="#二进制的正负" class="headerlink" title="二进制的正负"></a>二进制的正负</h2><p>二进制的正负是从高位看，最高位如果1则是负数，如果是0则是正数。<br>如果负数单纯是把最高位变为1的话，在运算中会出现不是我们想要的值，所以引入了：<br><strong>原码，反码，补码。正数的原码，反码，补码都一样，负数的反码是对除了符号位（最高位）对原码取反，补码是对反码+1（最高位不变）</strong><br>-5的原码是               1000 0000 0000 0101<br>求出反码的是           1111 1111 1111 1010<br>求出补码是               1111 1111 1111 1011</p>
-<h2 id="JAVA按位运算符"><a href="#JAVA按位运算符" class="headerlink" title="JAVA按位运算符"></a>JAVA按位运算符</h2><p>1、“与”、“位与”（&amp;）<br>按位“与”操作符，如果两个数的二进制，相同位数都是1，则该位结果是1，否则是0.<br>例1 5&amp;4<br>5的二进制是  0000 0000 0000 0101<br>4的二进制是  0000 0000 0000 0100<br>则结果是        0000 0000 0000 0100  转为十进制是4。<br>2、“或”、“位或”（|）<br>按位“或”操作符，如果两个数的二进制，相同位数有一个是1，则该位结果是1，否则是0<br>例2  5 | 4<br>5的二进制是  0000 0000 0000 0101<br>4的二进制是  0000 0000 0000 0100<br>则结果是        0000 0000 0000 0101  转为十进制是5。<br>3、“异或、“位异或”（^）<br>按位“异或”操作符，如果两个数的二进制，相同位数只有一个是1，则该位结果是1，否则是0（相同为0，不同为1）<br> 例3  5 ^ 4<br>5的二进制是  0000 0000 0000 0101<br>4的二进制是  0000 0000 0000 0100<br>则结果是        0000 0000 0000 0001 转为十进制是1<br>4、“非”、“位非”（~）也称为取反操作符<br>按位“非”操作符，属于一元操作符，只对一个操作数进行操作，（其他按位操作符是二元操作符）。按位“非”生成与输入位相反的值，——若输入0，则输出1，若输入1，则输出0。<br>例4  ~5<br>5的二进制是  0000 0000 0000 0101<br>则~5是           1111 1111 1111 1010  转为十进制是 -6。</p>
-<h2 id="JAVA位运算符"><a href="#JAVA位运算符" class="headerlink" title="JAVA位运算符"></a>JAVA位运算符</h2><p><strong>移位操作符操作的运算对象也是二进制的“位”</strong></p>
-<ul>
-<li>移位操作符只可用来处理整数类型，左移位操作符（&lt;&lt;）能按照操作符右侧指定的位数将操作符左边的操作数向左移动（在低位补0）</li>
-<li>有符号”右移位操作符（&gt;&gt;）则按照操作符右侧指定的位数将操作符左边的操作数向右移。“有符号”右移位操作符使用“符号扩展”；若符号位正，则在高位插入0；若符号位负。则在高位插入1。</li>
-<li>java中增加了一种“无符号”右移位操作符（&gt;&gt;&gt;）,他使用“零扩展”；无论正负，都在高位插入0。这一操作符是C或C++中所没有的。<br>例6  5&lt;<2 5 等于20 5的二进制是 0000 0101 左移两位 0001 0100 例7>&gt;2 等于 1<br>5的二进制是   0000 0000 0000 0101<br>右移两位         0000 0000 0000 0001<br>例8  -5&gt;&gt;2 等于 -2   <strong>计算机中对于负数的计算都是通过补码。</strong><br>-5的二进制是   1111 1111 1111 1011<br>右移两位          1111 1111 1111 1110 转十进制，例5反着来，先-1，然后取反</2></li>
-</ul>
-<p>————————————————<br>版权声明：本文为CSDN博主「mxiaoyem」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/mxiaoyem/article/details/78569782" target="_blank" rel="noopener">https://blog.csdn.net/mxiaoyem/article/details/78569782</a></p>
-<h3 id="JAVA-基础数据类型的转换"><a href="#JAVA-基础数据类型的转换" class="headerlink" title="JAVA 基础数据类型的转换"></a>JAVA 基础数据类型的转换</h3><p>java语言提供了八种基本类型。六种数字类型（四个整数型，两个浮点型），一种字符类型，还有一种布尔型。<br>自动转换按从低到高的顺序转换。<br>int —-&gt;  long —-&gt;float —-&gt; double</p>
-<ul>
-<li>int：<br>int 数据类型是32位、有符号的以二进制补码表示的<strong>整数</strong>；<br>最小值是 -2,147,483,648（-2^31）；<br>最大值是 2,147,483,647（2^31 - 1）；<br>一般地整型变量默认为 int 类型；<br>默认值是 0 ；<br>例子：int a = 100000, int b = -200000。</li>
-<li>long：<br>long 数据类型是 64 位、有符号的以二进制补码表示的<strong>整数</strong>；<br>最小值是 -9,223,372,036,854,775,808（-2^63）；<br>最大值是 9,223,372,036,854,775,807（2^63 -1）；<br>这种类型主要使用在需要比较大整数的系统上；<br>默认值是 0L；<br>例子： long a = 100000L，Long b = -200000L。<br>“L”理论上不分大小写，但是若写成”l”容易与数字”1”混淆，不容易分辩。所以最好大写。</li>
-<li>float：<br>float 数据类型是单精度、32位、符合IEEE 754标准的浮点数；<br>float 在储存大型浮点数组的时候可节省内存空间；<br>默认值是 0.0f；<br>浮点数不能用来表示精确的值，如货币；<br>例子：float f1 = 234.5f。</li>
-<li>double：<br>double 数据类型是双精度、64 位、符合IEEE 754标准的浮点数；<br>浮点数的默认类型为double类型；<br>double类型同样不能表示精确的值，如货币；<br>默认值是 0.0d；<br>例子：double d1 = 123.4。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2967,7 +2973,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-count">46</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -3063,7 +3069,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共83.6k字</span>
+  <span class="post-count">博客全站共91.3k字</span>
 </div>
 
         

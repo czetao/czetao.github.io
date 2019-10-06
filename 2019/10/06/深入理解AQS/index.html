@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="并发,">
 
 
 
@@ -79,13 +79,20 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="ddd `Blog">
-<meta property="og:url" content="http://yoursite.com/archives/page/2/index.html">
+<meta name="description" content="同步队列当共享资源被某个线程占有，其他请求该资源的线程将会阻塞，从而进入同步队列。就数据结构而言，队列的实现方式无外乎两者一是通过数组的形式，另外一种则是链表的形式。AQS中的同步队列则是通过链式方式进行实现。同步队列是带头结点的链式存储结构。 在AQS有一个静态内部类Node 1volatile int waitStatus //节点状态 volatile Node prev //当前节点/线程">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解AQS">
+<meta property="og:url" content="http://yoursite.com/2019/10/06/深入理解AQS/index.html">
 <meta property="og:site_name" content="ddd `Blog">
+<meta property="og:description" content="同步队列当共享资源被某个线程占有，其他请求该资源的线程将会阻塞，从而进入同步队列。就数据结构而言，队列的实现方式无外乎两者一是通过数组的形式，另外一种则是链表的形式。AQS中的同步队列则是通过链式方式进行实现。同步队列是带头结点的链式存储结构。 在AQS有一个静态内部类Node 1volatile int waitStatus //节点状态 volatile Node prev //当前节点/线程">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://a5223594.github.io/2019/10/06/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3AQS/163261637bb25796.png">
+<meta property="og:updated_time" content="2019-10-06T12:43:00.119Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ddd `Blog">
+<meta name="twitter:title" content="深入理解AQS">
+<meta name="twitter:description" content="同步队列当共享资源被某个线程占有，其他请求该资源的线程将会阻塞，从而进入同步队列。就数据结构而言，队列的实现方式无外乎两者一是通过数组的形式，另外一种则是链表的形式。AQS中的同步队列则是通过链式方式进行实现。同步队列是带头结点的链式存储结构。 在AQS有一个静态内部类Node 1volatile int waitStatus //节点状态 volatile Node prev //当前节点/线程">
+<meta name="twitter:image" content="https://a5223594.github.io/2019/10/06/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3AQS/163261637bb25796.png">
 
 
 
@@ -115,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/page/2/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/06/深入理解AQS/">
 
 
 
 
 
-  <title>归档 | ddd `Blog</title>
+  <title>深入理解AQS | ddd `Blog</title>
   
 
 
@@ -140,7 +147,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -266,390 +273,219 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        OK! 目前共计 46 篇日志。 继续努力。
-      </span>
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/深入理解AQS/">
 
-      
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
 
         
         
+          <h1 class="post-title" itemprop="name headline">深入理解AQS</h1>
         
 
-        
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:39:45+08:00">
+                2019-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
 
-        
+          
+            
+          
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/02/zookeeper-kafka/" itemprop="url">
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
               
-                <span itemprop="name">zookeeper+kafka+nginx</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.3k
+                </span>
               
-            </a>
-        
-      </h2>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-02T19:37:21+08:00" content="2019-10-02">
-          10-02
-        </time>
-      </div>
+              
+                <span class="post-meta-divider">|</span>
+              
 
-    </header>
-  </article>
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
 
+          
 
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/02/模拟第一天/" itemprop="url">
-              
-                <span itemprop="name">模拟第一天</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-02T11:06:55+08:00" content="2019-10-02">
-          10-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/01/redis详解、/" itemprop="url">
-              
-                <span itemprop="name">redis详解、</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-01T17:52:57+08:00" content="2019-10-01">
-          10-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+      
+        <h2 id="同步队列"><a href="#同步队列" class="headerlink" title="同步队列"></a>同步队列</h2><p>当共享资源被某个线程占有，其他请求该资源的线程将会阻塞，从而进入同步队列。就数据结构而言，队列的实现方式无外乎两者一是通过数组的形式，另外一种则是链表的形式。AQS中的同步队列则是<strong>通过链式方式</strong>进行实现。同步队列是<strong>带头结点的链式存储结构</strong>。</p>
+<p>在AQS有一个静态内部类<strong>Node</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">volatile int waitStatus //节点状态 volatile Node prev //当前节点/线程的前驱节点 volatile Node next; //当前节点/线程的后继节点 volatile Thread thread;//加入同步队列的线程引用 Node nextWaiter;//等待队列中的下一个节点</span><br></pre></td></tr></table></figure>
+<p><strong>节点的状态</strong>有以下这些</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int CANCELLED =  1//节点从同步队列中取消 int SIGNAL = -1//后继节点的线程处于等待状态，如果当前节点释放同步状态会通知后继节点，使得后继节点的线程能够运行； int CONDITION = -2//当前节点进入等待队列中 int PROPAGATE = -3//表示下一次共享式同步状态获取将会无条件传播下去 int INITIAL = 0;//初始状态`</span><br></pre></td></tr></table></figure>
+<p>AQS中有两个重要的成员变量，通过头尾指针来管理同步队列，同时实现包括获取锁失败的线程进行入队，释放锁时对同步队列中的线程进行通知</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private transient volatile Node head;private transient volatile Node tail;</span><br></pre></td></tr></table></figure>
+<p><a href="https://a5223594.github.io/2019/10/06/深入理解AQS/163261637bb25796.png" target="_blank" rel="noopener"><img src="https://a5223594.github.io/2019/10/06/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3AQS/163261637bb25796.png" alt="img"></a></p>
+<p>调用lock()方法是获取独占式锁，获取失败就将当前线程加入同步队列，成功则线程执行。而lock()方法实际上会调用AQS的<strong>acquire()</strong>方法，源码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//先看同步状态是否获取成功，如果成功则方法结束返回 		//若失败则先调用addWaiter()方法再调用acquireQueued()方法        public final void acquire(int arg) &#123;     if (!tryAcquire(arg) &amp;&amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg))         selfInterrupt();&#125;</span><br></pre></td></tr></table></figure>
+<p>acquire根据当前获得同步状态成功与否做了两件事情：1. 成功，则方法结束返回，2. 失败，则先调用addWaiter()然后在调用acquireQueued()方法。</p>
+<h3 id="addWaiter-源码"><a href="#addWaiter-源码" class="headerlink" title="addWaiter()源码"></a><strong>addWaiter()</strong>源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private Node addWaiter(Node mode) &#123;		// 1. 将当前线程构建成Node类型        Node node = new Node(Thread.currentThread(), mode);        // Try the fast path of enq; backup to full enq on failure        // 2. 当前尾节点是否为null？		Node pred = tail;        if (pred != null) &#123;			// 2.2 将当前节点尾插入的方式插入同步队列中            node.prev = pred;            if (compareAndSetTail(pred, node)) &#123;                pred.next = node;                return node;            &#125;        &#125;		// 2.1. 当前同步队列尾节点为null，说明当前线程是第一个加入同步队列进行等待的线程        enq(node);        return node;&#125;</span><br></pre></td></tr></table></figure>
+<p>程序的逻辑主要分为两个部分：<strong>1. 当前同步队列的尾节点为null，调用方法enq()插入;2. 当前队列的尾节点不为null，则采用尾插入（compareAndSetTail（）方法）的方式入队。</strong>另外还会有另外一个问题：如果 <code>if (compareAndSetTail(pred, node))</code>为false怎么办？会继续执行到enq()方法，同时很明显compareAndSetTail是一个CAS操作，通常来说如果CAS操作失败会继续自旋（死循环,在enq中自旋）进行重试。</p>
+<h3 id="enq-源码"><a href="#enq-源码" class="headerlink" title="enq()源码"></a>enq()源码</h3><p><strong>1. 处理当前同步队列尾节点为null时进行入队操作；2. 如果CAS尾插入节点失败后负责自旋进行尝试。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private Node enq(final Node node) &#123;        for (;;) &#123;            Node t = tail;			if (t == null) &#123; // Must initialize				//1. 构造头结点                if (compareAndSetHead(new Node()))                    tail = head;            &#125; else &#123;				// 2. 尾插入，CAS操作失败自旋尝试                node.prev = t;                 if (compareAndSetTail(t, node)) &#123;                    t.next = node;                    return t;                &#125;            &#125;        &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>获取独占式锁失败的线程包装成Node然后插入同步队列的过程，线程）会做什么事情了来保证自己能够有机会获得独占式锁？</p>
+<h3 id="acquireQueued-源码"><a href="#acquireQueued-源码" class="headerlink" title="acquireQueued()源码"></a><strong>acquireQueued()</strong>源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">final boolean acquireQueued(final Node node, int arg) &#123;        boolean failed = true;        try &#123;            boolean interrupted = false;            for (;;) &#123;				// 1. 获得当前节点的先驱节点                final Node p = node.predecessor();				// 2. 当前节点能否获取独占式锁									// 2.1 如果当前节点的先驱节点是头结点并且成功获取同步状态，即可以获得独占式锁				// 链表是带头节点的表示头节点的下一个结点为第一个结点                if (p == head &amp;&amp; tryAcquire(arg)) &#123;					//队列头指针用指向当前节点                    setHead(node);					//释放前驱节点                    p.next = null; // help GC                    failed = false;                    //没有被中断，返回false，让selfInterrupt();不执行,让线程不被中断                    return interrupted;                &#125;				// 2.2 获取锁失败，线程进入等待状态等待获取独占式锁                if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;                    parkAndCheckInterrupt())                    interrupted = true;            &#125;        &#125; finally &#123;            if (failed)                cancelAcquire(node);        &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>如果先驱节点是头结点的并且成功获得同步状态的时候（if (p == head &amp;&amp; tryAcquire(arg))），当前节点所指向的线程能够获取锁</strong>。反之，获取锁失败进入等待状态。</p>
+<p>acquireQueued()在自旋过程中主要完成了两件事情：</p>
+<ol>
+<li><strong>如果当前节点的前驱节点是头节点，并且能够获得同步状态的话，当前线程能够获得锁该方法执行结束退出</strong>；</li>
+<li><strong>获取锁失败的话，先将当前结点的前驱结点状态设置成SIGNAL，然后调用LookSupport.park方法使得当前线程阻塞</strong>。</li>
+</ol>
+<h3 id="shouldParkAfterFailedAcquire-源码"><a href="#shouldParkAfterFailedAcquire-源码" class="headerlink" title="shouldParkAfterFailedAcquire()源码"></a>shouldParkAfterFailedAcquire()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) &#123;    int ws = pred.waitStatus;    if (ws == Node.SIGNAL)        // 有个规定，就是当前结点的前驱结点状态一定要是-1，才能将当前结点park，        // 相当于你告诉你前面的人排到你的时候叫我，我睡个觉        // 至于为什么前驱结点要是signal,等到release的时候有用        return true;    if (ws &gt; 0) &#123; 		//ws大于0只有一个取消状态 		//做个循环将取消结点去掉        do &#123;            node.prev = pred = pred.prev;        &#125; while (pred.waitStatus &gt; 0);        pred.next = node;    &#125; else &#123;        //CAS将前驱结点的ws设置成-1，自旋在aquareQueued里        compareAndSetWaitStatus(pred, ws, Node.SIGNAL);    &#125;    return false;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="parkAndCheckInterrupt-源码"><a href="#parkAndCheckInterrupt-源码" class="headerlink" title="parkAndCheckInterrupt()源码"></a>parkAndCheckInterrupt()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private final boolean parkAndCheckInterrupt() &#123;        //使得该线程阻塞		LockSupport.park(this);        return Thread.interrupted();&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="独占锁的释放"><a href="#独占锁的释放" class="headerlink" title="独占锁的释放"></a>独占锁的释放</h2><h3 id="release-源码"><a href="#release-源码" class="headerlink" title="release()源码"></a>release()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public final boolean release(int arg) &#123;        if (tryRelease(arg)) &#123;            Node h = head;            if (h != null &amp;&amp; h.waitStatus != 0)                unparkSuccessor(h);            return true;        &#125;        return false;&#125;</span><br></pre></td></tr></table></figure>
+<p>如果同步状态释放成功（tryRelease返回true）则会执行if块中的代码，当head指向的头结点不为null，并且该节点的状态值不为0的话才会执行unparkSuccessor()方法。</p>
+<h3 id="unparkSuccessor-源码"><a href="#unparkSuccessor-源码" class="headerlink" title="unparkSuccessor()源码"></a>unparkSuccessor()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private void unparkSuccessor(Node node) &#123;    /*     * If status is negative (i.e., possibly needing signal) try     * to clear in anticipation of signalling.  It is OK if this     * fails or if status is changed by waiting thread.     */    // 如果头结点为负数，可能为-1，尝试将其ws设置为0，失败也没关系    int ws = node.waitStatus;    if (ws &lt; 0)        compareAndSetWaitStatus(node, ws, 0);    /*     * Thread to unpark is held in successor, which is normally     * just the next node.  But if cancelled or apparently null,     * traverse backwards from tail to find the actual     * non-cancelled successor.     */	//向后遍历找到头节点的后继节点，不能为取消结点    Node s = node.next;    if (s == null || s.waitStatus &gt; 0) &#123;        s = null;        for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)            if (t.waitStatus &lt;= 0)                s = t;    &#125;    if (s != null)		//后继节点不为null时唤醒该线程        LockSupport.unpark(s.thread);&#125;</span><br></pre></td></tr></table></figure>
+<p>首先获取头节点的后继节点，当后继节点的时候会调用LookSupport.unpark()方法，该方法会唤醒该节点的后继节点所包装的线程。因此，<strong>每一次锁释放后就会唤醒队列中该节点的后继节点所引用的线程，从而进一步可以佐证获得锁的过程是一个FIFO（先进先出）的过程。</strong></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>线程获取锁失败，线程被封装成Node进行入队操作，核心方法在于addWaiter()和enq()，同时enq()完成对同步队列的头结点初始化工作以及CAS操作失败的重试</strong>;</p>
+<p><strong>线程获取锁是一个自旋的过程，当且仅当 当前节点的前驱节点是头结点并且成功获得同步状态时，节点出队即该节点引用的线程获得锁，否则，当不满足条件时就会调用LookSupport.park()方法使得线程阻塞</strong>；</p>
+<p><strong>释放锁的时候会唤醒后继节点；</strong></p>
+<p><strong>在获取同步状态时，AQS维护一个同步队列，获取同步状态失败的线程会加入到队列中进行自旋；移除队列（或停止自旋）的条件是前驱节点是头结点并且成功获得了同步状态。在释放同步状态时，同步器会调用unparkSuccessor()方法唤醒后继节点。</strong></p>
+<h2 id="可中断式获取锁"><a href="#可中断式获取锁" class="headerlink" title="可中断式获取锁"></a>可中断式获取锁</h2><p>唯一的区别是当<strong>parkAndCheckInterrupt</strong>返回true时即线程阻塞时该线程被中断，代码抛出被中断异常。而上面只是<code>interrupted = true;</code></p>
+<h2 id="超时等待式获取锁"><a href="#超时等待式获取锁" class="headerlink" title="超时等待式获取锁"></a>超时等待式获取锁</h2><p>和上面类似，每次自旋都会重新计算超时时间</p>
+<h2 id="共享锁"><a href="#共享锁" class="headerlink" title="共享锁"></a>共享锁</h2><p>共享锁的原理和独占锁差不多，区别在于aquire（arg）大于0就能获取锁，每次都是arg–</p>
+<p>释放大概是CAS释放多个线程，保证一定的顺序性</p>
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/01/SQL注入/" itemprop="url">
-              
-                <span itemprop="name">SQL注入</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-01T17:50:41+08:00" content="2019-10-01">
-          10-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/01/JAVA锁/" itemprop="url">
-              
-                <span itemprop="name">JAVA锁</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-01T17:48:43+08:00" content="2019-10-01">
-          10-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/10/01/解决缓存数据库双写不一致/" itemprop="url">
-              
-                <span itemprop="name">解决缓存数据库双写不一致</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-10-01T17:19:51+08:00" content="2019-10-01">
-          10-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/29/扩展/" itemprop="url">
-              
-                <span itemprop="name">扩展</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-29T20:07:54+08:00" content="2019-09-29">
-          09-29
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/28/网络零散知识/" itemprop="url">
-              
-                <span itemprop="name">网络零散知识</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-28T09:57:00+08:00" content="2019-09-28">
-          09-28
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/26/查漏补缺/" itemprop="url">
-              
-                <span itemprop="name">查漏补缺</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-26T15:35:49+08:00" content="2019-09-26">
-          09-26
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/10/计算机网络/" itemprop="url">
-              
-                <span itemprop="name">计算机网络</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-10T21:49:01+08:00" content="2019-09-10">
-          09-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/并发/" rel="tag"># 并发</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/06/redis底层数据结构/" rel="next" title="redis底层数据结构">
+                <i class="fa fa-chevron-left"></i> redis底层数据结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/5/">5</a><a class="extend next" rel="next" href="/archives/page/3/"><i class="fa fa-angle-right"></i></a>
-  </nav>
+  </article>
 
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -657,6 +493,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -677,8 +517,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -740,6 +589,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#同步队列"><span class="nav-number">1.</span> <span class="nav-text">同步队列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#addWaiter-源码"><span class="nav-number">1.1.</span> <span class="nav-text">addWaiter()源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#enq-源码"><span class="nav-number">1.2.</span> <span class="nav-text">enq()源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#acquireQueued-源码"><span class="nav-number">1.3.</span> <span class="nav-text">acquireQueued()源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shouldParkAfterFailedAcquire-源码"><span class="nav-number">1.4.</span> <span class="nav-text">shouldParkAfterFailedAcquire()源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#parkAndCheckInterrupt-源码"><span class="nav-number">1.5.</span> <span class="nav-text">parkAndCheckInterrupt()源码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#独占锁的释放"><span class="nav-number">2.</span> <span class="nav-text">独占锁的释放</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#release-源码"><span class="nav-number">2.1.</span> <span class="nav-text">release()源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unparkSuccessor-源码"><span class="nav-number">2.2.</span> <span class="nav-text">unparkSuccessor()源码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可中断式获取锁"><span class="nav-number">4.</span> <span class="nav-text">可中断式获取锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#超时等待式获取锁"><span class="nav-number">5.</span> <span class="nav-text">超时等待式获取锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#共享锁"><span class="nav-number">6.</span> <span class="nav-text">共享锁</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -905,6 +770,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

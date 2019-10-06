@@ -281,6 +281,448 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/深入理解AQS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/06/深入理解AQS/" itemprop="url">深入理解AQS</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:39:45+08:00">
+                2019-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="同步队列"><a href="#同步队列" class="headerlink" title="同步队列"></a>同步队列</h2><p>当共享资源被某个线程占有，其他请求该资源的线程将会阻塞，从而进入同步队列。就数据结构而言，队列的实现方式无外乎两者一是通过数组的形式，另外一种则是链表的形式。AQS中的同步队列则是<strong>通过链式方式</strong>进行实现。同步队列是<strong>带头结点的链式存储结构</strong>。</p>
+<p>在AQS有一个静态内部类<strong>Node</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">volatile int waitStatus //节点状态 volatile Node prev //当前节点/线程的前驱节点 volatile Node next; //当前节点/线程的后继节点 volatile Thread thread;//加入同步队列的线程引用 Node nextWaiter;//等待队列中的下一个节点</span><br></pre></td></tr></table></figure>
+<p><strong>节点的状态</strong>有以下这些</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int CANCELLED =  1//节点从同步队列中取消 int SIGNAL = -1//后继节点的线程处于等待状态，如果当前节点释放同步状态会通知后继节点，使得后继节点的线程能够运行； int CONDITION = -2//当前节点进入等待队列中 int PROPAGATE = -3//表示下一次共享式同步状态获取将会无条件传播下去 int INITIAL = 0;//初始状态`</span><br></pre></td></tr></table></figure>
+<p>AQS中有两个重要的成员变量，通过头尾指针来管理同步队列，同时实现包括获取锁失败的线程进行入队，释放锁时对同步队列中的线程进行通知</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private transient volatile Node head;private transient volatile Node tail;</span><br></pre></td></tr></table></figure>
+<p><a href="https://a5223594.github.io/2019/10/06/深入理解AQS/163261637bb25796.png" target="_blank" rel="noopener"><img src="https://a5223594.github.io/2019/10/06/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3AQS/163261637bb25796.png" alt="img"></a></p>
+<p>调用lock()方法是获取独占式锁，获取失败就将当前线程加入同步队列，成功则线程执行。而lock()方法实际上会调用AQS的<strong>acquire()</strong>方法，源码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//先看同步状态是否获取成功，如果成功则方法结束返回 		//若失败则先调用addWaiter()方法再调用acquireQueued()方法        public final void acquire(int arg) &#123;     if (!tryAcquire(arg) &amp;&amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg))         selfInterrupt();&#125;</span><br></pre></td></tr></table></figure>
+<p>acquire根据当前获得同步状态成功与否做了两件事情：1. 成功，则方法结束返回，2. 失败，则先调用addWaiter()然后在调用acquireQueued()方法。</p>
+<h3 id="addWaiter-源码"><a href="#addWaiter-源码" class="headerlink" title="addWaiter()源码"></a><strong>addWaiter()</strong>源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private Node addWaiter(Node mode) &#123;		// 1. 将当前线程构建成Node类型        Node node = new Node(Thread.currentThread(), mode);        // Try the fast path of enq; backup to full enq on failure        // 2. 当前尾节点是否为null？		Node pred = tail;        if (pred != null) &#123;			// 2.2 将当前节点尾插入的方式插入同步队列中            node.prev = pred;            if (compareAndSetTail(pred, node)) &#123;                pred.next = node;                return node;            &#125;        &#125;		// 2.1. 当前同步队列尾节点为null，说明当前线程是第一个加入同步队列进行等待的线程        enq(node);        return node;&#125;</span><br></pre></td></tr></table></figure>
+<p>程序的逻辑主要分为两个部分：<strong>1. 当前同步队列的尾节点为null，调用方法enq()插入;2. 当前队列的尾节点不为null，则采用尾插入（compareAndSetTail（）方法）的方式入队。</strong>另外还会有另外一个问题：如果 <code>if (compareAndSetTail(pred, node))</code>为false怎么办？会继续执行到enq()方法，同时很明显compareAndSetTail是一个CAS操作，通常来说如果CAS操作失败会继续自旋（死循环,在enq中自旋）进行重试。</p>
+<h3 id="enq-源码"><a href="#enq-源码" class="headerlink" title="enq()源码"></a>enq()源码</h3><p><strong>1. 处理当前同步队列尾节点为null时进行入队操作；2. 如果CAS尾插入节点失败后负责自旋进行尝试。</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private Node enq(final Node node) &#123;        for (;;) &#123;            Node t = tail;			if (t == null) &#123; // Must initialize				//1. 构造头结点                if (compareAndSetHead(new Node()))                    tail = head;            &#125; else &#123;				// 2. 尾插入，CAS操作失败自旋尝试                node.prev = t;                 if (compareAndSetTail(t, node)) &#123;                    t.next = node;                    return t;                &#125;            &#125;        &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>获取独占式锁失败的线程包装成Node然后插入同步队列的过程，线程）会做什么事情了来保证自己能够有机会获得独占式锁？</p>
+<h3 id="acquireQueued-源码"><a href="#acquireQueued-源码" class="headerlink" title="acquireQueued()源码"></a><strong>acquireQueued()</strong>源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">final boolean acquireQueued(final Node node, int arg) &#123;        boolean failed = true;        try &#123;            boolean interrupted = false;            for (;;) &#123;				// 1. 获得当前节点的先驱节点                final Node p = node.predecessor();				// 2. 当前节点能否获取独占式锁									// 2.1 如果当前节点的先驱节点是头结点并且成功获取同步状态，即可以获得独占式锁				// 链表是带头节点的表示头节点的下一个结点为第一个结点                if (p == head &amp;&amp; tryAcquire(arg)) &#123;					//队列头指针用指向当前节点                    setHead(node);					//释放前驱节点                    p.next = null; // help GC                    failed = false;                    //没有被中断，返回false，让selfInterrupt();不执行,让线程不被中断                    return interrupted;                &#125;				// 2.2 获取锁失败，线程进入等待状态等待获取独占式锁                if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;                    parkAndCheckInterrupt())                    interrupted = true;            &#125;        &#125; finally &#123;            if (failed)                cancelAcquire(node);        &#125;&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>如果先驱节点是头结点的并且成功获得同步状态的时候（if (p == head &amp;&amp; tryAcquire(arg))），当前节点所指向的线程能够获取锁</strong>。反之，获取锁失败进入等待状态。</p>
+<p>acquireQueued()在自旋过程中主要完成了两件事情：</p>
+<ol>
+<li><strong>如果当前节点的前驱节点是头节点，并且能够获得同步状态的话，当前线程能够获得锁该方法执行结束退出</strong>；</li>
+<li><strong>获取锁失败的话，先将当前结点的前驱结点状态设置成SIGNAL，然后调用LookSupport.park方法使得当前线程阻塞</strong>。</li>
+</ol>
+<h3 id="shouldParkAfterFailedAcquire-源码"><a href="#shouldParkAfterFailedAcquire-源码" class="headerlink" title="shouldParkAfterFailedAcquire()源码"></a>shouldParkAfterFailedAcquire()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) &#123;    int ws = pred.waitStatus;    if (ws == Node.SIGNAL)        // 有个规定，就是当前结点的前驱结点状态一定要是-1，才能将当前结点park，        // 相当于你告诉你前面的人排到你的时候叫我，我睡个觉        // 至于为什么前驱结点要是signal,等到release的时候有用        return true;    if (ws &gt; 0) &#123; 		//ws大于0只有一个取消状态 		//做个循环将取消结点去掉        do &#123;            node.prev = pred = pred.prev;        &#125; while (pred.waitStatus &gt; 0);        pred.next = node;    &#125; else &#123;        //CAS将前驱结点的ws设置成-1，自旋在aquareQueued里        compareAndSetWaitStatus(pred, ws, Node.SIGNAL);    &#125;    return false;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="parkAndCheckInterrupt-源码"><a href="#parkAndCheckInterrupt-源码" class="headerlink" title="parkAndCheckInterrupt()源码"></a>parkAndCheckInterrupt()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private final boolean parkAndCheckInterrupt() &#123;        //使得该线程阻塞		LockSupport.park(this);        return Thread.interrupted();&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="独占锁的释放"><a href="#独占锁的释放" class="headerlink" title="独占锁的释放"></a>独占锁的释放</h2><h3 id="release-源码"><a href="#release-源码" class="headerlink" title="release()源码"></a>release()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public final boolean release(int arg) &#123;        if (tryRelease(arg)) &#123;            Node h = head;            if (h != null &amp;&amp; h.waitStatus != 0)                unparkSuccessor(h);            return true;        &#125;        return false;&#125;</span><br></pre></td></tr></table></figure>
+<p>如果同步状态释放成功（tryRelease返回true）则会执行if块中的代码，当head指向的头结点不为null，并且该节点的状态值不为0的话才会执行unparkSuccessor()方法。</p>
+<h3 id="unparkSuccessor-源码"><a href="#unparkSuccessor-源码" class="headerlink" title="unparkSuccessor()源码"></a>unparkSuccessor()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private void unparkSuccessor(Node node) &#123;    /*     * If status is negative (i.e., possibly needing signal) try     * to clear in anticipation of signalling.  It is OK if this     * fails or if status is changed by waiting thread.     */    // 如果头结点为负数，可能为-1，尝试将其ws设置为0，失败也没关系    int ws = node.waitStatus;    if (ws &lt; 0)        compareAndSetWaitStatus(node, ws, 0);    /*     * Thread to unpark is held in successor, which is normally     * just the next node.  But if cancelled or apparently null,     * traverse backwards from tail to find the actual     * non-cancelled successor.     */	//向后遍历找到头节点的后继节点，不能为取消结点    Node s = node.next;    if (s == null || s.waitStatus &gt; 0) &#123;        s = null;        for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)            if (t.waitStatus &lt;= 0)                s = t;    &#125;    if (s != null)		//后继节点不为null时唤醒该线程        LockSupport.unpark(s.thread);&#125;</span><br></pre></td></tr></table></figure>
+<p>首先获取头节点的后继节点，当后继节点的时候会调用LookSupport.unpark()方法，该方法会唤醒该节点的后继节点所包装的线程。因此，<strong>每一次锁释放后就会唤醒队列中该节点的后继节点所引用的线程，从而进一步可以佐证获得锁的过程是一个FIFO（先进先出）的过程。</strong></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>线程获取锁失败，线程被封装成Node进行入队操作，核心方法在于addWaiter()和enq()，同时enq()完成对同步队列的头结点初始化工作以及CAS操作失败的重试</strong>;</p>
+<p><strong>线程获取锁是一个自旋的过程，当且仅当 当前节点的前驱节点是头结点并且成功获得同步状态时，节点出队即该节点引用的线程获得锁，否则，当不满足条件时就会调用LookSupport.park()方法使得线程阻塞</strong>；</p>
+<p><strong>释放锁的时候会唤醒后继节点；</strong></p>
+<p><strong>在获取同步状态时，AQS维护一个同步队列，获取同步状态失败的线程会加入到队列中进行自旋；移除队列（或停止自旋）的条件是前驱节点是头结点并且成功获得了同步状态。在释放同步状态时，同步器会调用unparkSuccessor()方法唤醒后继节点。</strong></p>
+<h2 id="可中断式获取锁"><a href="#可中断式获取锁" class="headerlink" title="可中断式获取锁"></a>可中断式获取锁</h2><p>唯一的区别是当<strong>parkAndCheckInterrupt</strong>返回true时即线程阻塞时该线程被中断，代码抛出被中断异常。而上面只是<code>interrupted = true;</code></p>
+<h2 id="超时等待式获取锁"><a href="#超时等待式获取锁" class="headerlink" title="超时等待式获取锁"></a>超时等待式获取锁</h2><p>和上面类似，每次自旋都会重新计算超时时间</p>
+<h2 id="共享锁"><a href="#共享锁" class="headerlink" title="共享锁"></a>共享锁</h2><p>共享锁的原理和独占锁差不多，区别在于aquire（arg）大于0就能获取锁，每次都是arg–</p>
+<p>释放大概是CAS释放多个线程，保证一定的顺序性</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/redis底层数据结构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/06/redis底层数据结构/" itemprop="url">redis底层数据结构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:37:54+08:00">
+                2019-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  5.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  20
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="通俗易懂的Redis数据结构基础教程"><a href="#通俗易懂的Redis数据结构基础教程" class="headerlink" title="通俗易懂的Redis数据结构基础教程"></a>通俗易懂的Redis数据结构基础教程</h1><p><img src="https://user-gold-cdn.xitu.io/2018/7/23/164c6b32b5f679dc?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>Redis有5个基本数据结构，string、list、hash、set和zset。它们是日常开发中使用频率非常高应用最为广泛的数据结构，把这5个数据结构都吃透了，你就掌握了Redis应用知识的一半了。</p>
+<h2 id="string"><a href="#string" class="headerlink" title="string"></a>string</h2><p><img src="https://user-gold-cdn.xitu.io/2018/7/22/164c182f83ceb3b5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>首先我们从string谈起。string表示的是一个可变的字节数组，我们初始化字符串的内容、可以拿到字符串的长度，可以获取string的子串，可以覆盖string的子串内容，可以追加子串。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/24/164caaff402d2617?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>Redis的字符串是动态字符串，是可以修改的字符串，内部结构实现上类似于Java的ArrayList，采用预分配冗余空间的方式来减少内存的频繁分配，如图中所示，内部为当前字符串实际分配的空间capacity一般要高于实际字符串长度len。当字符串长度小于1M时，扩容都是加倍现有的空间，如果超过1M，扩容时一次只会多扩1M的空间。需要注意的是字符串最大长度为512M。</p>
+<p><strong>初始化字符串</strong> 需要提供「变量名称」和「变量的内容」</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; set ireader beijing.zhangyue.keji.gufen.youxian.gongsi</span><br><span class="line">OK</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>获取字符串的内容</strong> 提供「变量名称」</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; get ireader</span><br><span class="line">&quot;beijing.zhangyue.keji.gufen.youxian.gongsi&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>获取字符串的长度</strong> 提供「变量名称」</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; strlen ireader</span><br><span class="line">(integer) 42</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>获取子串</strong> 提供「变量名称」以及开始和结束位置[start, end]</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; getrange ireader 28 34</span><br><span class="line">&quot;youxian&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>覆盖子串</strong> 提供「变量名称」以及开始位置和目标子串</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; setrange ireader 28 wooxian</span><br><span class="line">(integer) 42  # 返回长度</span><br><span class="line">&gt; get ireader</span><br><span class="line">&quot;beijing.zhangyue.keji.gufen.wooxian.gongsi&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>追加子串</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; append ireader .hao</span><br><span class="line">(integer) 46 # 返回长度</span><br><span class="line">&gt; get ireader</span><br><span class="line">&quot;beijing.zhangyue.keji.gufen.wooxian.gongsi.hao&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>遗憾的是字符串没有提供字串插入方法和子串删除方法。</p>
+<p><strong>计数器</strong> 如果字符串的内容是一个整数，那么还可以将字符串当成计数器来使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&gt; set ireader 42</span><br><span class="line">OK</span><br><span class="line">&gt; get ireader</span><br><span class="line">&quot;42&quot;</span><br><span class="line">&gt; incrby ireader 100</span><br><span class="line">(integer) 142</span><br><span class="line">&gt; get ireader</span><br><span class="line">&quot;142&quot;</span><br><span class="line">&gt; decrby ireader 100</span><br><span class="line">(integer) 42</span><br><span class="line">&gt; get ireader</span><br><span class="line">&quot;42&quot;</span><br><span class="line">&gt; incr ireader  # 等价于incrby ireader 1</span><br><span class="line">(integer) 43</span><br><span class="line">&gt; decr ireader  # 等价于decrby ireader 1</span><br><span class="line">(integer) 42</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>计数器是有范围的，它不能超过Long.Max，不能低于Long.MIN</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; set ireader 9223372036854775807</span><br><span class="line">OK</span><br><span class="line">&gt; incr ireader</span><br><span class="line">(error) ERR increment or decrement would overflow</span><br><span class="line">&gt; set ireader -9223372036854775808</span><br><span class="line">OK</span><br><span class="line">&gt; decr ireader</span><br><span class="line">(error) ERR increment or decrement would overflow</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>过期和删除</strong> 字符串可以使用del指令进行主动删除，可以使用expire指令设置过期时间，到点会自动删除，这属于被动删除。可以使用ttl指令获取字符串的寿命。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; expire ireader 60</span><br><span class="line">(integer) 1  # 1表示设置成功，0表示变量ireader不存在</span><br><span class="line">&gt; ttl ireader</span><br><span class="line">(integer) 50  # 还有50秒的寿命，返回-2表示变量不存在，-1表示没有设置过期时间</span><br><span class="line">&gt; del ireader</span><br><span class="line">(integer) 1  # 删除成功返回1</span><br><span class="line">&gt; get ireader</span><br><span class="line">(nil)  # 变量ireader没有了</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<h2 id="list"><a href="#list" class="headerlink" title="list"></a>list</h2><p><img src="https://user-gold-cdn.xitu.io/2018/7/22/164c25d671d13466?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>Redis将列表数据结构命名为list而不是array，是因为列表的存储结构用的是链表而不是数组，而且链表还是双向链表。因为它是链表，所以随机定位性能较弱，首尾插入删除性能较优。如果list的列表长度很长，使用时我们一定要关注链表相关操作的时间复杂度。</p>
+<p><strong>负下标</strong> 链表元素的位置使用自然数<code>0,1,2,....n-1</code>表示，还可以使用负数<code>-1,-2,...-n</code>来表示，<code>-1</code>表示「倒数第一」，<code>-2</code>表示「倒数第二」，那么<code>-n</code>就表示第一个元素，对应的下标为<code>0</code>。</p>
+<p><strong>队列／堆栈</strong> 链表可以从表头和表尾追加和移除元素，结合使用rpush/rpop/lpush/lpop四条指令，可以将链表作为队列或堆栈使用，左向右向进行都可以</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"># 右进左出</span><br><span class="line">&gt; rpush ireader go</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; rpush ireader java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; lpop ireader</span><br><span class="line">&quot;go&quot;</span><br><span class="line">&gt; lpop ireader</span><br><span class="line">&quot;java&quot;</span><br><span class="line">&gt; lpop ireader</span><br><span class="line">&quot;python&quot;</span><br><span class="line"># 左进右出</span><br><span class="line">&gt; lpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; rpop ireader</span><br><span class="line">&quot;go&quot;</span><br><span class="line">...</span><br><span class="line"># 右进右出</span><br><span class="line">&gt; rpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; rpop ireader </span><br><span class="line">&quot;python&quot;</span><br><span class="line">...</span><br><span class="line"># 左进左出</span><br><span class="line">&gt; lpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; lpop ireader</span><br><span class="line">&quot;python&quot;</span><br><span class="line">...</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>在日常应用中，列表常用来作为异步队列来使用。</p>
+<p><strong>长度</strong> 使用llen指令获取链表长度</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; llen ireader</span><br><span class="line">(integer) 3</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>随机读</strong> 可以使用lindex指令访问指定位置的元素，使用lrange指令来获取链表子元素列表，提供start和end下标参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; lindex ireader 1</span><br><span class="line">&quot;java&quot;</span><br><span class="line">&gt; lrange ireader 0 2</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;java&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">&gt; lrange ireader 0 -1  # -1表示倒数第一</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;java&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>使用lrange获取全部元素时，需要提供end_index，如果没有负下标，就需要首先通过llen指令获取长度，才可以得出end_index的值，有了负下标，使用-1代替end_index就可以达到相同的效果。</p>
+<p><strong>修改元素</strong> 使用lset指令在指定位置修改元素。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; lset ireader 1 javascript</span><br><span class="line">OK</span><br><span class="line">&gt; lrange ireader 0 -1</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;javascript&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>插入元素</strong> 使用linsert指令在列表的中间位置插入元素，有经验的程序员都知道在插入元素时，我们经常搞不清楚是在指定位置的前面插入还是后面插入，所以antirez在linsert指令里增加了方向参数before/after来显示指示前置和后置插入。不过让人意想不到的是linsert指令并不是通过指定位置来插入，而是通过指定具体的值。这是因为在分布式环境下，列表的元素总是频繁变动的，意味着上一时刻计算的元素下标在下一时刻可能就不是你所期望的下标了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; linsert ireader before java ruby</span><br><span class="line">(integer) 4</span><br><span class="line">&gt; lrange ireader 0 -1</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;ruby&quot;</span><br><span class="line">3) &quot;java&quot;</span><br><span class="line">4) &quot;python&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>到目前位置，我还没有在实际应用中发现插入指定的应用场景。</p>
+<p><strong>删除元素</strong> 列表的删除操作也不是通过指定下标来确定元素的，你需要指定删除的最大个数以及元素的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; lrem ireader 1 java</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; lrange ireader 0 -1</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;python&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>定长列表</strong> 在实际应用场景中，我们有时候会遇到「定长列表」的需求。比如要以走马灯的形式实时显示中奖用户名列表，因为中奖用户实在太多，能显示的数量一般不超过100条，那么这里就会使用到定长列表。维持定长列表的指令是ltrim，需要提供两个参数start和end，表示需要保留列表的下标范围，范围之外的所有元素都将被移除。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; rpush ireader go java python javascript ruby erlang rust cpp</span><br><span class="line">(integer) 8</span><br><span class="line">&gt; ltrim ireader -3 -1</span><br><span class="line">OK</span><br><span class="line">&gt; lrange ireader 0 -1</span><br><span class="line">1) &quot;erlang&quot;</span><br><span class="line">2) &quot;rust&quot;</span><br><span class="line">3) &quot;cpp&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p>如果指定参数的end对应的真实下标小于start，其效果等价于del指令，因为这样的参数表示需要需要保留列表元素的下标范围为空。</p>
+<p><strong>快速列表</strong></p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/27/164d91746fbe0442?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>如果再深入一点，你会发现Redis底层存储的还不是一个简单的linkedlist，而是称之为快速链表quicklist的一个结构。首先在列表元素较少的情况下会使用一块连续的内存存储，这个结构是ziplist，也即是压缩列表。它将所有的元素紧挨着一起存储，分配的是一块连续的内存。当数据量比较多的时候才会改成quicklist。因为普通的链表需要的附加指针空间太大，会比较浪费空间。比如这个列表里存的只是int类型的数据，结构上还需要两个额外的指针prev和next。所以Redis将链表和ziplist结合起来组成了quicklist。也就是将多个ziplist使用双向指针串起来使用。这样既满足了快速的插入删除性能，又不会出现太大的空间冗余。</p>
+<h2 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h2><p><img src="https://user-gold-cdn.xitu.io/2018/7/23/164c4eaf9edf608d?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>哈希等价于Java语言的HashMap或者是Python语言的dict，在实现结构上它使用二维结构，第一维是数组，第二维是链表，hash的内容key和value存放在链表中，数组里存放的是链表的头指针。通过key查找元素时，先计算key的hashcode，然后用hashcode对数组的长度进行取模定位到链表的表头，再对链表进行遍历获取到相应的value值，链表的作用就是用来将产生了「hash碰撞」的元素串起来。Java语言开发者会感到非常熟悉，因为这样的结构和HashMap是没有区别的。哈希的第一维数组的长度也是2^n。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/23/164c4dcd14c00534?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p><strong>增加元素</strong> 可以使用hset一次增加一个键值对，也可以使用hmset一次增加多个键值对</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; hset ireader go fast</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; hmset ireader java fast python slow</span><br><span class="line">OK</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>获取元素</strong> 可以通过hget定位具体key对应的value，可以通过hmget获取多个key对应的value，可以使用hgetall获取所有的键值对，可以使用hkeys和hvals分别获取所有的key列表和value列表。这些操作和Java语言的Map接口是类似的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt; hmset ireader go fast java fast python slow</span><br><span class="line">OK</span><br><span class="line">&gt; hget ireader go</span><br><span class="line">&quot;fast&quot;</span><br><span class="line">&gt; hmget ireader go python</span><br><span class="line">1) &quot;fast&quot;</span><br><span class="line">2) &quot;slow&quot;</span><br><span class="line">&gt; hgetall ireader</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;fast&quot;</span><br><span class="line">3) &quot;java&quot;</span><br><span class="line">4) &quot;fast&quot;</span><br><span class="line">5) &quot;python&quot;</span><br><span class="line">6) &quot;slow&quot;</span><br><span class="line">&gt; hkeys ireader</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;java&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">&gt; hvals ireader</span><br><span class="line">1) &quot;fast&quot;</span><br><span class="line">2) &quot;fast&quot;</span><br><span class="line">3) &quot;slow&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>删除元素</strong> 可以使用hdel删除指定key，hdel支持同时删除多个key</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; hmset ireader go fast java fast python slow</span><br><span class="line">OK</span><br><span class="line">&gt; hdel ireader go</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; hdel ireader java python</span><br><span class="line">(integer) 2</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>判断元素是否存在</strong> 通常我们使用hget获得key对应的value是否为空就直到对应的元素是否存在了，不过如果value的字符串长度特别大，通过这种方式来判断元素存在与否就略显浪费，这时可以使用hexists指令。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; hmset ireader go fast java fast python slow</span><br><span class="line">OK</span><br><span class="line">&gt; hexists ireader go</span><br><span class="line">(integer) 1</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>计数器</strong> hash结构还可以当成计数器来使用，对于内部的每一个key都可以作为独立的计数器。如果value值不是整数，调用hincrby指令会出错。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&gt; hincrby ireader go 1</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; hincrby ireader python 4</span><br><span class="line">(integer) 4</span><br><span class="line">&gt; hincrby ireader java 4</span><br><span class="line">(integer) 4</span><br><span class="line">&gt; hgetall ireader</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;1&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">4) &quot;4&quot;</span><br><span class="line">5) &quot;java&quot;</span><br><span class="line">6) &quot;4&quot;</span><br><span class="line">&gt; hset ireader rust good</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; hincrby ireader rust 1</span><br><span class="line">(error) ERR hash value is not an integer</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>扩容</strong> 当hash内部的元素比较拥挤时(hash碰撞比较频繁)，就需要进行扩容。扩容需要申请新的两倍大小的数组，然后将所有的键值对重新分配到新的数组下标对应的链表中(rehash)。如果hash结构很大，比如有上百万个键值对，那么一次完整rehash的过程就会耗时很长。这对于单线程的Redis里来说有点压力山大。所以Redis采用了渐进式rehash的方案。它会同时保留两个新旧hash结构，在后续的定时任务以及hash结构的读写指令中将旧结构的元素逐渐迁移到新的结构中。这样就可以避免因扩容导致的线程卡顿现象。</p>
+<p><strong>缩容</strong> Redis的hash结构不但有扩容还有缩容，从这一点出发，它要比Java的HashMap要厉害一些，Java的HashMap只有扩容。缩容的原理和扩容是一致的，只不过新的数组大小要比旧数组小一倍。</p>
+<h2 id="set"><a href="#set" class="headerlink" title="set"></a>set</h2><p>Java程序员都知道HashSet的内部实现使用的是HashMap，只不过所有的value都指向同一个对象。Redis的set结构也是一样，它的内部也使用hash结构，所有的value都指向同一个内部值。</p>
+<p><strong>增加元素</strong> 可以一次增加多个元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; sadd ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>读取元素</strong> 使用smembers列出所有元素，使用scard获取集合长度，使用srandmember获取随机count个元素，如果不提供count参数，默认为1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; sadd ireader go java python</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; smembers ireader</span><br><span class="line">1) &quot;java&quot;</span><br><span class="line">2) &quot;python&quot;</span><br><span class="line">3) &quot;go&quot;</span><br><span class="line">&gt; scard ireader</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; srandmember ireader</span><br><span class="line">&quot;java&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>删除元素</strong> 使用srem删除一到多个元素，使用spop删除随机一个元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; sadd ireader go java python rust erlang</span><br><span class="line">(integer) 5</span><br><span class="line">&gt; srem ireader go java</span><br><span class="line">(integer) 2</span><br><span class="line">&gt; spop ireader</span><br><span class="line">&quot;erlang&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>判断元素是否存在</strong> 使用sismember指令，只能接收单个元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; sadd ireader go java python rust erlang</span><br><span class="line">(integer) 5</span><br><span class="line">&gt; sismember ireader rust</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; sismember ireader javascript</span><br><span class="line">(integer) 0</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<h2 id="sortedset"><a href="#sortedset" class="headerlink" title="sortedset"></a>sortedset</h2><p><img src="https://user-gold-cdn.xitu.io/2018/7/23/164c4ec77aac6132?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>SortedSet(zset)是Redis提供的一个非常特别的数据结构，一方面它等价于Java的数据结构<code>Map&lt;String, Double&gt;</code>，可以给每一个元素value赋予一个权重<code>score</code>，另一方面它又类似于<code>TreeSet</code>，内部的元素会按照权重score进行排序，可以得到每个元素的名次，还可以通过score的范围来获取元素的列表。</p>
+<p>zset底层实现使用了两个数据结构，第一个是hash，第二个是跳跃列表，hash的作用就是关联元素value和权重score，保障元素value的唯一性，可以通过元素value找到相应的score值。跳跃列表的目的在于给元素value排序，根据score的范围获取元素列表。</p>
+<p><strong>增加元素</strong> 通过zadd指令可以增加一到多个value/score对，score放在前面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; zadd ireader 4.0 python</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; zadd ireader 4.0 java 1.0 go</span><br><span class="line">(integer) 2</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>长度</strong> 通过指令zcard可以得到zset的元素个数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; zcard ireader</span><br><span class="line">(integer) 3</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>删除元素</strong> 通过指令zrem可以删除zset中的元素，可以一次删除多个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; zrem ireader go python</span><br><span class="line">(integer) 2</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>计数器</strong> 同hash结构一样，zset也可以作为计数器使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; zadd ireader 4.0 python 4.0 java 1.0 go</span><br><span class="line">(integer) 3</span><br><span class="line">&gt; zincrby ireader 1.0 python</span><br><span class="line">&quot;5&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>获取排名和分数</strong> 通过zscore指令获取指定元素的权重，通过zrank指令获取指定元素的正向排名，通过zrevrank指令获取指定元素的反向排名[倒数第一名]。正向是由小到大，负向是由大到小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; zscore ireader python</span><br><span class="line">&quot;5&quot;</span><br><span class="line">&gt; zrank ireader go  # 分数低的排名考前，rank值小</span><br><span class="line">(integer) 0</span><br><span class="line">&gt; zrank ireader java</span><br><span class="line">(integer) 1</span><br><span class="line">&gt; zrank ireader python</span><br><span class="line">(integer) 2</span><br><span class="line">&gt; zrevrank ireader python</span><br><span class="line">(integer) 0</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>根据排名范围获取元素列表</strong> 通过zrange指令指定排名范围参数获取对应的元素列表，携带withscores参数可以一并获取元素的权重。通过zrevrange指令按负向排名获取元素列表[倒数]。正向是由小到大，负向是由大到小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&gt; zrange ireader 0 -1  # 获取所有元素</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;java&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">&gt; zrange ireader 0 -1 withscores</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;1&quot;</span><br><span class="line">3) &quot;java&quot;</span><br><span class="line">4) &quot;4&quot;</span><br><span class="line">5) &quot;python&quot;</span><br><span class="line">6) &quot;5&quot;</span><br><span class="line">&gt; zrevrange ireader 0 -1 withscores</span><br><span class="line">1) &quot;python&quot;</span><br><span class="line">2) &quot;5&quot;</span><br><span class="line">3) &quot;java&quot;</span><br><span class="line">4) &quot;4&quot;</span><br><span class="line">5) &quot;go&quot;</span><br><span class="line">6) &quot;1&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>根据score范围获取列表</strong> 通过zrangebyscore指令指定score范围获取对应的元素列表。通过zrevrangebyscore指令获取倒排元素列表。正向是由小到大，负向是由大到小。参数<code>-inf</code>表示负无穷，<code>+inf</code>表示正无穷。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&gt; zrangebyscore ireader 0 5</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;java&quot;</span><br><span class="line">3) &quot;python&quot;</span><br><span class="line">&gt; zrangebyscore ireader -inf +inf withscores</span><br><span class="line">1) &quot;go&quot;</span><br><span class="line">2) &quot;1&quot;</span><br><span class="line">3) &quot;java&quot;</span><br><span class="line">4) &quot;4&quot;</span><br><span class="line">5) &quot;python&quot;</span><br><span class="line">6) &quot;5&quot;</span><br><span class="line">&gt; zrevrangebyscore ireader +inf -inf withscores  # 注意正负反过来了</span><br><span class="line">1) &quot;python&quot;</span><br><span class="line">2) &quot;5&quot;</span><br><span class="line">3) &quot;java&quot;</span><br><span class="line">4) &quot;4&quot;</span><br><span class="line">5) &quot;go&quot;</span><br><span class="line">6) &quot;1&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>根据范围移除元素列表</strong> 可以通过排名范围，也可以通过score范围来一次性移除多个元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; zremrangebyrank ireader 0 1</span><br><span class="line">(integer) 2  # 删掉了2个元素</span><br><span class="line">&gt; zadd ireader 4.0 java 1.0 go</span><br><span class="line">(integer) 2</span><br><span class="line">&gt; zremrangebyscore ireader -inf 4</span><br><span class="line">(integer) 2</span><br><span class="line">&gt; zrange ireader 0 -1</span><br><span class="line">1) &quot;python&quot;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+<p><strong>跳跃列表</strong> zset内部的排序功能是通过「跳跃列表」数据结构来实现的，它的结构非常特殊，也比较复杂。这一块的内容深度读者要有心理准备。</p>
+<p>因为zset要支持随机的插入和删除，所以它不好使用数组来表示。我们先看一个普通的链表结构。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/23/164c5a90442cd51a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>我们需要这个链表按照score值进行排序。这意味着当有新元素需要插入时，需要定位到特定位置的插入点，这样才可以继续保证链表是有序的。通常我们会通过二分查找来找到插入点，但是二分查找的对象必须是数组，只有数组才可以支持快速位置定位，链表做不到，那该怎么办？</p>
+<p>想想一个创业公司，刚开始只有几个人，团队成员之间人人平等，都是联合创始人。随着公司的成长，人数渐渐变多，团队沟通成本随之增加。这时候就会引入组长制，对团队进行划分。每个团队会有一个组长。开会的时候分团队进行，多个组长之间还会有自己的会议安排。公司规模进一步扩展，需要再增加一个层级——部门，每个部门会从组长列表中推选出一个代表来作为部长。部长们之间还会有自己的高层会议安排。</p>
+<p>跳跃列表就是类似于这种层级制，最下面一层所有的元素都会串起来。然后每隔几个元素挑选出一个代表来，再将这几个代表使用另外一级指针串起来。然后在这些代表里再挑出二级代表，再串起来。最终就形成了金字塔结构。</p>
+<p>想想你老家在世界地图中的位置：亚洲–&gt;中国-&gt;安徽省-&gt;安庆市-&gt;枞阳县-&gt;汤沟镇-&gt;田间村-&gt;xxxx号，也是这样一个类似的结构。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/7/23/164c5bb13c6da230?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>「跳跃列表」之所以「跳跃」，是因为内部的元素可能「身兼数职」，比如上图中间的这个元素，同时处于L0、L1和L2层，可以快速在不同层次之间进行「跳跃」。</p>
+<p>定位插入点时，先在顶层进行定位，然后下潜到下一级定位，一直下潜到最底层找到合适的位置，将新元素插进去。你也许会问那新插入的元素如何才有机会「身兼数职」呢？</p>
+<p>跳跃列表采取一个随机策略来决定新元素可以兼职到第几层，首先L0层肯定是100%了，L1层只有50%的概率，L2层只有25%的概率，L3层只有12.5%的概率，一直随机到最顶层L31层。绝大多数元素都过不了几层，只有极少数元素可以深入到顶层。列表中的元素越多，能够深入的层次就越深，能进入到顶层的概率就会越大。</p>
+<p>这还挺公平的，能不能进入中央不是靠拼爹，而是看运气。</p>
+<p>转载 掘金 老钱 原文链接：<a href="https://juejin.im/post/5b53ee7e5188251aaa2d2e16#heading-0" target="_blank" rel="noopener">https://juejin.im/post/5b53ee7e5188251aaa2d2e16#heading-0</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/CountDownLatch底层实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1751,392 +2193,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/02/zookeeper-kafka/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/02/zookeeper-kafka/" itemprop="url">zookeeper+kafka+nginx</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-02T19:37:21+08:00">
-                2019-10-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.9k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="zookeeper-与-kafka集群的搭建"><a href="#zookeeper-与-kafka集群的搭建" class="headerlink" title="zookeeper 与 kafka集群的搭建"></a>zookeeper 与 kafka集群的搭建</h3><p>多级缓存的架构</p>
-<p>主要是用来解决什么样的数据的缓存的更新的啊？？？</p>
-<p>时效性不高的数据，比如一些商品的基本信息，如果发生了变更，假设在5分钟之后再更新到页面中，供用户观察到，也是ok的</p>
-<p>时效性要求不高的数据，那么我们采取的是异步更新缓存的策略</p>
-<p>时效性要求很高的数据，库存，采取的是数据库+缓存双写的技术方案，也解决了双写的一致性的问题</p>
-<p>缓存数据生产服务，监听一个消息队列，然后数据源服务（商品信息管理服务）发生了数据变更之后，就将数据变更的消息推送到消息队列中</p>
-<p>缓存数据生产服务可以去消费到这个数据变更的消息，然后根据消息的指示提取一些参数，然后调用对应的数据源服务的接口，拉去数据，这个时候一般是从mysql库中拉去的</p>
-<p>消息队列是什么东西？采取打的就是kafka</p>
-<p>我工作的时候，很多项目是跟大数据相关的，当然也有很多是纯java系统的架构，最近用kafka用得比较多</p>
-<p>kafka比较简单易用，讲课来说，很方便</p>
-<p>解释一下，我们当然是不可能对课程中涉及的各种技术都深入浅出的讲解的了，kafka，花上20个小时给你讲解一下，不可能的</p>
-<p>所以说呢，在这里，一些技术的组合，用什么都ok</p>
-<p>笑傲江湖中的风清扬，手中无剑胜有剑，还有任何东西都可以当做兵器，哪怕是一根草也可以</p>
-<p>搞技术，kafka和activemq肯定有区别，但是说，在有些场景下，其实可能没有那么大的区分度，kafka和activemq其实是一样的</p>
-<p>生产者+消费者的场景，kafka+activemq都ok</p>
-<p>涉及的这种架构，对时效性要求高和时效性要求低的数据，分别采取什么技术方案？数据库+缓存双写一致性？异步+多级缓存架构？大缓存的维度化拆分？</p>
-<p>你要关注的，是一些架构上的东西和思想，而不是具体的什么mq的使用</p>
-<p>activemq的课程，书籍，资料</p>
-<p>kafka集群，zookeeper集群，先搭建zookeeper集群，再搭建kafka集群</p>
-<p>kafka另外一个原因：kafka，本来就要搭建zookeeper，zookeeper这个东西，后面我们还要用呢，缓存的分布式并发更新的问题，分布式锁解决</p>
-<p>zookeeper + kafka的集群，都是三节点</p>
-<p>java高级工程师的思想，在干活儿，在思考，jvm，宏观的思考，通盘去考虑整个架构，还有未来的技术规划，业务的发展方向，架构的演进方向和路线</p>
-<p>把课程里讲解的各种技术方案组合成、修改成你需要的适合你的业务的缓存架构</p>
-<p>1、zookeeper集群搭建</p>
-<p>将课程提供的zookeeper-3.4.5.tar.gz使用WinSCP拷贝到/usr/local目录下。<br>对zookeeper-3.4.5.tar.gz进行解压缩：tar -zxvf zookeeper-3.4.5.tar.gz。<br>对zookeeper目录进行重命名：mv zookeeper-3.4.5 zk</p>
-<p>配置zookeeper相关的环境变量<br>vi ~/.bashrc<br>export ZOOKEEPER_HOME=/usr/local/zk<br>export PATH=$PATH:$ZOOKEEPER_HOME/bin</p>
-<p>source ~/.bashrc</p>
-<p>cd zk/conf<br>cp zoo_sample.cfg zoo.cfg</p>
-<p>vi zoo.cfg<br>修改：dataDir=/usr/local/zk/data<br>新增：<br>server.0=eshop-cache01:2888:3888<br>server.1=eshop-cache02:2888:3888<br>server.2=eshop-cache03:2888:3888</p>
-<p>cd zk<br>mkdir data<br>cd data</p>
-<p>vi myid<br>0</p>
-<p>在另外两个节点上按照上述步骤配置ZooKeeper，使用scp将zk和.bashrc拷贝到eshop-cache02和eshop-cache03上即可。唯一的区别是标识号分别设置为1和2。</p>
-<p>分别在三台机器上执行：zkServer.sh start。<br>检查ZooKeeper状态：zkServer.sh status，应该是一个leader，两个follower<br>jps：检查三个节点是否都有QuromPeerMain进程</p>
-<p>2、kafka集群搭建</p>
-<p>scala，我就不想多说了，就是一门编程语言，现在比较火，很多比如大数据领域里面的spark（计算引擎）就是用scala编写的</p>
-<p>将课程提供的scala-2.11.4.tgz使用WinSCP拷贝到/usr/local目录下。<br>对scala-2.11.4.tgz进行解压缩：tar -zxvf scala-2.11.4.tgz。<br>对scala目录进行重命名：mv scala-2.11.4 scala</p>
-<p>配置scala相关的环境变量<br>vi ~/.bashrc<br>export SCALA_HOME=/usr/local/scala<br>export PATH=$SCALA_HOME/bin<br>source ~/.bashrc</p>
-<p>查看scala是否安装成功：scala -version</p>
-<p>按照上述步骤在其他机器上都安装好scala。使用scp将scala和.bashrc拷贝到另外两台机器上即可。</p>
-<p>将课程提供的kafka_2.9.2-0.8.1.tgz使用WinSCP拷贝到/usr/local目录下。<br>对kafka_2.9.2-0.8.1.tgz进行解压缩：tar -zxvf kafka_2.9.2-0.8.1.tgz。<br>对kafka目录进行改名：mv kafka_2.9.2-0.8.1 kafka</p>
-<p>配置kafka<br>vi /usr/local/kafka/config/server.properties<br>broker.id：依次增长的整数，0、1、2，集群中Broker的唯一id<br>zookeeper.connect=192.168.31.187:2181,192.168.31.19:2181,192.168.31.227:2181</p>
-<p>安装slf4j<br>将课程提供的slf4j-1.7.6.zip上传到/usr/local目录下<br>unzip slf4j-1.7.6.zip<br>把slf4j中的slf4j-nop-1.7.6.jar复制到kafka的libs目录下面</p>
-<p>解决kafka Unrecognized VM option ‘UseCompressedOops’问题</p>
-<p>vi /usr/local/kafka/bin/kafka-run-class.sh </p>
-<p>if [ -z “$KAFKA_JVM_PERFORMANCE_OPTS” ]; then<br>  KAFKA_JVM_PERFORMANCE_OPTS=”-server  -XX:+UseCompressedOops -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+CMSScavengeBeforeRemark -XX:+DisableExplicitGC -Djava.awt.headless=true”<br>fi</p>
-<p>去掉-XX:+UseCompressedOops即可</p>
-<p>按照上述步骤在另外两台机器分别安装kafka。用scp把kafka拷贝到其他机器即可。<br>唯一区别的，就是server.properties中的broker.id，要设置为1和2</p>
-<p>在三台机器上的kafka目录下，分别执行以下命令：nohup bin/kafka-server-start.sh config/server.properties &amp;</p>
-<p>使用jps检查启动是否成功</p>
-<p>使用基本命令检查kafka是否搭建成功</p>
-<p>bin/kafka-topics.sh –zookeeper 192.168.229.7:2181,192.168.229.8:2181,192.168.229.9:2181 –topic test –replication-factor 1 –partitions 1 –create</p>
-<p>bin/kafka-console-producer.sh –broker-list 192.168.229.7:9092,192.168.229.8:9092,192.168.229.9:9092 –topic test</p>
-<p>bin/kafka-console-consumer.sh –bootstrap-server 192.168.229.7:9092,192.168.229.8:9092,192.168.229.9:9092 –topic test –from-beginning</p>
-<h3 id="基于“分发层-应用层”双层nginx架构提升缓存命中率"><a href="#基于“分发层-应用层”双层nginx架构提升缓存命中率" class="headerlink" title="基于“分发层+应用层”双层nginx架构提升缓存命中率"></a>基于“分发层+应用层”双层nginx架构提升缓存命中率</h3><p>1、缓存命中率低</p>
-<p>缓存数据生产服务那一层已经搞定了，相当于三层缓存架构中的本地堆缓存+redis分布式缓存都搞定了</p>
-<p>就要来做三级缓存中的nginx那一层的缓存了</p>
-<p>如果一般来说，你默认会部署多个nginx，在里面都会放一些缓存，就默认情况下，此时缓存命中率是比较低的</p>
-<p>2、如何提升缓存命中率</p>
-<p>分发层+应用层，双层nginx</p>
-<p>分发层nginx，负责流量分发的逻辑和策略，这个里面它可以根据你自己定义的一些规则，比如根据productId去进行hash，然后对后端的nginx数量取模</p>
-<p>将某一个商品的访问的请求，就固定路由到一个nginx后端服务器上去，保证说只会从redis中获取一次缓存数据，后面全都是走nginx本地缓存了</p>
-<p>后端的nginx服务器，就称之为应用服务器; 最前端的nginx服务器，被称之为分发服务器</p>
-<p>看似很简单，其实很有用，在实际的生产环境中，可以大幅度提升你的nginx本地缓存这一层的命中率，大幅度减少redis后端的压力，提升性能</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/02/模拟第一天/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/02/模拟第一天/" itemprop="url">模拟第一天</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-02T11:06:55+08:00">
-                2019-10-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.5k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="java创建对象有几种方式"><a href="#java创建对象有几种方式" class="headerlink" title="java创建对象有几种方式"></a>java创建对象有几种方式</h2><ol>
-<li>使用new关键字：这是我们最常见的也是最简单的创建对象的方式，通过这种方式我们还可以调用任意的够赞函数（无参的和有参的）。比如：Student student = new Student();</li>
-<li>使用Class类的newInstance方法：我们也可以使用Class类的newInstance方法创建对象，这个newInstance方法调用无参的构造器创建对象，如：Student student2 = (Student)Class.forName(“根路径.Student”).newInstance();　或者：Student stu = Student.class.newInstance();</li>
-<li>使用Constructor类的newInstance方法：本方法和Class类的newInstance方法很像，java.lang.relect.Constructor类里也有一个newInstance方法可以创建对象。我们可以通过这个newInstance方法调用有参数的和私有的构造函数。如： Constructor<student> constructor = Student.class.getInstance(); Student stu = constructor.newInstance();　这两种newInstance的方法就是大家所说的反射，事实上Class的newInstance方法内部调用Constructor的newInstance方法。这也是众多框架Spring、Hibernate、Struts等使用后者的原因。</student></li>
-<li>使用Clone的方法：无论何时我们调用一个对象的clone方法，JVM就会创建一个新的对象，将前面的对象的内容全部拷贝进去，用clone方法创建对象并不会调用任何构造函数。要使用clone方法，我们必须先实现Cloneable接口并实现其定义的clone方法。如：Student stu2 = <student>stu.clone();这也是原型模式的应用。</student></li>
-<li>使用反序列化：当我们序列化和反序列化一个对象，JVM会给我们创建一个单独的对象，在反序列化时，JVM创建对象并不会调用任何构造函数。为了反序列化一个对象，我们需要让我们的类实现Serializable接口。如：ObjectInputStream in = new ObjectInputStream (new FileInputStream(“data.obj”)); Student stu3 = (Student)in.readObject();</li>
-</ol>
-<h2 id="浅拷贝与深拷贝的区别？怎么实现深拷贝"><a href="#浅拷贝与深拷贝的区别？怎么实现深拷贝" class="headerlink" title="浅拷贝与深拷贝的区别？怎么实现深拷贝"></a>浅拷贝与深拷贝的区别？怎么实现深拷贝</h2><p>浅拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，如果字段是值类型的，那么对该字段执行复制；如果该字段是引用类型的话，则复制引用但不复制引用的对象。因此，原始对象及其副本引用同一个对象。</p>
-<p>深拷贝：创建一个新对象，然后将当前对象的非静态字段复制到该新对象，无论该字段是值类型的还是引用类型，都复制独立的一份。当你修改其中一个对象的任何内容时，都不会影响另一个对象的内容。</p>
-<p>使用clone方法的对象需要是实现cloneable接口</p>
-<p> ①、让每个引用类型属性内部都重写clone() 方法<br>②、利用序列化<br><a href="https://blog.csdn.net/baiye_xing/article/details/71788741" target="_blank" rel="noopener">https://blog.csdn.net/baiye_xing/article/details/71788741</a></p>
-<h2 id="SQL注入原理，mybatis怎么实现sql注入"><a href="#SQL注入原理，mybatis怎么实现sql注入" class="headerlink" title="SQL注入原理，mybatis怎么实现sql注入"></a>SQL注入原理，mybatis怎么实现sql注入</h2><p><a href="https://czetao.github.io/2019/10/01/SQL注入/" target="_blank" rel="noopener">https://czetao.github.io/2019/10/01/SQL%E6%B3%A8%E5%85%A5/</a></p>
-<h2 id="threadlocal使用需要注意什么问题？"><a href="#threadlocal使用需要注意什么问题？" class="headerlink" title="threadlocal使用需要注意什么问题？"></a>threadlocal使用需要注意什么问题？</h2><p>threadlocal–&gt;threadlocalmap —&gt;Entry&lt;threadlocal,value&gt;</p>
-<p><a href="https://blog.csdn.net/LHQJ1992/article/details/52451136" target="_blank" rel="noopener">https://blog.csdn.net/LHQJ1992/article/details/52451136</a><br><a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a></p>
-<p><img src="https://img-blog.csdn.net/20180903125233171?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNDA0Mzk1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt></p>
-<p>ThreadLocal的实现是这样的：每个Thread 维护一个 ThreadLocalMap 映射表，这个映射表的 key 是 ThreadLocal实例本身，value 是真正需要存储的 Object。<br>也就是说 ThreadLocal 本身并不存储值，它只是作为一个 key 来让线程从 ThreadLocalMap 获取 value。<br>值得注意的是图中的虚线，表示 ThreadLocalMap 是使用 ThreadLocal 的弱引用作为 Key 的，弱引用的对象在 GC 时会被回收。</p>
-<p>ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -&gt; Thread -&gt; ThreaLocalMap -&gt; Entry -&gt; value永远无法回收，造成内存泄漏。<br>————————————————<br>版权声明：本文为CSDN博主「WangCw的夏天」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/qq_33404395/article/details/82356344" target="_blank" rel="noopener">https://blog.csdn.net/qq_33404395/article/details/82356344</a></p>
-<h3 id="为何HashMap的数组长度一定是2的次幂？"><a href="#为何HashMap的数组长度一定是2的次幂？" class="headerlink" title="为何HashMap的数组长度一定是2的次幂？"></a>为何HashMap的数组长度一定是2的次幂？</h3><p>hashMap的数组长度一定保持2的次幂，比如16的二进制表示为 10000，那么length-1就是15，二进制为01111，同理扩容后的数组长度为32，二进制表示为100000，length-1为31，二进制表示为011111。从下图可以我们也能看到这样会保证低位全为1，而扩容后只有一位差异，也就是多出了最左位的1，这样在通过 h&amp;(length-1)的时候，只要h对应的最左边的那一个差异位为0，就能保证得到的新的数组索引和老数组索引一致(大大减少了之前已经散列良好的老数组的数据位置重新调换)，个人理解。</p>
-<p> 还有，数组长度保持2的次幂，length-1的低位都为1，会使得获得的数组索引index更加均匀，比如：</p>
-<p>　　我们看到，上面的&amp;运算，高位是不会对结果产生影响的（hash函数采用各种位运算可能也是为了使得低位更加散列），我们只关注低位bit，如果低位全部为1，那么对于h低位部分来说，任何一位的变化都会对结果产生影响，也就是说，要得到index=21这个存储位置，h的低位只有这一种组合。这也是数组长度设计为必须为2的次幂的原因。</p>
-<p><strong>当length-1时，低位都是111，可以保证key低位的唯一性</strong></p>
-<p>　　如果不是2的次幂，也就是低位不是全为1此时，要使得index=21，h的低位部分不再具有唯一性了，哈希冲突的几率会变的更大，同时，index对应的这个bit位无论如何不会等于1了，而对应的那些数组位置也就被白白浪费了。</p>
-<p><a href="https://www.cnblogs.com/chengxiao/p/6059914.html#t3" target="_blank" rel="noopener">https://www.cnblogs.com/chengxiao/p/6059914.html#t3</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2189,7 +2245,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-count">46</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2285,7 +2341,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共83.6k字</span>
+  <span class="post-count">博客全站共91.3k字</span>
 </div>
 
         
