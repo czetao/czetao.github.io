@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="场景,">
 
 
 
@@ -79,13 +79,18 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="ddd `Blog">
-<meta property="og:url" content="http://yoursite.com/categories/事务/index.html">
+<meta name="description" content="幂等性概念在编程中.一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同。指可以使用相同参数重复执行，并能获得相同结果，不用担心重复执行会对系统造成改变。 幂等性场景 查询操作：查询一次和查询多次，在数据不变的情况下，查询结果是一样的。select是天然的幂等操作； 删除操作：删除操作也是幂等的，删除一次和多次删除都是把数据删除。(注意可能返回结果不一样，删除的数据不存在，返回0，">
+<meta name="keywords" content="场景">
+<meta property="og:type" content="article">
+<meta property="og:title" content="幂等性保证机制">
+<meta property="og:url" content="http://yoursite.com/2019/10/06/幂等性保证机制/index.html">
 <meta property="og:site_name" content="ddd `Blog">
+<meta property="og:description" content="幂等性概念在编程中.一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同。指可以使用相同参数重复执行，并能获得相同结果，不用担心重复执行会对系统造成改变。 幂等性场景 查询操作：查询一次和查询多次，在数据不变的情况下，查询结果是一样的。select是天然的幂等操作； 删除操作：删除操作也是幂等的，删除一次和多次删除都是把数据删除。(注意可能返回结果不一样，删除的数据不存在，返回0，">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-06T12:45:11.534Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ddd `Blog">
+<meta name="twitter:title" content="幂等性保证机制">
+<meta name="twitter:description" content="幂等性概念在编程中.一个幂等操作的特点是其任意多次执行所产生的影响均与一次执行的影响相同。指可以使用相同参数重复执行，并能获得相同结果，不用担心重复执行会对系统造成改变。 幂等性场景 查询操作：查询一次和查询多次，在数据不变的情况下，查询结果是一样的。select是天然的幂等操作； 删除操作：删除操作也是幂等的，删除一次和多次删除都是把数据删除。(注意可能返回结果不一样，删除的数据不存在，返回0，">
 
 
 
@@ -115,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/categories/事务/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/06/幂等性保证机制/">
 
 
 
 
 
-  <title>分类: 事务 | ddd `Blog</title>
+  <title>幂等性保证机制 | ddd `Blog</title>
   
 
 
@@ -140,7 +145,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -266,53 +271,201 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>事务<small>分类</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/幂等性保证机制/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2019/09/10/事务/" itemprop="url">
-              
-                <span itemprop="name">事务</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">幂等性保证机制</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-10T21:44:39+08:00" content="2019-09-10">
-          09-10
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:44:16+08:00">
+                2019-10-06
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-eye"></i> 阅读次数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="幂等性概念"><a href="#幂等性概念" class="headerlink" title="幂等性概念"></a><strong>幂等性概念</strong></h2><p>在编程中.一个幂等操作的特点是其<strong>任意多次执行所产生的影响均与一次执行的影响相同。</strong>指可以使用相同参数重复执行，并能获得相同结果，<strong>不用担心重复执行会对系统造成改变</strong>。</p>
+<h2 id="幂等性场景"><a href="#幂等性场景" class="headerlink" title="幂等性场景"></a><strong>幂等性场景</strong></h2><ul>
+<li>查询操作：查询一次和查询多次，在数据不变的情况下，查询结果是一样的。select是天然的幂等操作；</li>
+<li>删除操作：删除操作也是幂等的，删除一次和多次删除都是把数据删除。(注意可能返回结果不一样，删除的数据不存在，返回0，删除的数据多条，返回结果多个) ；</li>
+<li>修改操作：多次修改，因为主键约束，修改一次和修改多次，如果数据没变，操作相同。</li>
+</ul>
+<h2 id="保证幂等性措施"><a href="#保证幂等性措施" class="headerlink" title="保证幂等性措施"></a>保证幂等性措施</h2><h3 id="唯一索引"><a href="#唯一索引" class="headerlink" title="唯一索引"></a>唯一索引</h3><p>防止<strong>新增</strong>脏数据。比如：支付宝的资金账户，支付宝也有用户账户，每个用户只能有一个资金账户，怎么防止给用户创建资金账户多个，那么给资金账户表中的用户ID加唯一索引，所以一个用户新增成功一个资金账户记录。要点：唯一索引或唯一组合索引来防止新增数据存在脏数据（当表存在唯一索引，并发时新增报错时，再查询一次就可以了，数据应该已经存在了，返回结果即可）；需要合适的业务唯一字段</p>
+<h3 id="token机制"><a href="#token机制" class="headerlink" title="token机制"></a>token机制</h3><p>防止页面重复提交。原理上通过session token来实现的(<strong>也可以通过redis来实现</strong>)。当客户端<strong>请求页面时，服务器会生成一个随机数Token，并且将Token放置到session当中</strong>，然后将Token发给客户端（一般通过<strong>构造hidden表单</strong>）。下次客户端提交请求时，Token会<strong>随着表单一起提交到服务器端</strong>。</p>
+<p>服务器端<strong>第一次验证相同过后，会将session中的Token值更新下</strong>，<strong>若用户重复提交，第二次的验证判断将失败，因为用户提交的表单中的Token没变，但服务器端session中Token已经改变了。</strong></p>
+<h3 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h3><p>获取数据的时候加锁获取。select * from table_xxx where id=’xxx’ for update;<br>注意：<strong>id字段一定是主键或者唯一索引，不然是锁表，会死人的</strong>；悲观锁使用时一般伴随事务一起使用，数据锁定时间可能会很长，根据实际情况选用；</p>
+<h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h3><p><strong>只是在更新数据那一刻锁表</strong>，其他时间不锁表，所以相对于悲观锁，效率更高。乐观锁的实现方式多种多样可以通过version或者其他状态条件：</p>
+<ol>
+<li>通过版本号实现update table_xxx set name=#{name},version=version+1 where version=#{version}；</li>
+<li>通过条件限制 update table_xxx set avai_amount=avai_amount-#subAmount# where<br>avai_amount-#subAmount# &gt;= 0要求：quality-#subQuality# &gt;= 0<br>，这个情景适合不用版本号，只更新是做数据安全校验，适合库存模型，扣份额和回滚份额，性能更高；</li>
+</ol>
+<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>如果是分布式系统，构建全局唯一索引比较困难，例如唯一性的字段没法确定，这时候可以引入分布式锁，通过第三方的系统(redis或zookeeper)，在业务系统插入数据或者更新数据，获取分布式锁，然后做操作，之后释放锁，这样其实是把多线程并发的锁的思路，引入多多个系统，也就是分布式系统中得解决思路。要点：某个长流程处理过程要求不能并发执行，可以<strong>在流程执行之前根据某个标志(用户ID+后缀等)获取分布式锁，其他流程执行时获取锁就会失败，也就是同一时间该流程只能有一个能执行成功，执行完成后，释放分布式锁(分布式锁要第三方系统提供)；</strong></p>
+<h3 id="select-insert"><a href="#select-insert" class="headerlink" title="select + insert"></a>select + insert</h3><p>并发不高的后台系统，或者一些任务JOB，为了支持幂等，支持重复执行，简单的处理方法是，<strong>先查询下一些关键数据，判断是否已经执行过，在进行业务处理，就可以了。</strong>注意：<strong>核心高并发流程不要用这种方法；</strong></p>
+<h3 id="状态机幂等"><a href="#状态机幂等" class="headerlink" title="状态机幂等"></a>状态机幂等</h3><p>在设计单据相关的业务，或者是任务相关的业务，肯定会涉及到状态机(状态变更图)，就是业务单据上面有个状态，状态在不同的情况下会发生变更，一般情况下存在有限状态机，这时候，如果状态机已经处于下一个状态，这时候来了一个上一个状态的变更，理论上是不能够变更的，这样的话，保证了有限状态机的幂等。注意：订单等单据类业务，存在很长的状态流转，一定要深刻理解状态机，对业务系统设计能力提高有很大帮助</p>
+<h3 id="对外提供接口的api如何保证幂等"><a href="#对外提供接口的api如何保证幂等" class="headerlink" title="对外提供接口的api如何保证幂等"></a>对外提供接口的api如何保证幂等</h3><p>如银联提供的付款接口：需要接入商户提交付款请求时附带：source来源，seq序列号；source+seq在数据库里面做唯一索引，防止多次付款(并发时，只能处理一个请求) 。<br>重点：对外提供接口为了支持幂等调用，接口有两个字段必须传，一个是来源source，一个是来源方序列号seq，这个两个字段在提供方系统里面做联合唯一索引，这样当第三方调用时，先在本方系统里面查询一下，是否已经处理过，返回相应处理结果；没有处理过，进行相应处理，返回结果。注意，为了幂等友好，一定要先查询一下，是否处理过该笔业务，不查询直接插入业务系统，会报错，但实际已经处理了。</p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/场景/" rel="tag"># 场景</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/06/深入理解AQS/" rel="next" title="深入理解AQS">
+                <i class="fa fa-chevron-left"></i> 深入理解AQS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -320,6 +473,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -340,8 +497,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -403,6 +569,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#幂等性概念"><span class="nav-number">1.</span> <span class="nav-text">幂等性概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#幂等性场景"><span class="nav-number">2.</span> <span class="nav-text">幂等性场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#保证幂等性措施"><span class="nav-number">3.</span> <span class="nav-text">保证幂等性措施</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#唯一索引"><span class="nav-number">3.1.</span> <span class="nav-text">唯一索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#token机制"><span class="nav-number">3.2.</span> <span class="nav-text">token机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#悲观锁"><span class="nav-number">3.3.</span> <span class="nav-text">悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#乐观锁"><span class="nav-number">3.4.</span> <span class="nav-text">乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式锁"><span class="nav-number">3.5.</span> <span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-insert"><span class="nav-number">3.6.</span> <span class="nav-text">select + insert</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态机幂等"><span class="nav-number">3.7.</span> <span class="nav-text">状态机幂等</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对外提供接口的api如何保证幂等"><span class="nav-number">3.8.</span> <span class="nav-text">对外提供接口的api如何保证幂等</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -568,6 +750,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
