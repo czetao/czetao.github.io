@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="并发,">
 
 
 
@@ -79,17 +79,20 @@
 
 
 
-<meta name="description" content="http://lylblog.cn/blog/4">
+<meta name="description" content="一、CountDownLatch 概述1.1 什么是 CountDLatch 闭锁（CountDownLatch）是 java.util.concurrent 包下的一种同步工具类。闭锁可以用来确保某些活动直到其他活动都完成后才执行。 闭锁相当于一扇门：在闭锁到达结束状态之前，这扇门一直是关闭的，并且没有任何线程能通过，当达到结束状态时，这扇门会打开，并允许所有的线程通过。 1.2 CountDo">
+<meta name="keywords" content="并发">
 <meta property="og:type" content="article">
-<meta property="og:title" content="递归">
-<meta property="og:url" content="http://yoursite.com/2019/08/21/递归/index.html">
+<meta property="og:title" content="CountDownLatch底层实现">
+<meta property="og:url" content="http://yoursite.com/2019/10/06/CountDownLatch底层实现/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="http://lylblog.cn/blog/4">
+<meta property="og:description" content="一、CountDownLatch 概述1.1 什么是 CountDLatch 闭锁（CountDownLatch）是 java.util.concurrent 包下的一种同步工具类。闭锁可以用来确保某些活动直到其他活动都完成后才执行。 闭锁相当于一扇门：在闭锁到达结束状态之前，这扇门一直是关闭的，并且没有任何线程能通过，当达到结束状态时，这扇门会打开，并允许所有的线程通过。 1.2 CountDo">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-07T02:15:11.851Z">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2019031118084154.jpg">
+<meta property="og:updated_time" content="2019-10-06T03:46:56.923Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="递归">
-<meta name="twitter:description" content="http://lylblog.cn/blog/4">
+<meta name="twitter:title" content="CountDownLatch底层实现">
+<meta name="twitter:description" content="一、CountDownLatch 概述1.1 什么是 CountDLatch 闭锁（CountDownLatch）是 java.util.concurrent 包下的一种同步工具类。闭锁可以用来确保某些活动直到其他活动都完成后才执行。 闭锁相当于一扇门：在闭锁到达结束状态之前，这扇门一直是关闭的，并且没有任何线程能通过，当达到结束状态时，这扇门会打开，并允许所有的线程通过。 1.2 CountDo">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/2019031118084154.jpg">
 
 
 
@@ -119,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/08/21/递归/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/06/CountDownLatch底层实现/">
 
 
 
 
 
-  <title>递归 | ddd `Blog</title>
+  <title>CountDownLatch底层实现 | ddd `Blog</title>
   
 
 
@@ -284,7 +287,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/21/递归/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/CountDownLatch底层实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chen ZeTao">
@@ -301,7 +304,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">递归</h1>
+          <h1 class="post-title" itemprop="name headline">CountDownLatch底层实现</h1>
         
 
         <div class="post-meta">
@@ -313,8 +316,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-21T15:15:23+08:00">
-                2019-08-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T11:45:07+08:00">
+                2019-10-06
               </time>
             
 
@@ -350,7 +353,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  5
+                  1k
                 </span>
               
 
@@ -366,7 +369,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1
+                  4
                 </span>
               
             </div>
@@ -387,7 +390,27 @@
       
 
       
-        <p><a href="http://lylblog.cn/blog/4" target="_blank" rel="noopener">http://lylblog.cn/blog/4</a></p>
+        <p>一、CountDownLatch 概述<br>1.1 什么是 CountDLatch</p>
+<p>闭锁（CountDownLatch）是 java.util.concurrent 包下的一种同步工具类。闭锁可以用来确保某些活动直到其他活动都完成后才执行。</p>
+<p>闭锁相当于一扇门：在闭锁到达结束状态之前，这扇门一直是关闭的，并且没有任何线程能通过，当达到结束状态时，这扇门会打开，并允许所有的线程通过。</p>
+<p>1.2 CountDownLatch 的应用场景</p>
+<p>确保某个计算在其需要的所有资源都被初始化之后才执行<br>确保某个服务在其依赖的所有其他服务都已经启动之后才启动<br>等待直到每个操作的所有参与者都就绪再执行（比如打麻将时需要等待四个玩家就绪）<br>1.3 CountDownLatch 简单应用</p>
+<p>我们知道 4 个人玩纸牌游戏一定会先等所有玩家就绪后才会发牌，下面我们就来用闭锁简单的模拟一下。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CountDownLatchTest</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 初始化需要等待的 4 个事件</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> CountDownLatch latch = <span class="keyword">new</span> CountDownLatch(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 创建 4 个线程分别代表 4 个玩家</span></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123; System.out.println(<span class="string">"玩家 1 已就绪"</span>); latch.countDown(); &#125;).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123; System.out.println(<span class="string">"玩家 2 已就绪"</span>); latch.countDown(); &#125;).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123; System.out.println(<span class="string">"玩家 3 已就绪"</span>); latch.countDown(); &#125;).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123; System.out.println(<span class="string">"玩家 4 已就绪"</span>); latch.countDown(); &#125;).start();</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 所有玩家就绪前一直阻塞</span></span><br><span class="line">        latch.await();</span><br><span class="line">        System.out.println(<span class="string">"所有玩家已就绪，请发牌"</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面是控制台输出：<br><img src="https://img-blog.csdnimg.cn/2019031118084154.jpg" alt></p>
+<p>二、CountDownLatch 原理分析<br>CountDownLatch 底层是基于 AQS 实现的，如果不懂 AQS 原理的小伙伴需要先了解下 AQS 再来看这篇文章。</p>
+<p>2.1 API 相关方法</p>
+<p>构造函数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CountDownLatch</span><span class="params">(<span class="keyword">int</span> count)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (count &lt; <span class="number">0</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"count &lt; 0"</span>);</span><br><span class="line">    <span class="comment">// 初始化 count 值</span></span><br><span class="line">    <span class="keyword">this</span>.sync = <span class="keyword">new</span> Sync(count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CountDownLatch 内部有一个 Sync 同步对象，这个对象是一个内部类实现了 AQS，下面我们会具体来看方法实现。</p>
+<p>await 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">await</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="comment">// 共享式检查是否中断，如果中断抛出异常</span></span><br><span class="line">    <span class="comment">// 调用 tryAcquireShared 方法尝试获取同步状态，当闭锁内的线程执行完毕后尝试获取成功，直接返回</span></span><br><span class="line">    sync.acquireSharedInterruptibly(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>countDown 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">countDown</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="comment">// 调用 releaseShared 每次使同步状态值减 1</span></span><br><span class="line">    sync.releaseShared(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上面的 API 我们应该能知道其大概的原理了，在 CountDownLatch 初始化的时候会有一个初始的同步状态值，这个同步状态值可以理解为放行前的所要执行的线程数，每次调用 countDown 方法时就把同步状态值减 1，await 方法会自旋检查同步状态值是否为 0，当不为 0 时会阻塞线程，当为 0 时会直接返回，该方法是支持相应 中断的，当线程中断时会抛出异常。因此该方法可以理解为一扇门，只有当指定数量的线程执行完后，才会执行后续的代码。</p>
+<p>上面我们已经理解了大概的流程，下面来看下具体的实现代码。</p>
+<p>2.2 Sync 同步类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Sync</span> <span class="keyword">extends</span> <span class="title">AbstractQueuedSynchronizer</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化闭锁 count 值</span></span><br><span class="line">    Sync(<span class="keyword">int</span> count) &#123;</span><br><span class="line">        setState(count);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getState();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  通过共享方式尝试获取锁</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">int</span> <span class="title">tryAcquireShared</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (getState() == <span class="number">0</span>) ? <span class="number">1</span> : -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 通过共享方式尝试释放锁</span></span><br><span class="line">	<span class="comment">// 因为该方法是线程共享的，因此需要通过 CAS 操作保证线程安全</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">tryReleaseShared</span><span class="params">(<span class="keyword">int</span> releases)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            <span class="keyword">int</span> c = getState();</span><br><span class="line">            <span class="comment">// 同步状态值在上一次置 0 时已经放行，因此返回 false</span></span><br><span class="line">            <span class="keyword">if</span> (c == <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            <span class="comment">// 同步状态值 - 1</span></span><br><span class="line">            <span class="keyword">int</span> nextc = c-<span class="number">1</span>;</span><br><span class="line">            <span class="comment">// 为 0 时返回 true</span></span><br><span class="line">            <span class="keyword">if</span> (compareAndSetState(c, nextc))</span><br><span class="line">                <span class="keyword">return</span> nextc == <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>————————————————<br>版权声明：本文为CSDN博主「留兰香丶」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/codejas/article/details/88407572" target="_blank" rel="noopener">https://blog.csdn.net/codejas/article/details/88407572</a></p>
 
       
     </div>
@@ -403,6 +426,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/并发/" rel="tag"># 并发</a>
+          
+        </div>
+      
 
       
       
@@ -412,8 +441,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/09/react框架/" rel="next" title="react框架">
-                <i class="fa fa-chevron-left"></i> react框架
+              <a href="/2019/10/06/MVCC/" rel="next" title="MVCC">
+                <i class="fa fa-chevron-left"></i> MVCC
               </a>
             
           </div>
@@ -421,10 +450,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/09/02/排序/" rel="prev" title="排序">
-                排序 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>

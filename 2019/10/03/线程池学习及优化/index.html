@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ddd `Blog">
 <meta property="og:description" content="多线程并发生产环境里面，一个是线程池的大小怎么设置，timeout时长怎么 不合理的话，问题还是很大的 在生产环境中部署一个短路器，一开始需要将一些关键配置设置的大一些，比如timeout超时时长，线程池大小，或信号量容量 然后逐渐优化这些配置，直到在一个生产系统中运作良好 （1）一开始先不要设置timeout超时时长，默认就是1000ms，也就是1s（2）一开始也不要设置线程池大小，默认就是10">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-03T07:32:12.854Z">
+<meta property="og:updated_time" content="2019-10-06T03:02:24.072Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="线程池学习及优化">
 <meta name="twitter:description" content="多线程并发生产环境里面，一个是线程池的大小怎么设置，timeout时长怎么 不合理的话，问题还是很大的 在生产环境中部署一个短路器，一开始需要将一些关键配置设置的大一些，比如timeout超时时长，线程池大小，或信号量容量 然后逐渐优化这些配置，直到在一个生产系统中运作良好 （1）一开始先不要设置timeout超时时长，默认就是1000ms，也就是1s（2）一开始也不要设置线程池大小，默认就是10">
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.6k
+                  2.2k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  5
+                  7
                 </span>
               
             </div>
@@ -426,26 +426,23 @@
 </li>
 </ul>
 <p>使用线程池可以进行统一的分配，调优和监控。 </p>
-<h2 id="线程池的核心原理和实现方法，7大参数讲一下"><a href="#线程池的核心原理和实现方法，7大参数讲一下" class="headerlink" title="线程池的核心原理和实现方法，7大参数讲一下"></a>线程池的核心原理和实现方法，7大参数讲一下</h2><p>线程池有7大参数</p>
-<ul>
-<li><p>corePoolSize核心线程数</p>
-</li>
-<li><p>maxPoolSize最大线程数</p>
-</li>
-<li><p>runableBlockQueue任务队列</p>
-</li>
-<li><p>keepAlivetTime 线程存活时间  </p>
-<p>当线程池中的工作线程空闲后，保持存活的时间。</p>
-</li>
-<li><p>timeunit 时间单位</p>
-<p>线程活动保持时间的单位</p>
-</li>
-<li><p>ThreadFactory 线程工厂</p>
-<p>用于设置创建线程的工厂，可以通过线程工厂给每个创建线程设置更有意义的名字。</p>
-</li>
-<li><p>RejectedExecutionHandler拒绝策略</p>
-</li>
-</ul>
+<h2 id="线程池的核心原理和实现方法，7大参数讲一下"><a href="#线程池的核心原理和实现方法，7大参数讲一下" class="headerlink" title="线程池的核心原理和实现方法，7大参数讲一下"></a>线程池的核心原理和实现方法，7大参数讲一下</h2><ol>
+<li>corePoolSize：表示核心线程池的大小。当提交一个任务时，如果当前核心线程池的线程个数没有达到corePoolSize，则会创建新的线程来执行所提交的任务，<strong>即使当前核心线程池有空闲的线程</strong>。如果当前核心线程池的线程个数已经达到了corePoolSize，则不再重新创建线程。如果调用了prestartCoreThread()或者 prestartAllCoreThreads()，线程池创建的时候所有的核心线程都会被创建并且启动。</li>
+<li>maximumPoolSize：表示线程池能创建线程的最大个数。如果当阻塞队列已满时，并且当前线程池线程个数没有超过maximumPoolSize的话，就会创建新的线程来执行任务。</li>
+<li>keepAliveTime：空闲线程存活时间。如果当前线程池的线程个数已经超过了corePoolSize，并且线程空闲时间超过了keepAliveTime的话，就会将这些空闲线程销毁，这样可以尽可能降低系统资源消耗。</li>
+<li>unit：时间单位。为keepAliveTime指定时间单位。</li>
+<li>workQueue：阻塞队列。用于保存任务的阻塞队列，关于阻塞队列可以看这篇文章。可以使用ArrayBlockingQueue, LinkedBlockingQueue, SynchronousQueue, PriorityBlockingQueue。</li>
+<li>threadFactory：创建线程的工程类。可以通过指定线程工厂为每个创建出来的线程设置更有意义的名字，如果出现并发问题，也方便查找问题原因。</li>
+<li>handler：饱和策略。当线程池的阻塞队列已满和指定的线程都已经开启，说明当前线程池已经处于饱和状态了，那么就需要采用一种策略来处理这种情况。采用的策略有这几种：</li>
+</ol>
+<p>AbortPolicy： 直接拒绝所提交的任务，并抛出RejectedExecutionException异常；<br>CallerRunsPolicy：只用调用者所在的线程来执行任务；<br>DiscardPolicy：不处理直接丢弃掉任务；<br>DiscardOldestPolicy：丢弃掉阻塞队列中存放时间最久的任务，执行当前任务</p>
+<h1 id="4-线程池的关闭"><a href="#4-线程池的关闭" class="headerlink" title="4. 线程池的关闭"></a>4. 线程池的关闭</h1><p>关闭线程池，可以通过<code>shutdown</code>和<code>shutdownNow</code>这两个方法。它们的原理都是遍历线程池中所有的线程，然后依次中断线程。<code>shutdown</code>和<code>shutdownNow</code>还是有不一样的地方：</p>
+<ol>
+<li><code>shutdownNow</code>首先将线程池的状态设置为<strong>STOP</strong>,然后尝试<strong>停止所有的正在执行和未执行任务</strong>的线程，并返回等待执行任务的列表；</li>
+<li><code>shutdown</code>只是将线程池的状态设置为<strong>SHUTDOWN</strong>状态，然后中断所有没有正在执行任务的线程</li>
+</ol>
+<p>可以看出shutdown方法会将正在执行的任务继续执行完，而shutdownNow会直接中断正在执行的任务。调用了这两个方法的任意一个，<code>isShutdown</code>方法都会返回true，当所有的线程都关闭成功，才表示线程池成功关闭，这时调用<code>isTerminated</code>方法才会返回true。</p>
+<p>作者：你听___<br>链接：<a href="https://juejin.im/post/5aeec0106fb9a07ab379574f" target="_blank" rel="noopener">https://juejin.im/post/5aeec0106fb9a07ab379574f</a><br>来源：掘金<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
 <h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><ol>
 <li><p>线程池判断核心线程池是否都在执行任务。如果不是，则创建一个新的工作线程执行任务，如果都在执行任务，则进入下一个流程</p>
 </li>
@@ -455,12 +452,6 @@
 </li>
 </ol>
 <p>提交线程有execute和submit方法，execute方法用于没有返回值的任务，submit处理有返回的callable</p>
-<h4 id="饱和策略"><a href="#饱和策略" class="headerlink" title="饱和策略"></a>饱和策略</h4><ol>
-<li>直接抛出异常</li>
-<li>只用调用者所在线程来运行任务</li>
-<li>将工作队列中最近的一次任务丢弃，并执行当前任务</li>
-<li>不运行，抛弃</li>
-</ol>
 
       
     </div>
@@ -582,7 +573,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">42</span>
+                  <span class="site-state-item-count">44</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -637,7 +628,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程并发"><span class="nav-number">1.</span> <span class="nav-text">多线程并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要用线程池"><span class="nav-number">2.</span> <span class="nav-text">为什么要用线程池?</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的核心原理和实现方法，7大参数讲一下"><span class="nav-number"></span> <span class="nav-text">线程池的核心原理和实现方法，7大参数讲一下</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">0.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#饱和策略"><span class="nav-number">0.2.</span> <span class="nav-text">饱和策略</span></a></li></ol></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程并发"><span class="nav-number">1.</span> <span class="nav-text">多线程并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要用线程池"><span class="nav-number">2.</span> <span class="nav-text">为什么要用线程池?</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的核心原理和实现方法，7大参数讲一下"><span class="nav-number"></span> <span class="nav-text">线程池的核心原理和实现方法，7大参数讲一下</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-线程池的关闭"><span class="nav-number"></span> <span class="nav-text">4. 线程池的关闭</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原理"><span class="nav-number">0.1.</span> <span class="nav-text">原理</span></a></li></ol></li></div>
             
 
           </div>
@@ -694,7 +685,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共79.4k字</span>
+  <span class="post-count">博客全站共83.6k字</span>
 </div>
 
         

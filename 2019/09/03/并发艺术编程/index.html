@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型线程优先级通过一个整型变量priority控制优先级，thread.setPriority(priority)。">
+<meta name="description" content="https://juejin.im/post/5aeed586f265da0b8262b019  并发专题 12AQS队列同步器 依赖内部的同步队列（一个FIFO双向队列）来完成同步状态的管理。当前线程获取同步状态失败时，同步器会将当前线程以及等待状态信息构造成一个节点（Node）并将其加入同步队列，同时会阻塞当前线程，当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。AQS独">
 <meta name="keywords" content="并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="并发艺术编程">
 <meta property="og:url" content="http://yoursite.com/2019/09/03/并发艺术编程/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型线程优先级通过一个整型变量priority控制优先级，thread.setPriority(priority)。">
+<meta property="og:description" content="https://juejin.im/post/5aeed586f265da0b8262b019  并发专题 12AQS队列同步器 依赖内部的同步队列（一个FIFO双向队列）来完成同步状态的管理。当前线程获取同步状态失败时，同步器会将当前线程以及等待状态信息构造成一个节点（Node）并将其加入同步队列，同时会阻塞当前线程，当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。AQS独">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-04T09:16:17.876Z">
+<meta property="og:updated_time" content="2019-10-06T03:48:01.440Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发艺术编程">
-<meta name="twitter:description" content="启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程 为什么要多线程 更多的处理器核心 更多的响应时间 更好的编程模型线程优先级通过一个整型变量priority控制优先级，thread.setPriority(priority)。">
+<meta name="twitter:description" content="https://juejin.im/post/5aeed586f265da0b8262b019  并发专题 12AQS队列同步器 依赖内部的同步队列（一个FIFO双向队列）来完成同步状态的管理。当前线程获取同步状态失败时，同步器会将当前线程以及等待状态信息构造成一个节点（Node）并将其加入同步队列，同时会阻塞当前线程，当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。AQS独">
 
 
 
@@ -373,7 +373,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3.5k
+                  4.2k
                 </span>
               
 
@@ -389,7 +389,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  12
+                  15
                 </span>
               
             </div>
@@ -410,7 +410,16 @@
       
 
       
-        <p><strong>启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。<br>JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程</strong></p>
+        <p> <a href="https://juejin.im/post/5aeed586f265da0b8262b019" target="_blank" rel="noopener">https://juejin.im/post/5aeed586f265da0b8262b019</a>  并发专题</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">AQS队列同步器 依赖内部的同步队列（一个FIFO双向队列）来完成同步状态的管理。当前线程获取同步状态失败时，同步器会将当前线程以及等待状态信息构造成一个节点（Node）并将其加入同步队列，同时会阻塞当前线程，当同步状态释放时，会把首节点中的线程唤醒，使其再次尝试获取同步状态。</span><br><span class="line">AQS独占锁：当一个线程获取同步状态时，如果获取失败，会生成一个节点，并加入同步队列尾部，只有当前驱节点是头节点才能够尝试获取同步状态，所以会陷入一个自旋操作，进入等待状态，当线程被中断或前驱节点被释放，则判断前驱节点是否为头节点，如果是，则尝试获取同步状态，获取成功，当前节点是指为头节点，获取失败，继续进入等待状态。</span><br></pre></td></tr></table></figure>
+<p>公平锁每次都是从同步队列中的第一个节点获取到锁，而非公平锁出现了一个线程连续获取锁的情况。</p>
+<ul>
+<li>共享锁的调用框架和独占锁很相似，它们最大的不同在于获取锁的逻辑——共享锁可以被多个线程同时持有，而独占锁同一时刻只能被一个线程持有。</li>
+<li>由于共享锁同一时刻可以被多个线程持有，因此当头节点获取到共享锁时，可以立即唤醒后继节点来争锁，而不必等到释放锁的时候。因此，共享锁触发唤醒后继节点的行为可能有两处，一处在当前节点成功获得共享锁后，一处在当前节点释放共享锁后。</li>
+</ul>
+<p>在非公平锁的实现中，当一个线程请求锁时，只要获取了同步状态即成功获取锁。在这个前提下，刚释放锁的线程再次获取同步状态的几率会非常大，使得其他线程只能在同步队列中等待。</p>
+<p>共享锁<a href="https://segmentfault.com/a/1190000016447307" target="_blank" rel="noopener">https://segmentfault.com/a/1190000016447307</a></p>
+<p>启动一个java程序，操作系统就会创建一个进程，一个进程可以创建多个线程，这些线程都用友各自的计数器，堆栈和局部变量等属性，访问共享的内存变量。<br>JAVA程序天生就是多线程程序，执行main（）方法的是一个名为main的线程**</p>
 <h2 id="为什么要多线程"><a href="#为什么要多线程" class="headerlink" title="为什么要多线程"></a>为什么要多线程</h2><ol>
 <li>更多的处理器核心</li>
 <li>更多的响应时间</li>
@@ -476,7 +485,11 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock lock = new ReentrantLock();</span><br><span class="line">lock.lock()  ;  lock.unlock();</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>实现依赖于AQS框架，使用一个整型的volatile变量（state）来维持同步   <em>**</em>重点</p>
+<p>以ReentrantLock为例，state初始化为0，表示未锁定状态。A线程lock()时，会调用tryAcquire()独占该锁并将state+1。此后，其他线程再tryAcquire()时就会失败，直到A线程unlock()到state=0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A线程自己是可以重复获取此锁的（state会累加），这就是可重入的概念。但要注意，获取多少次就要释放多么次，这样才能保证state是能回到零态的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">nonfairTryAcquire</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123;</span><br><span class="line">           <span class="keyword">final</span> Thread current = Thread.currentThread();</span><br><span class="line">           <span class="keyword">int</span> c = getState();</span><br><span class="line">           <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</span><br><span class="line">               <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) &#123;</span><br><span class="line">                   setExclusiveOwnerThread(current);</span><br><span class="line">                   <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) &#123;</span><br><span class="line">               <span class="keyword">int</span> nextc = c + acquires;</span><br><span class="line">               <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>) <span class="comment">// overflow</span></span><br><span class="line">                   <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Maximum lock count exceeded"</span>);</span><br><span class="line">               setState(nextc);</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
 </li>
+</ol>
+<ol start="3">
 <li>公平锁的实现    <strong>*</strong>重点<h2 id="happens-before程序顺序规则是JMM核心的概念"><a href="#happens-before程序顺序规则是JMM核心的概念" class="headerlink" title="happens-before程序顺序规则是JMM核心的概念"></a>happens-before程序顺序规则是JMM核心的概念</h2>JMM通过happens-before来指定两个操作之间的执行顺序<br>定义： ①如果一个操作happens-before另一个操作，那么第一个操作的执行结果将对第二个可见，且第一个操作的执行顺序排在第二个之前 ———————-对程序员可见<br>②如果一个操作happens-before另一个操作，并不意味着必须按照happens-before关系指定的顺序执行，如果重排序之后的执行结果，与按happens-before顺序结果一致，那么这种重排序并不违法。 ————————对编译器和处理器的约束原则<h2 id="CAS-比较与替换是设计并发算法时用到的技术"><a href="#CAS-比较与替换是设计并发算法时用到的技术" class="headerlink" title="CAS 比较与替换是设计并发算法时用到的技术"></a>CAS 比较与替换是设计并发算法时用到的技术</h2>CAS是使用一个期望值和一个变量的当前值进行比较，如果当前变量的值与我们期望的值相等，就使用一个新值替换当前变量的值<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public class MyLock&#123;</span><br><span class="line">	private AtomicBoolean locked = nnew AtomicBoolean(false);</span><br><span class="line">	public boolean lock()&#123;</span><br><span class="line">		return locked.compareAndSet(false,true);</span><br><span class="line">	&#125;</span><br><span class="line">	//比较locked 和 false ，如果相等，则把它修改成true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
@@ -624,7 +637,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">42</span>
+                  <span class="site-state-item-count">44</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -736,7 +749,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共79.4k字</span>
+  <span class="post-count">博客全站共83.6k字</span>
 </div>
 
         

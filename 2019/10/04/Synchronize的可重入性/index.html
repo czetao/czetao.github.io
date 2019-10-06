@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="synchronize的可重入性在java 内部，同一个线程在调用自己类中其他synchronize方法/块或调用父类的synchronize方法/块都不会阻碍改线程的执行，就是说同一线程对同一个对象锁是可重入的，而且同一个线程可以获取同一把锁多次，也就是可以多次重入。 1234567891011121314151617181920212223public class Child extends">
+<meta name="description" content="说一说自己对于 synchronized 关键字的了解synchronized关键字解决的是多个线程之间访问资源的同步性，synchronized关键字可以保证被它修饰的方法或者代码块在任意时刻只能有一个线程执行。 另外，在 Java 早期版本中，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的 Mutex Lock 来实现的，Java 的线程">
 <meta name="keywords" content="锁">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Synchronize的可重入性">
 <meta property="og:url" content="http://yoursite.com/2019/10/04/Synchronize的可重入性/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="synchronize的可重入性在java 内部，同一个线程在调用自己类中其他synchronize方法/块或调用父类的synchronize方法/块都不会阻碍改线程的执行，就是说同一线程对同一个对象锁是可重入的，而且同一个线程可以获取同一把锁多次，也就是可以多次重入。 1234567891011121314151617181920212223public class Child extends">
+<meta property="og:description" content="说一说自己对于 synchronized 关键字的了解synchronized关键字解决的是多个线程之间访问资源的同步性，synchronized关键字可以保证被它修饰的方法或者代码块在任意时刻只能有一个线程执行。 另外，在 Java 早期版本中，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的 Mutex Lock 来实现的，Java 的线程">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-04T07:40:18.548Z">
+<meta property="og:updated_time" content="2019-10-05T12:28:51.420Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Synchronize的可重入性">
-<meta name="twitter:description" content="synchronize的可重入性在java 内部，同一个线程在调用自己类中其他synchronize方法/块或调用父类的synchronize方法/块都不会阻碍改线程的执行，就是说同一线程对同一个对象锁是可重入的，而且同一个线程可以获取同一把锁多次，也就是可以多次重入。 1234567891011121314151617181920212223public class Child extends">
+<meta name="twitter:description" content="说一说自己对于 synchronized 关键字的了解synchronized关键字解决的是多个线程之间访问资源的同步性，synchronized关键字可以保证被它修饰的方法或者代码块在任意时刻只能有一个线程执行。 另外，在 Java 早期版本中，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的 Mutex Lock 来实现的，Java 的线程">
 
 
 
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.8k
+                  2.1k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  6
+                  7
                 </span>
               
             </div>
@@ -388,7 +388,9 @@
       
 
       
-        <h2 id="synchronize的可重入性"><a href="#synchronize的可重入性" class="headerlink" title="synchronize的可重入性"></a>synchronize的可重入性</h2><p>在java 内部，同一个线程在调用自己类中其他synchronize方法/块或调用父类的synchronize方法/块都不会阻碍改线程的执行，就是说同一线程对同一个对象锁是可重入的，而且同一个线程可以获取同一把锁多次，也就是可以多次重入。</p>
+        <h3 id="说一说自己对于-synchronized-关键字的了解"><a href="#说一说自己对于-synchronized-关键字的了解" class="headerlink" title="说一说自己对于 synchronized 关键字的了解"></a>说一说自己对于 synchronized 关键字的了解</h3><p>synchronized关键字解决的是多个线程之间访问资源的同步性，synchronized关键字可以保证被它修饰的方法或者代码块在任意时刻只能有一个线程执行。</p>
+<p>另外，在 Java 早期版本中，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的 Mutex Lock 来实现的，Java 的线程是映射到操作系统的原生线程之上的。如果要挂起或者唤醒一个线程，都需要操作系统帮忙完成，而操作系统实现线程之间的切换时需要从用户态转换到内核态，这个状态之间的转换需要相对比较长的时间，时间成本相对较高，这也是为什么早期的 synchronized 效率低的原因。庆幸的是在 Java 6 之后 Java 官方对从 JVM 层面对synchronized 较大优化，所以现在的 synchronized 锁效率也优化得很不错了。JDK1.6对锁的实现引入了大量的优化，如自旋锁、适应性自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等技术来减少锁操作的开销。</p>
+<h2 id="synchronize的可重入性"><a href="#synchronize的可重入性" class="headerlink" title="synchronize的可重入性"></a>synchronize的可重入性</h2><p>在java 内部，同一个线程在调用自己类中其他synchronize方法/块或调用父类的synchronize方法/块都不会阻碍改线程的执行，就是说同一线程对同一个对象锁是可重入的，而且同一个线程可以获取同一把锁多次，也就是可以多次重入。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Child</span> <span class="keyword">extends</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Child child = <span class="keyword">new</span> Child();</span><br><span class="line">        child.doSomething();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"child.doSomething()"</span>);</span><br><span class="line">        doAnotherThing(); <span class="comment">// 调用自己类中其他的synchronized方法</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doAnotherThing</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.doSomething(); <span class="comment">// 调用父类的synchronized方法</span></span><br><span class="line">        System.out.println(<span class="string">"child.doAnotherThing()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"father.doSomething()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">运行结果：</span><br><span class="line"></span><br><span class="line">child.doSomething() </span><br><span class="line">father.doSomething() </span><br><span class="line">child.doAnotherThing()</span><br></pre></td></tr></table></figure>
 <p>这里的对象锁只有一个,就是child对象的锁,当执行child.doSomething时，该线程获得child对象的锁，在doSomething方法内执行doAnotherThing时再次请求child对象的锁，因为synchronized是重入锁，所以可以得到该锁，继续在doAnotherThing里执行父类的doSomething方法时第三次请求child对象的锁，同理可得到，如果不是重入锁的话，那这后面这两次请求锁将会被一直阻塞，从而导致死锁。</p>
@@ -489,6 +491,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/10/06/MVCC/" rel="prev" title="MVCC">
+                MVCC <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -566,7 +572,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">42</span>
+                  <span class="site-state-item-count">44</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -621,7 +627,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronize的可重入性"><span class="nav-number">1.</span> <span class="nav-text">synchronize的可重入性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchonized可重入锁的实现"><span class="nav-number">2.</span> <span class="nav-text">synchonized可重入锁的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#偏向锁、轻量级锁和重量级锁"><span class="nav-number">3.</span> <span class="nav-text">偏向锁、轻量级锁和重量级锁</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#说一说自己对于-synchronized-关键字的了解"><span class="nav-number">1.</span> <span class="nav-text">说一说自己对于 synchronized 关键字的了解</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronize的可重入性"><span class="nav-number"></span> <span class="nav-text">synchronize的可重入性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchonized可重入锁的实现"><span class="nav-number"></span> <span class="nav-text">synchonized可重入锁的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#偏向锁、轻量级锁和重量级锁"><span class="nav-number"></span> <span class="nav-text">偏向锁、轻量级锁和重量级锁</span></a></li></div>
             
 
           </div>
@@ -678,7 +684,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共79.4k字</span>
+  <span class="post-count">博客全站共83.6k字</span>
 </div>
 
         
