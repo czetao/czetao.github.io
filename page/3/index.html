@@ -281,6 +281,793 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/扩展/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/29/扩展/" itemprop="url">扩展</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-29T20:07:54+08:00">
+                2019-09-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="9-28"><a href="#9-28" class="headerlink" title="9.28"></a>9.28</h1><p>在订单详情部分实现多缓存处理</p>
+<p>redis 分布式缓存 +  tomcat 堆缓存 二级缓存架构</p>
+<h4 id="redis搭建方案"><a href="#redis搭建方案" class="headerlink" title="redis搭建方案"></a>redis搭建方案</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">redis持久化+备份方案+容灾方案+replication（主从+读写分离）+sentinal（哨兵集群，3个节点，高可用性）</span><br><span class="line"></span><br><span class="line">可以支撑的数据量在10G以内，可以支撑的写QPS在几万左右，可以支撑的读QPS可以上10万以上（随你的需求，水平扩容slave节点就可以），可用性在99.99%</span><br><span class="line">可以用公司里的一些已有的数据，导入进去，几百万，一千万，进去</span><br><span class="line"></span><br><span class="line">做各种压力测试，性能，redis-benchmark，并发，QPS，高可用的演练，每台机器最大能存储多少数据量，横向扩容支撑更多数据</span><br><span class="line"></span><br><span class="line">基于测试环境还有测试数据，做各种演练，去摸索一些最适合自己的一些细节的东西</span><br></pre></td></tr></table></figure>
+<p>如果页面的数据有变更，及时监听到，并且写入缓存中，提供高并发，高性能的访问</p>
+<p>前端请求，请求服务器，先从redis中拿，redis中没有，本地搭建ehcache没有，再调用商品服务，从数据库中拿</p>
+<p>企业级的大型缓存架构</p>
+<h3 id="保证数据库与缓存的双写一致性"><a href="#保证数据库与缓存的双写一致性" class="headerlink" title="保证数据库与缓存的双写一致性"></a>保证数据库与缓存的双写一致性</h3><h3 id="分布式缓存重建问题，使用分布式锁实现"><a href="#分布式缓存重建问题，使用分布式锁实现" class="headerlink" title="分布式缓存重建问题，使用分布式锁实现"></a>分布式缓存重建问题，使用分布式锁实现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">详细在文章关于zookeeper搭建分布式锁中</span><br></pre></td></tr></table></figure>
+<h4 id="服务本地堆缓存，避免数据库直接裸奔"><a href="#服务本地堆缓存，避免数据库直接裸奔" class="headerlink" title="服务本地堆缓存，避免数据库直接裸奔"></a>服务本地堆缓存，避免数据库直接裸奔</h4><p>因为之前跟大家提过，三级缓存，多级缓存，服务本地堆缓存 + redis分布式缓存 + nginx本地缓存组成的</p>
+<p>每一层缓存在高并发的场景下，都有其特殊的用途，需要综合利用多级的缓存，才能支撑住高并发场景下各种各样的特殊情况</p>
+<p>服务本地堆缓存，作用，预防redis层的彻底崩溃，作为缓存的最后一道防线，避免数据库直接裸奔</p>
+<p>服务本地堆缓存，我们用什么来做缓存，难道我们自己手写一个类或者程序去管理内存吗？？？java最流行的缓存的框架，ehcache</p>
+<p>所以我们也是用ehcache来做本地的堆缓存</p>
+<p>spring boot + ehcache整合起来，演示一下是怎么使用的</p>
+<p>spring boot整合ehcache</p>
+<p>（1）依赖</p>
+<dependency><br>  <groupid>org.springframework.boot</groupid><br>  <artifactid>spring-boot-starter-data-jpa</artifactid><br></dependency><br><dependency><br>  <groupid>org.springframework</groupid><br>  <artifactid>spring-context-support</artifactid><br></dependency><br><dependency><br>  <groupid>net.sf.ehcache</groupid><br>  <artifactid>ehcache</artifactid><br>  <version>2.8.3</version><br></dependency>
+
+<p>（2）缓存配置管理类</p>
+<p>@Configuration<br>@EnableCaching<br>public class CacheConfiguration {</p>
+<pre><code>@Bean
+public EhCacheManagerFactoryBean ehCacheManagerFactoryBean(){
+  EhCacheManagerFactoryBean cacheManagerFactoryBean = new EhCacheManagerFactoryBean();
+  cacheManagerFactoryBean.setConfigLocation(new ClassPathResource(&quot;ehcache.xml&quot;));
+  cacheManagerFactoryBean.setShared(true);
+  return cacheManagerFactoryBean;
+}
+
+@Bean
+public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
+  return new EhCacheCacheManager(bean.getObject());
+}
+</code></pre><p>}</p>
+<p>（3）ehcache.xml</p>
+<p>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;</p>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nonamespaceschemalocation="http://ehcache.org/ehcache.xsd" updatecheck="false"><br><br>    <diskstore path="java.io.tmpdir/Tmp_EhCache"><br><br>    <defaultcache eternal="false" maxelementsinmemory="1000" overflowtodisk="false" diskpersistent="false" timetoidleseconds="0" timetoliveseconds="0" memorystoreevictionpolicy="LRU"><br><br>    <cache name="local" eternal="false" maxelementsinmemory="1000" overflowtodisk="false" diskpersistent="false" timetoidleseconds="0" timetoliveseconds="0" memorystoreevictionpolicy="LRU"><br><br></cache></defaultcache></diskstore></ehcache>
+
+<p>（4）CacheService</p>
+<p>@Service(“cacheService”)<br>public class CacheServiceImpl implements CacheService {</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String CACHE_NAME = <span class="string">"local"</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Cacheable</span>(value = CACHE_NAME, key = <span class="string">"'key_'+#id"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ProductInfo <span class="title">findById</span><span class="params">(Long id)</span></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="meta">@CachePut</span>(value = CACHE_NAME, key = <span class="string">"'key_'+#productInfo.getId()"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> ProductInfo <span class="title">saveProductInfo</span><span class="params">(ProductInfo productInfo)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> productInfo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>}</p>
+<p>（5）写一个Controller测试一下ehcache的整合</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CacheTestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Resource</span></span><br><span class="line">  <span class="keyword">private</span> CacheService cacheService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/testPutCache"</span>)</span><br><span class="line">  <span class="meta">@ResponseBody</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPutCache</span><span class="params">(ProductInfo productInfo)</span> </span>&#123;</span><br><span class="line">    System.out.println(productInfo.getId() + <span class="string">":"</span> + productInfo.getName());  </span><br><span class="line">    cacheService.saveProductInfo(productInfo);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/testGetCache"</span>)</span><br><span class="line">  <span class="meta">@ResponseBody</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> ProductInfo <span class="title">testGetCache</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line">    ProductInfo productInfo = cacheService.findById(id);</span><br><span class="line">    System.out.println(productInfo.getId() + <span class="string">":"</span> + productInfo.getName()); </span><br><span class="line">    <span class="keyword">return</span> productInfo;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ehcache已经整合进了我们的系统，spring boot</p>
+<p>封装好了对ehcache本地缓存进行添加和获取的方法和service</p>
+<p>小程序写入操作，防止并发中，HashMap的使用，改成使用ConcurrentHashMap</p>
+<h1 id="10-1"><a href="#10-1" class="headerlink" title="10.1"></a>10.1</h1><h3 id="商品详情页的多级缓存架构"><a href="#商品详情页的多级缓存架构" class="headerlink" title="商品详情页的多级缓存架构"></a>商品详情页的多级缓存架构</h3><p>我们之前的三十讲，主要是在讲解redis如何支撑海量数据、高并发读写、高可用服务的架构，redis架构</p>
+<p>redis架构，在我们的真正类似商品详情页读高并发的系统中，redis就是底层的缓存存储的支持</p>
+<p>从这一讲开始，我们正式开始做业务系统的开发</p>
+<p>亿级流量以上的电商网站的商品详情页的系统，商品详情页系统，大量的业务，十几个人做一两年，堆出来复杂的业务系统</p>
+<p>几十个小时的课程，讲解复杂的业务</p>
+<p>把整体的架构给大家讲解清楚，然后浓缩和精炼里面的业务，提取部分业务，做一些简化，把整个详情页系统的流程跑出来</p>
+<p>架构，骨架，有少量的业务，血和肉，把整个项目串起来，在业务背景下，去学习架构</p>
+<p>讲解商品详情页系统，缓存架构，90%大量的业务代码（没有什么技术含量），10%的最优技术含量的就是架构，上亿流量，每秒QPS几万，上十万的，读并发</p>
+<p>读并发，缓存架构</p>
+<p>1、上亿流量的商品详情页系统的多级缓存架构</p>
+<p>很多人以为，做个缓存，其实就是用一下redis，访问一下，就可以了，简单的缓存</p>
+<p>做复杂的缓存，支撑电商复杂的场景下的高并发的缓存，遇到的问题，非常非常之多，绝对不是说简单的访问一下redsi就可以了</p>
+<p>采用三级缓存：nginx本地缓存+redis分布式缓存+tomcat堆缓存的多级缓存架构</p>
+<p>时效性要求非常高的数据：库存</p>
+<p>一般来说，显示的库存，都是时效性要求会相对高一些，因为随着商品的不断的交易，库存会不断的变化</p>
+<p>当然，我们就希望当库存变化的时候，尽可能更快将库存显示到页面上去，而不是说等了很长时间，库存才反应到页面上去</p>
+<p>时效性要求不高的数据：商品的基本信息（名称、颜色、版本、规格参数，等等）</p>
+<p>时效性要求不高的数据，就还好，比如说你现在改变了商品的名称，稍微晚个几分钟反应到商品页面上，也还能接受</p>
+<p>商品价格/库存等时效性要求高的数据，而且种类较少，采取相关的服务系统每次发生了变更的时候，直接采取数据库和redis缓存双写的方案，这样缓存的时效性最高</p>
+<p>商品基本信息等时效性不高的数据，而且种类繁多，来自多种不同的系统，采取MQ异步通知的方式，写一个数据生产服务，监听MQ消息，然后异步拉取服务的数据，更新tomcat jvm缓存+redis缓存</p>
+<p>nginx+lua脚本做页面动态生成的工作，每次请求过来，优先从nginx本地缓存中提取各种数据，结合页面模板，生成需要的页面</p>
+<p>如果nginx本地缓存过期了，那么就从nginx到redis中去拉取数据，更新到nginx本地</p>
+<p>如果redis中也被LRU算法清理掉了，那么就从nginx走http接口到后端的服务中拉取数据，数据生产服务中，现在本地tomcat里的jvm堆缓存中找，ehcache，如果也被LRU清理掉了，那么就重新发送请求到源头的服务中去拉取数据，然后再次更新tomcat堆内存缓存+redis缓存，并返回数据给nginx，nginx缓存到本地</p>
+<p>2、多级缓存架构中每一层的意义</p>
+<p>nginx本地缓存，抗的是热数据的高并发访问，一般来说，商品的购买总是有热点的，比如每天购买iphone、nike、海尔等知名品牌的东西的人，总是比较多的</p>
+<p>这些热数据，利用nginx本地缓存，由于经常被访问，所以可以被锁定在nginx的本地缓存内</p>
+<p>大量的热数据的访问，就是经常会访问的那些数据，就会被保留在nginx本地缓存内，那么对这些热数据的大量访问，就直接走nginx就可以了</p>
+<p>那么大量的访问，直接就可以走到nginx就行了，不需要走后续的各种网络开销了</p>
+<p>redis分布式大规模缓存，抗的是很高的离散访问，支撑海量的数据，高并发的访问，高可用的服务</p>
+<p>redis缓存最大量的数据，最完整的数据和缓存，1T+数据; 支撑高并发的访问，QPS最高到几十万; 可用性，非常好，提供非常稳定的服务</p>
+<p>nginx本地内存有限，也就能cache住部分热数据，除了各种iphone、nike等热数据，其他相对不那么热的数据，可能流量会经常走到redis那里</p>
+<p>利用redis cluster的多master写入，横向扩容，1T+以上海量数据支持，几十万的读写QPS，99.99%高可用性，那么就可以抗住大量的离散访问请求</p>
+<p>tomcat jvm堆内存缓存，主要是抗redis大规模灾难的，如果redis出现了大规模的宕机，导致nginx大量流量直接涌入数据生产服务，那么最后的tomcat堆内存缓存至少可以再抗一下，不至于让数据库直接裸奔</p>
+<p>同时tomcat jvm堆内存缓存，也可以抗住redis没有cache住的最后那少量的部分缓存</p>
+<h3 id="Cache-Aside-Pattern缓存-数据库读写模式的分析"><a href="#Cache-Aside-Pattern缓存-数据库读写模式的分析" class="headerlink" title="Cache Aside Pattern缓存 + 数据库读写模式的分析"></a>Cache Aside Pattern缓存 + 数据库读写模式的分析</h3><p>最经典的缓存+数据库读写的模式，cache aside pattern</p>
+<p>1、Cache Aside Pattern</p>
+<p>（1）读的时候，先读缓存，缓存没有的话，那么就读数据库，然后取出数据后放入缓存，同时返回响应</p>
+<p>（2）更新的时候，先删除缓存，然后再更新数据库</p>
+<p>2、为什么是删除缓存，而不是更新缓存呢？</p>
+<p>原因很简单，很多时候，复杂点的缓存的场景，因为缓存有的时候，不简单是数据库中直接取出来的值</p>
+<p>商品详情页的系统，修改库存，只是修改了某个表的某些字段，但是要真正把这个影响的最终的库存计算出来，可能还需要从其他表查询一些数据，然后进行一些复杂的运算，才能最终计算出</p>
+<p>现在最新的库存是多少，然后才能将库存更新到缓存中去</p>
+<p>比如可能更新了某个表的一个字段，然后其对应的缓存，是需要查询另外两个表的数据，并进行运算，才能计算出缓存最新的值的</p>
+<p>更新缓存的代价是很高的</p>
+<p>是不是说，每次修改数据库的时候，都一定要将其对应的缓存去跟新一份？也许有的场景是这样的，但是对于比较复杂的缓存数据计算的场景，就不是这样了</p>
+<p>如果你频繁修改一个缓存涉及的多个表，那么这个缓存会被频繁的更新，频繁的更新缓存</p>
+<p>但是问题在于，这个缓存到底会不会被频繁访问到？？？</p>
+<p>举个例子，一个缓存涉及的表的字段，在1分钟内就修改了20次，或者是100次，那么缓存跟新20次，100次; 但是这个缓存在1分钟内就被读取了1次，有大量的冷数据</p>
+<p>28法则，黄金法则，20%的数据，占用了80%的访问量</p>
+<p>实际上，如果你只是删除缓存的话，那么1分钟内，这个缓存不过就重新计算一次而已，开销大幅度降低</p>
+<p>每次数据过来，就只是删除缓存，然后修改数据库，如果这个缓存，在1分钟内只是被访问了1次，那么只有那1次，缓存是要被重新计算的，用缓存才去算缓存</p>
+<p>其实删除缓存，而不是更新缓存，就是一个lazy计算的思想，不要每次都重新做复杂的计算，不管它会不会用到，而是让它到需要被使用的时候再重新计算</p>
+<p>mybatis，hibernate，懒加载，思想</p>
+<p>查询一个部门，部门带了一个员工的list，没有必要说每次查询部门，都里面的1000个员工的数据也同时查出来啊</p>
+<p>80%的情况，查这个部门，就只是要访问这个部门的信息就可以了</p>
+<p>先查部门，同时要访问里面的员工，那么这个时候只有在你要访问里面的员工的时候，才会去数据库里面查询1000个员工</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/28/网络零散知识/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/28/网络零散知识/" itemprop="url">网络零散知识</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-28T09:57:00+08:00">
+                2019-09-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机网络</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="TCP和UDP的区别"><a href="#TCP和UDP的区别" class="headerlink" title="TCP和UDP的区别"></a>TCP和UDP的区别</h2><p>（1）TCP是面向连接的，udp是无连接的即发送数据前不需要先建立链接。</p>
+<p>（2）TCP提供可靠的服务。也就是说，通过TCP连接传送的数据，无差错，不丢失，不重复，且按序到达;UDP尽最大努力交付，即不保证可靠交付。 并且因为tcp可靠，面向连接，不会丢失数据因此适合大数据量的交换。</p>
+<p>（3）TCP是面向字节流，UDP面向报文，并且网络出现拥塞不会使得发送速率降低（因此会出现丢包，对实时的应用比如IP电话和视频会议等）。</p>
+<p>（4）TCP只能是1对1的，UDP支持1对1,1对多。</p>
+<p>（5）TCP的首部较大为20字节，而UDP只有8字节。</p>
+<p>（6）TCP是面向连接的可靠性传输，而UDP是不可靠的。</p>
+<ul>
+<li>基于TCP的应用层协议有：POP3、SMTP（简单邮件传输协议）、TELNET（远程登陆协议）、HTTP（超文本传输协议）、HTTPS（超文本传输安全协议）、FTP（文件传输协议）</li>
+<li>基于UDP的应用层协议：TFTP（简单文件传输协议）、RIP（路由信息协议）、DHCP（动态主机设置协议）、BOOTP（引导程序协议，DHCP的前身）、IGMP（Internet组管理协议）</li>
+<li>基于TCP和UDP协议：DNS（域名系统）、ECHO（回绕协议）</li>
+</ul>
+<p>以下内容来自：公众号 前端指南，作者 前端指南</p>
+<h2 id="简述-http-1-1-与-http-1-0-的区别"><a href="#简述-http-1-1-与-http-1-0-的区别" class="headerlink" title="简述 http 1.1 与 http 1.0 的区别"></a>简述 http 1.1 与 http 1.0 的区别</h2><ul>
+<li>http 1.0 对于每个连接都得建立一次连接, 一次只能传送一个请求和响应, 请求就会关闭, http1.0 没有 Host 字段</li>
+<li>而 http1.1 在同一个连接中可以传送多个请求和响应, 多个请求可以重叠和同时进行, http1.1 必须有 host 字段</li>
+<li>http1.1 中引入了 ETag 头, 它的值 entity tag 可以用来唯一的描述一个资源. 请求消息中可以使用 If-None-Match 头域来匹配资源的 entitytag 是否有变化</li>
+<li>http1.1 新增了 Cache-Control 头域(消息请求和响应请求都可以使用), 它支持一个可扩展的指令子集</li>
+<li>http1.0 中只定义了 16 个状态响应码, 对错误或警告的提示不够具体. http1.1 引入了一个 Warning 头域, 增加对错误或警告信息的描述. 且新增了 24 个状态响应码</li>
+</ul>
+<h2 id="从输入-URL-到页面加载发生了什么-必考"><a href="#从输入-URL-到页面加载发生了什么-必考" class="headerlink" title="从输入 URL 到页面加载发生了什么[必考]"></a>从输入 URL 到页面加载发生了什么[必考]</h2><p>总体来说分为以下几个过程:</p>
+<ul>
+<li>DNS 解析</li>
+<li>TCP 连接</li>
+<li>发送 HTTP 请求</li>
+<li>服务器处理请求并返回 HTTP 报文</li>
+<li>浏览器解析渲染页面</li>
+<li>连接结束</li>
+</ul>
+<h2 id="Socket-连接与-HTTP-连接的联系与区别"><a href="#Socket-连接与-HTTP-连接的联系与区别" class="headerlink" title="Socket 连接与 HTTP 连接的联系与区别"></a>Socket 连接与 HTTP 连接的联系与区别</h2><p>由于通常情况下 Socket 连接就是 TCP 连接，因此 Socket 连接一旦建立，通信双方即可开始相互发送数据内容，直到双方连接断开。但在实际网络应用中，客户端到服务器之间的通信往往需要穿越多个中间节点，例如路由器、网关、防火墙等，大部分防火墙默认会关闭长时间处于非活跃状态的连接而导致 Socket 连接断连，因此需要通过轮询告诉网络，该连接处于活跃状态。</p>
+<p>而 HTTP 连接使用的是“请求—响应”的方式，不仅在请求时需要先建立连接，而且需要客户端向服务器发出请求后，服务器端才能回复数据。</p>
+<p>很多情况下，需要服务器端主动向客户端推送数据，保持客户端与服务器数据的实时与同步。此时若双方建立的是 Socket 连接，服务器就可以直接将数据传送给客户端;若双方建立的是 HTTP 连接，则服务器需要等到客户端发送一次请求后才能将数据传回给客户端，因此，客户端定时向服务器端发送连接请求，不仅可以保持在线，同时也是在“询问”服务器是否有新的数据，如果有就将数据传给客户端。</p>
+<h2 id="Http2-0-与-http1-x-相比有什么优点-常考"><a href="#Http2-0-与-http1-x-相比有什么优点-常考" class="headerlink" title="Http2.0 与 http1.x 相比有什么优点(常考)"></a>Http2.0 与 http1.x 相比有什么优点(常考)</h2><ul>
+<li>二进制格式:http1.x 是文本协议，而 http2.0 是二进制以帧为基本单位，是一个二进制协议，一帧中除了包含数据外同时还包含该帧的标识：Stream Identifier，即标识了该帧属于哪个 request,使得网络传输变得十分灵活。</li>
+<li>多路复用: 一个很大的改进，原先 http1.x 一个连接一个请求的情况有比较大的局限性，也引发了很多问题，如建立多个连接的消耗以及效率问题。</li>
+<li><ul>
+<li>http1.x 为了解决效率问题，可能会尽量多的发起并发的请求去加载资源，然而浏览器对于同一域名下的并发请求有限制，而优化的手段一般是将请求的资源放到不同的域名下来突破这种限制。</li>
+<li>而 http2.0 支持的多路复用可以很好的解决这个问题，多个请求共用一个 TCP 连接，多个请求可以同时在这个 TCP 连接上并发，一个是解决了建立多个 TCP 连接的消耗问题，一个也解决了效率的问题。那么是什么原理支撑多个请求可以在一个 TCP 连接上并发呢？基本原理就是上面的二进制分帧，因为每一帧都有一个身份标识，所以多个请求的不同帧可以并发的无序发送出去，在服务端会根据每一帧的身份标识，将其整理到对应的 request 中。</li>
+</ul>
+</li>
+<li>header 头部压缩:主要是通过压缩 header 来减少请求的大小，减少流量消耗，提高效率。因为之前存在一个问题是，每次请求都要带上 header，而这个 header 中的数据通常是一层不变的。</li>
+<li>支持服务端推送</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/查漏补缺/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/26/查漏补缺/" itemprop="url">查漏补缺</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-26T15:35:49+08:00">
+                2019-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  9.4k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  33
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>自19.09.26开始，对复习的知识遗漏点进行总结</strong></p>
+<h2 id="19-09-26"><a href="#19-09-26" class="headerlink" title="19.09.26"></a>19.09.26</h2><h1 id="JAVA锁"><a href="#JAVA锁" class="headerlink" title="JAVA锁"></a>JAVA锁</h1><p>Java SE1.6为了减少获得锁和释放锁所带来的性能消耗，引入了“偏向锁”和“轻量级锁”，所以在Java SE1.6里锁一共有四种状态，无锁状态，偏向锁状态，轻量级锁状态和重量级锁状态，它会随着竞争情况逐渐升级。<strong>锁可以升级但不能降级，意味着偏向锁升级成轻量级锁后不能降级成偏向锁。这种锁升级却不能降级的策略，目的是为了提高获得锁和释放锁的效率。</strong></p>
+<h3 id="悲观锁与乐观锁"><a href="#悲观锁与乐观锁" class="headerlink" title="悲观锁与乐观锁"></a>悲观锁与乐观锁</h3><h4 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h4><p>总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁，读锁，写锁等，都是在做操作之前先上锁。JAVA中synchronize和ReentrantLock等独占锁就是悲观锁思想的实现。</p>
+<h4 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h4><p>总是假设最好的情况，每次拿数据都认为别人不会修改，所以不会上锁。<strong>但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号机制和CAS算法实现。</strong></p>
+<p>乐观锁适用于多读的应用类型，这样可以提高吞吐量。</p>
+<p><strong>java中的4种锁，分别是重量级锁，自旋锁，轻量级锁和偏向锁。重量级锁是悲观锁的一种，自旋锁，轻量级锁和偏向锁属于乐观锁。</strong></p>
+<h5 id="乐观锁常见的两种实现方式"><a href="#乐观锁常见的两种实现方式" class="headerlink" title="乐观锁常见的两种实现方式"></a>乐观锁常见的两种实现方式</h5><blockquote>
+<p><strong>乐观锁一般会使用版本号机制或CAS算法实现。</strong></p>
+</blockquote>
+<h4 id="1-版本号机制"><a href="#1-版本号机制" class="headerlink" title="1. 版本号机制"></a>1. 版本号机制</h4><p>一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。当线程A要更新数据值时，在读取数据的同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</p>
+<p><strong>举一个简单的例子：</strong> 假设数据库中帐户信息表中有一个 version 字段，当前值为 1 ；而当前帐户余额字段（ balance ）为 $100 。</p>
+<ol>
+<li>操作员 A 此时将其读出（ version=1 ），并从其帐户余额中扣除 $50（ $100-$50 ）。</li>
+<li>在操作员 A 操作的过程中，操作员B 也读入此用户信息（ version=1 ），并从其帐户余额中扣除 $20 （ $100-$20 ）。</li>
+<li>操作员 A 完成了修改工作，将数据版本号加一（ version=2 ），连同帐户扣除后余额（ balance=$50 ），提交至数据库更新，此时由于提交数据版本大于数据库记录当前版本，数据被更新，数据库记录 version 更新为 2 。</li>
+<li>操作员 B 完成了操作，也将版本号加一（ version=2 ）试图向数据库提交数据（ balance=$80 ），但此时比对数据库记录版本时发现，操作员 B 提交的数据版本号为 2 ，数据库记录当前版本也为 2 ，不满足 “ 提交版本必须大于记录当前版本才能执行更新 “ 的乐观锁策略，因此，操作员 B 的提交被驳回。</li>
+</ol>
+<p>这样，就避免了操作员 B 用基于 version=1 的旧数据修改的结果覆盖操作员A 的操作结果的可能。</p>
+<h4 id="2-简单回顾一下CAS算法"><a href="#2-简单回顾一下CAS算法" class="headerlink" title="2.简单回顾一下CAS算法"></a>2.简单回顾一下CAS算法</h4><p><strong>CAS算法</strong> 即compare and swap（比较与交换），是一种有名的无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。CAS算法涉及到三个操作数</p>
+<ul>
+<li>需要读写的内存值 V</li>
+<li>进行比较的值 A</li>
+<li>拟写入的新值 B</li>
+</ul>
+<p>当且仅当 V 的值等于 A时，CAS通过原子方式用新值B来更新V的值，否则不会执行任何操作（比较和替换是一个原子操作）。一般情况下是一个自旋操作，即不断的重试。</p>
+<h3 id="乐观锁的缺点"><a href="#乐观锁的缺点" class="headerlink" title="乐观锁的缺点"></a>乐观锁的缺点</h3><blockquote>
+<p>ABA 问题是乐观锁一个常见的问题</p>
+</blockquote>
+<h4 id="1-ABA-问题"><a href="#1-ABA-问题" class="headerlink" title="1 ABA 问题"></a>1 ABA 问题</h4><p>如果一个变量V初次读取的时候是A值，并且在准备赋值的时候检查到它仍然是A值，那我们就能说明它的值没有被其他线程修改过了吗？很明显是不能的，因为在这段时间它的值可能被改为其他值，然后又改回A，那CAS操作就会误认为它从来没有被修改过。这个问题被称为CAS操作的 <strong>“ABA”问题。</strong></p>
+<p>JDK 1.5 以后的 <code>AtomicStampedReference 类</code>就提供了此种能力，其中的 <code>compareAndSet 方法</code>就是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。</p>
+<h4 id="2-循环时间长开销大"><a href="#2-循环时间长开销大" class="headerlink" title="2 循环时间长开销大"></a>2 循环时间长开销大</h4><p><strong>自旋CAS（也就是不成功就一直循环执行直到成功）如果长时间不成功，会给CPU带来非常大的执行开销。</strong> 如果JVM能支持处理器提供的pause指令那么效率会有一定的提升，pause指令有两个作用，第一它可以延迟流水线执行指令（de-pipeline）,使CPU不会消耗过多的执行资源，延迟的时间取决于具体实现的版本，在一些处理器上延迟时间是零。第二它可以避免在退出循环的时候因内存顺序冲突（memory order violation）而引起CPU流水线被清空（CPU pipeline flush），从而提高CPU的执行效率。</p>
+<h4 id="3-只能保证一个共享变量的原子操作"><a href="#3-只能保证一个共享变量的原子操作" class="headerlink" title="3 只能保证一个共享变量的原子操作"></a>3 只能保证一个共享变量的原子操作</h4><p>CAS 只对单个共享变量有效，当操作涉及跨多个共享变量时 CAS 无效。但是从 JDK 1.5开始，提供了<code>AtomicReference类</code>来保证引用对象之间的原子性，你可以把多个变量放在一个对象里来进行 CAS 操作.所以我们可以使用锁或者利用<code>AtomicReference类</code>把多个共享变量合并成一个共享变量来操作。</p>
+<h3 id="什么是自旋锁？"><a href="#什么是自旋锁？" class="headerlink" title="什么是自旋锁？"></a>什么是自旋锁？</h3><p>自旋锁（spinlock）：是指当一个线程在获取锁的时候，如果锁已经被其它线程获取，那么该线程将循环等待，然后不断的判断锁是否能够被成功获取，直到获取到锁才会退出循环。</p>
+<p>获取锁的线程一直处于活跃状态，但是并没有执行任何有效的任务，使用这种锁会造成<a href="https://en.wikipedia.org/wiki/Busy_waiting" target="_blank" rel="noopener">busy-waiting</a>。</p>
+<p>它是为实现保护共享资源而提出一种锁机制。其实，自旋锁与互斥锁比较类似，它们都是为了解决对某项资源的互斥使用。无论是互斥锁，还是自旋锁，在任何时刻，最多只能有一个保持者，也就说，在任何时刻最多只能有一个执行单元获得锁。但是两者在调度机制上略有不同。对于互斥锁，如果资源已经被占用，资源申请者只能进入睡眠状态。但是自旋锁不会引起调用者睡眠，如果自旋锁已经被别的执行单元保持，调用者就一直循环在那里看是否该自旋锁的保持者已经释放了锁，”自旋”一词就是因此而得名。</p>
+<h3 id="Java如何实现自旋锁？"><a href="#Java如何实现自旋锁？" class="headerlink" title="Java如何实现自旋锁？"></a>Java如何实现自旋锁？</h3><p>下面是个简单的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpinLock</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> AtomicReference&lt;Thread&gt; cas = <span class="keyword">new</span> AtomicReference&lt;Thread&gt;();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread current = Thread.currentThread();</span><br><span class="line">        <span class="comment">// 利用CAS</span></span><br><span class="line">        <span class="keyword">while</span> (!cas.compareAndSet(<span class="keyword">null</span>, current)) &#123;</span><br><span class="line">            <span class="comment">// DO nothing</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread current = Thread.currentThread();</span><br><span class="line">        cas.compareAndSet(current, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="number">1234567891011121314</span></span><br></pre></td></tr></table></figure>
+<p>lock（)方法利用的CAS，当第一个线程A获取锁的时候，能够成功获取到，不会进入while循环，如果此时线程A没有释放锁，另一个线程B又来获取锁，此时由于不满足CAS，所以就会进入while循环，不断判断是否满足CAS，直到A线程调用unlock方法释放了该锁。</p>
+<h3 id="自旋锁存在的问题"><a href="#自旋锁存在的问题" class="headerlink" title="自旋锁存在的问题"></a>自旋锁存在的问题</h3><ol>
+<li>如果某个线程持有锁的时间过长，就会导致其它等待获取锁的线程进入循环等待，消耗CPU。使用不当会造成CPU使用率极高。</li>
+<li>上面Java实现的自旋锁不是公平的，即无法满足等待时间最长的线程优先获取锁。不公平的锁就会存在“线程饥饿”问题。</li>
+</ol>
+<h3 id="自旋锁的优点"><a href="#自旋锁的优点" class="headerlink" title="自旋锁的优点"></a>自旋锁的优点</h3><ol>
+<li><p>自旋锁不会使线程状态发生切换，一直处于用户态，即线程一直都是active的；不会使线程进入阻塞状态，减少了不必要的上下文切换，执行速度快</p>
+</li>
+<li><p>非自旋锁在获取不到锁的时候会进入阻塞状态，从而进入内核态，当获取到锁的时候需要从内核态恢复，需要线程上下文切换。 （线程被阻塞后便进入内核（Linux）调度状态，这个会导致系统在用户态与内核态之间来回切换，严重影响锁的性能）</p>
+</li>
+</ol>
+<h3 id="TicketLock主要解决的是公平性的问题。"><a href="#TicketLock主要解决的是公平性的问题。" class="headerlink" title="TicketLock主要解决的是公平性的问题。"></a>TicketLock主要解决的是公平性的问题。</h3><p>思路：每当有线程获取锁的时候，就给该线程分配一个递增的id，我们称之为排队号，同时，锁对应一个服务号，每当有线程释放锁，服务号就会递增，此时如果服务号与某个线程排队号一致，那么该线程就获得锁，由于排队号是递增的，所以就保证了最先请求获取锁的线程可以最先获取到锁，就实现了公平性。</p>
+<p>可以想象成银行办理业务排队，排队的每一个顾客都代表一个需要请求锁的线程，而银行服务窗口表示锁，每当有窗口服务完成就把自己的服务号加一，此时在排队的所有顾客中，只有自己的排队号与服务号一致的才可以得到服务。</p>
+<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>Java偏向锁(Biased Locking)是Java6引入的一项多线程优化。<br>偏向锁，顾名思义，它会偏向于第一个访问锁的线程，如果在运行过程中，同步锁只有一个线程访问，不存在多线程争用的情况，则线程是不需要触发同步的，这种情况下，就会给线程加一个偏向锁。<br><strong>如果在运行过程中，遇到了其他线程抢占锁，则持有偏向锁的线程会被挂起，JVM会消除它身上的偏向锁，将锁恢复到标准的轻量级锁。</strong></p>
+<p>它通过消除资源无竞争情况下的同步原语，进一步提高了程序的运行性能。</p>
+<h4 id="偏向锁的实现"><a href="#偏向锁的实现" class="headerlink" title="偏向锁的实现"></a>偏向锁的实现</h4><p>偏向锁获取过程：</p>
+<ol>
+<li>访问Mark Word中偏向锁的标识是否设置成1，锁标志位是否为01，确认为可偏向状态。</li>
+<li>如果为可偏向状态，则测试线程ID是否指向当前线程，如果是，进入步骤5，否则进入步骤3。</li>
+<li>如果线程ID并未指向当前线程，则通过CAS操作竞争锁。如果竞争成功，则将Mark Word中线程ID设置为当前线程ID，然后执行5；如果竞争失败，执行4。</li>
+<li>如果CAS获取偏向锁失败，则表示有竞争。当到达全局安全点（safepoint）时获得偏向锁的线程被挂起，偏向锁升级为轻量级锁，然后被阻塞在安全点的线程继续往下执行同步代码。（撤销偏向锁的时候会导致stop the word）</li>
+<li>执行同步代码。</li>
+</ol>
+<p>注意：第四步中到达安全点safepoint会导致stop the word，时间很短。</p>
+<h4 id="偏向锁的释放："><a href="#偏向锁的释放：" class="headerlink" title="偏向锁的释放："></a>偏向锁的释放：</h4><p>偏向锁的撤销在上述第四步骤中有提到。偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，<strong>线程不会主动去释放偏向锁。</strong>偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，判断锁对象是否处于被锁定状态，撤销偏向锁后恢复到未锁定（标志位为“01”）或轻量级锁（标志位为“00”）的状态。</p>
+<h4 id="偏向锁的适用场景"><a href="#偏向锁的适用场景" class="headerlink" title="偏向锁的适用场景"></a>偏向锁的适用场景</h4><p>始终只有一个线程在执行同步块，在它没有执行完释放锁之前，没有其它线程去执行同步块，在锁无竞争的情况下使用，一旦有了竞争就升级为轻量级锁，升级为轻量级锁的时候需要撤销偏向锁，撤销偏向锁的时候会导致stop the word操作；<br>在有锁的竞争时，偏向锁会多做很多额外操作，尤其是撤销偏向所的时候会导致进入安全点，安全点会导致stw，导致性能下降，这种情况下应当禁用； </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h3 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h3><p>线程的阻塞和唤醒需要CPU从用户态转为核心态，频繁的阻塞和唤醒对CPU来说是一件负担很重的工作。同时我们可以发现，很多对象锁的锁定状态只会持续很短的一段时间，例如整数的自加操作，在很短的时间内阻塞并唤醒线程显然不值得，为此引入了自旋锁。</p>
+<p>所谓“自旋”，就是让线程去执行一个无意义的循环，循环结束后再去重新竞争锁，如果竞争不到继续循环，循环过程中线程会一直处于running状态，但是基于JVM的线程调度，会出让时间片，所以其他线程依旧有申请锁和释放锁的机会。</p>
+<p>自旋锁省去了阻塞锁的时间空间（队列的维护等）开销，但是长时间自旋就变成了“忙式等待”，忙式等待显然还不如阻塞锁。所以自旋的次数一般控制在一个范围内，例如10,100等，在超出这个范围后，自旋锁会升级为阻塞锁。（即从轻量级锁转变为重量级锁）</p>
+<h3 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h3><p>加锁</p>
+<p>线程在执行同步块之前，JVM会先在当前线程的栈桢中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中，官方称为Displaced Mark Word。<strong>然后线程尝试使用CAS将对象头中的Mark Word替换为指向锁记录的指针。如果成功，当前线程获得锁，如果失败，则自旋获取锁，当自旋获取锁仍然失败时，表示存在其他线程竞争锁(两条或两条以上的线程竞争同一个锁)，则轻量级锁会膨胀成重量级锁。</strong></p>
+<p>解锁</p>
+<p><strong>轻量级解锁时，会使用原子的CAS操作来将Displaced Mark Word替换回到对象头，如果成功，则表示同步过程已完成。</strong>如果失败，表示有其他线程尝试过获取该锁，则要在释放锁的同时唤醒被挂起的线程。</p>
+<h3 id="重量级锁"><a href="#重量级锁" class="headerlink" title="重量级锁"></a>重量级锁</h3><p>重量锁在JVM中又叫对象监视器（Monitor），它很像C中的Mutex，除了具备Mutex(0|1)互斥的功能，它还负责实现了Semaphore(信号量)的功能，也就是说它至少包含一个竞争锁的队列，和一个信号阻塞队列（wait队列），前者负责做互斥，后一个用于做线程同步。</p>
+<p><strong>如果说轻量级锁是在无竞争的情况下使用CAS操作去消除同步使用的互斥量，那偏向锁就是在无竞争的情况下把整个同步都消除掉，连CAS都不做了。</strong></p>
+<h1 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h1><h2 id="JDk7版本"><a href="#JDk7版本" class="headerlink" title="JDk7版本"></a>JDk7版本</h2><ul>
+<li><p>ConcurrentHashMap的锁分段技术可有效提升并发访问率</p>
+<p>HashTable容器在竞争激烈的并发环境下表现出效率低下的原因是所有访问HashTable的线程都必须竞争同一把锁，假如容器中有多把锁，每一个把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不会存在锁竞争，从而可以有效提高并发访问效率，这就是ConcurrentHashMap所使用的锁分段技术。首先将数据分为一段一段地存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能够别其他数据访问。</p>
+</li>
+</ul>
+<h3 id="ConcurrentHashMap的结构"><a href="#ConcurrentHashMap的结构" class="headerlink" title="ConcurrentHashMap的结构"></a>ConcurrentHashMap的结构</h3><p>ConcurrentHashMap是由Segment数组结构和HashEntry数组结构组成。Segment是一种可重入锁（ReentrantLock），在ConcurrentHashMap里扮演锁的角色；HashEntry则用于存储键值对数据。Segment的结构和HashMap类似，是一种数组和链表结构。一个Segment里包含一个HashEntry数组，每个HashEntry里是一个链表结构的元素，每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须首先获得与它对应的Segment锁。</p>
+<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><p>JDK1.7的ConcurrentHashMap的get操作是不加锁的，因为在每个Segment中定义的HashEntry数组和在每个HashEntry中定义的value和next HashEntry节点都是volatile类型的，volatile类型的变量可以保证其在多线程之间的可见性，因此可以被多个线程同时读，从而不用加锁。而其get操作步骤也比较简单，定位Segment –&gt; 定位HashEntry –&gt; 通过getObjectVolatile()方法获取指定偏移量上的HashEntry –&gt; 通过循环遍历链表获取对应值。</p>
+<p>定位Segment：(((h &gt;&gt;&gt; segmentShift) &amp; segmentMask) &lt;&lt; SSHIFT) + SBASE</p>
+<p>定位HashEntry：(((tab.length - 1) &amp; h)) &lt;&lt; TSHIFT) + TBASE</p>
+<h3 id="put"><a href="#put" class="headerlink" title="put"></a>put</h3><p>在Segment的put方法中，首先需要调用tryLock()方法获取锁，然后通过hash算法定位到对应的HashEntry，然后遍历整个链表，如果查到key值，则直接插入元素即可；而如果没有查询到对应的key，则需要调用rehash()方法对Segment中保存的table进行扩容，扩容为原来的2倍，并在扩容之后插入对应的元素。插入一个key/value对后，需要将统计Segment中元素个数的count属性加1。最后，插入成功之后，需要使用unLock()释放锁。</p>
+<h2 id="JDK8版本"><a href="#JDK8版本" class="headerlink" title="JDK8版本"></a>JDK8版本</h2><p>在JDK1.7之前，ConcurrentHashMap是通过分段锁机制来实现的，所以其最大并发度受Segment的个数限制。因此，在JDK1.8中，ConcurrentHashMap的实现原理摒弃了这种设计，而是选择了与HashMap类似的数组+链表+红黑树的方式实现，而加锁则采用CAS和synchronized实现。</p>
+<h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><p>JDK1.8的ConcurrentHashMap数据结构比JDK1.7之前的要简单的多，其使用的是HashMap一样的数据结构：数组+链表+红黑树。ConcurrentHashMap中包含一个table数组，其类型是一个Node数组；而Node是一个继承自Map.Entry&lt;K, V&gt;的链表，而当这个链表结构中的数据大于8，则将数据结构升级为TreeBin类型的红黑树结构。另外，</p>
+<p>JDK1.8中的ConcurrentHashMap中还包含一个重要属性sizeCtl，其是一个控制标识符，不同的值代表不同的意思：其为0时，表示hash表还未初始化，而为正数时这个数值表示初始化或下一次扩容的大小，相当于一个阈值；即如果hash表的实际大小&gt;=sizeCtl，则进行扩容，默认情况下其是当前ConcurrentHashMap容量的0.75倍；而如果sizeCtl为-1，表示正在进行初始化操作；而为-N时，则表示有N-1个线程正在进行扩容。</p>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//内部类node里的val，next都使用了volatile关键字</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>.<span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> hash;</span><br><span class="line">        <span class="keyword">final</span> K key;</span><br><span class="line">        <span class="keyword">volatile</span> V val;</span><br><span class="line">        <span class="keyword">volatile</span> Node&lt;K,V&gt; next;</span><br><span class="line"></span><br><span class="line">        Node(<span class="keyword">int</span> hash, K key, V val, Node&lt;K,V&gt; next) &#123;</span><br><span class="line">            <span class="keyword">this</span>.hash = hash;</span><br><span class="line">            <span class="keyword">this</span>.key = key;</span><br><span class="line">            <span class="keyword">this</span>.val = val;</span><br><span class="line">            <span class="keyword">this</span>.next = next;</span><br><span class="line">        &#125;</span><br><span class="line"> &#125;</span><br><span class="line"><span class="comment">// 使用node数组， 也是用volatile数组</span></span><br><span class="line"><span class="keyword">transient</span> <span class="keyword">volatile</span> Node&lt;K,V&gt;[] table;</span><br></pre></td></tr></table></figure>
+<p><strong>get方法同1.7的一致，由于node都是使用volatile修饰，在get的源码实现中，并不用加锁。</strong></p>
+<h2 id="SQL注入简介"><a href="#SQL注入简介" class="headerlink" title="SQL注入简介"></a>SQL注入简介</h2><p>SQL注入是网站存在最多也是最简单的漏洞，主要原因是程序员在开发用户和数据库交互的系统时，没有对用户输入的字符串进行过滤，转义，限制或处理不严谨，导致用户可以通过输入精心构造的字符串去非法获取到数据库中的数据。</p>
+<h3 id="SQL注入原理"><a href="#SQL注入原理" class="headerlink" title="SQL注入原理"></a>SQL注入原理</h3><p>一般用户登录用的SQL语句为：SELECT <em> FROM user WHERE username=’admin’ AND password=’passwd’，此处admin和passwd分别为用户输入的用户名和密码，如果程序员没有对用户输入的用户名和密码做处理，就可以构造万能密码成功绕过登录验证，如用户输入<strong>‘or 1#</strong>,SQL语句将变为：SELECT </em> FROM user WHERE username=’’or 1#’ AND password=’’，‘’or 1为TRUE，#注释掉后面的内容，所以查询语句可以正确执行。</p>
+<h3 id="mybatis是如何防止SQL注入的"><a href="#mybatis是如何防止SQL注入的" class="headerlink" title="mybatis是如何防止SQL注入的"></a>mybatis是如何防止SQL注入的</h3><h3 id="1、首先看一下下面两个sql语句的区别："><a href="#1、首先看一下下面两个sql语句的区别：" class="headerlink" title="1、首先看一下下面两个sql语句的区别："></a>1、首先看一下下面两个sql语句的区别：</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id="selectByNameAndPassword" parameterType="java.util.Map" resultMap="BaseResultMap"&gt;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">id</span>, username, <span class="keyword">password</span>, <span class="keyword">role</span></span><br><span class="line"><span class="keyword">from</span> <span class="keyword">user</span></span><br><span class="line"><span class="keyword">where</span> username = <span class="comment">#&#123;username,jdbcType=VARCHAR&#125;</span></span><br><span class="line"><span class="keyword">and</span> <span class="keyword">password</span> = <span class="comment">#&#123;password,jdbcType=VARCHAR&#125;</span></span><br><span class="line">&lt;/<span class="keyword">select</span>&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id="selectByNameAndPassword" parameterType="java.util.Map" resultMap="BaseResultMap"&gt;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">id</span>, username, <span class="keyword">password</span>, <span class="keyword">role</span></span><br><span class="line"><span class="keyword">from</span> <span class="keyword">user</span></span><br><span class="line"><span class="keyword">where</span> username = $&#123;username,jdbcType=<span class="built_in">VARCHAR</span>&#125;</span><br><span class="line"><span class="keyword">and</span> <span class="keyword">password</span> = $&#123;<span class="keyword">password</span>,jdbcType=<span class="built_in">VARCHAR</span>&#125;</span><br><span class="line">&lt;/<span class="keyword">select</span>&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>mybatis中的#和$的区别：</strong></p>
+<p>1、#将传入的数据都当成一个字符串，会对自动传入的数据加一个双引号。<br>如：where username=#{username}，如果传入的值是111,那么解析成sql时的值为where username=”111”, 如果传入的值是id，则解析成的sql为where username=”id”.　<br>2、$将传入的数据直接显示生成在sql中。<br>如：where username=${username}，如果传入的值是111,那么解析成sql时的值为where username=111；<br>如果传入的值是;drop table user;，则解析成的sql为：select id, username, password, role from user where username=;drop table user;<br>3、#方式能够很大程度防止sql注入，$方式无法防止Sql注入。<br>4、$方式一般用于传入数据库对象，例如传入表名.<br>5、一般能用#的就别用$，若不得不使用“${xxx}”这样的参数，要手工地做好过滤工作，来防止sql注入攻击。<br>6、在MyBatis中，“${xxx}”这样格式的参数会直接参与SQL编译，从而不能避免注入攻击。但涉及到动态表名和列名时，只能使用“${xxx}”这样的参数格式。所以，这样的参数需要我们在代码中手工进行处理来防止注入。<br>【结论】在编写MyBatis的映射语句时，尽量采用“#{xxx}”这样的格式。若不得不使用“${xxx}”这样的参数，要手工地做好过滤工作，来防止SQL注入攻击。</p>
+<h3 id="2、什么是sql注入"><a href="#2、什么是sql注入" class="headerlink" title="2、什么是sql注入"></a>2、什么是sql注入</h3><p>　　<a href="https://en.wikipedia.org/wiki/SQL_injection" target="_blank" rel="noopener"> sql注入解释</a>：是一种代码注入技术，用于攻击数据驱动的应用，恶意的SQL语句被插入到执行的实体字段中（例如，为了转储数据库内容给攻击者）</p>
+<p>　　<strong>SQL**</strong>注入<strong>，大家都不陌生，是一种常见的攻击方式。</strong>攻击者<strong>在界面的表单信息或URL上输入一些奇怪的SQL片段（例如“or ‘1’=’1’”这样的语句），有可能入侵</strong>参数检验不足<strong>的应用程序。所以，在我们的应用中需要做一些工作，来防备这样的攻击方式。在一些安全性要求很高的应用中（比如银行软件），经常使用将</strong>SQL<strong>**语句</strong>全部替换为<strong>存储过程</strong>这样的方式，来防止SQL注入。这当然是<strong>一种很安全的方式</strong>，但我们平时开发中，可能不需要这种死板的方式。</p>
+<h3 id="3、mybatis是如何做到防止sql注入的"><a href="#3、mybatis是如何做到防止sql注入的" class="headerlink" title="3、mybatis是如何做到防止sql注入的"></a>3、mybatis是如何做到防止sql注入的</h3><p>　　<a href="https://mybatis.github.io/mybatis-3/" target="_blank" rel="noopener">MyBatis</a>框架作为一款半自动化的持久层框架，其SQL语句都要我们自己手动编写，这个时候当然需要防止SQL注入。其实，MyBatis的SQL是一个具有“<strong>输入+输出</strong>”的功能，类似于函数的结构，参考上面的两个例子。其中，parameterType表示了输入的参数类型，resultType表示了输出的参数类型。回应上文，如果我们想防止SQL注入，理所当然地要在输入参数上下功夫。上面代码中使用 <strong>#</strong> 的即输入参数在SQL中拼接的部分，传入参数后，打印出执行的SQL语句，会看到SQL是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select id, username, password, role from user where username=? and password=?</span><br></pre></td></tr></table></figure>
+<p>　　不管输入什么参数，打印出的SQL都是这样的。这是因为MyBatis启用了预编译功能，在SQL执行前，会先将上面的SQL发送给数据库进行编译；执行时，直接使用编译好的SQL，替换占位符“?”就可以了。因为SQL注入只能对编译过程起作用，所以这样的方式就很好地避免了SQL注入的问题。</p>
+<p>　　【底层实现原理】MyBatis是如何做到SQL预编译的呢？其实在框架底层，是JDBC中的PreparedStatement类在起作用，PreparedStatement是我们很熟悉的Statement的子类，它的对象包含了编译好的SQL语句。这种“准备好”的方式不仅能提高安全性，而且在多次执行同一个SQL时，能够提高效率。原因是SQL已编译好，再次执行时无需再编译。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//安全的，预编译了的</span><br><span class="line">Connection conn = getConn();//获得连接</span><br><span class="line">String sql = &quot;select id, username, password, role from user where id=?&quot;; //执行sql前会预编译号该条语句</span><br><span class="line">PreparedStatement pstmt = conn.prepareStatement(sql); </span><br><span class="line">pstmt.setString(1, id); </span><br><span class="line">ResultSet rs=pstmt.executeUpdate(); </span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//不安全的，没进行预编译</span><br><span class="line">private String getNameByUserId(String userId) &#123;</span><br><span class="line">    Connection conn = getConn();//获得连接</span><br><span class="line">    String sql = &quot;select id,username,password,role from user where id=&quot; + id;</span><br><span class="line">    //当id参数为&quot;3;drop table user;&quot;时，执行的sql语句如下:</span><br><span class="line">    //select id,username,password,role from user where id=3; drop table user;  </span><br><span class="line">    PreparedStatement pstmt =  conn.prepareStatement(sql);</span><br><span class="line">    ResultSet rs=pstmt.executeUpdate();</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>【 <strong>结论</strong>：】</p>
+<table>
+<thead>
+<tr>
+<th>#{}：相当于JDBC中的PreparedStatement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>${}：是输出变量的值</td>
+</tr>
+</tbody>
+</table>
+<p>简单说，#{}是经过预编译的，是安全的；${}是未经过预编译的，仅仅是取变量的值，是非安全的，存在SQL注入。<br>如果我们order by语句后用了${}，那么不做任何处理的时候是存在SQL注入危险的。你说怎么防止，那我只能悲惨的告诉你，你得手动处理过滤一下输入的内容。如判断一下输入的参数的长度是否正常（注入语句一般很长），更精确的过滤则可以查询一下输入的参数是否在预期的参数集合中。</p>
+<p>作者：<a href="http://www.cnblogs.com/mmzs/" target="_blank" rel="noopener">淼淼之森</a></p>
+<p>### </p>
+<h2 id="19-09-27"><a href="#19-09-27" class="headerlink" title="19.09.27"></a>19.09.27</h2><p><a href="https://blog.csdn.net/a745233700/article/details/80977133" target="_blank" rel="noopener">mybatis面试题总结</a></p>
+<p><a href="https://blog.csdn.net/a745233700/article/details/80977133" target="_blank" rel="noopener">Spring常见面试</a></p>
+<h1 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h1><p>Docker 可以让开发者打包他们的应用以及依赖包到一个轻量级、可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。</p>
+<p><strong>容器虚拟化的是操作系统而不是硬件，容器之间是共享同一套操作系统资源的。虚拟机技术是虚拟出一套硬件后，在其上运行一个完整操作系统。因此容器的隔离级别会稍低一些。</strong></p>
+<p>容器是完全使用沙箱机制，相互之间不会有任何接口（类似 iPhone 的 app）,更重要的是容器性能开销极低。</p>
+<h1 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h1><h3 id="区分认证-Authentication-和授权-Authorization"><a href="#区分认证-Authentication-和授权-Authorization" class="headerlink" title="区分认证 (Authentication) 和授权 (Authorization)"></a>区分认证 (Authentication) 和授权 (Authorization)</h3><p>这是一个绝大多数人都会混淆的问题。首先先从读音上来认识这两个名词，很多人都会把它俩的读音搞混，所以我建议你先先去查一查这两个单词到底该怎么读，他们的具体含义是什么。</p>
+<p><strong>Authentication（认证）</strong> 是验证您的身份的凭据（例如用户名/用户ID和密码），通过这个凭据，系统得以知道你就是你，也就是说系统存在你这个用户。所以，Authentication 被称为身份/用户验证。</p>
+<p><strong>Authorization（授权）</strong> 发生在 <strong>Authentication（认证）</strong>之后。授权嘛，光看意思大家应该就明白，它主要掌管我们访问系统的权限。比如有些特定资源只能具有特定权限的人才能访问比如admin，有些对系统资源操作比如删除、添加、更新只能特定人才具有。</p>
+<p>这两个一般在我们的系统中被结合在一起使用，目的就是为了保护我们系统的安全性。</p>
+<h1 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h1><h3 id="为什么要用-redis-为什么要用缓存"><a href="#为什么要用-redis-为什么要用缓存" class="headerlink" title="为什么要用 redis/为什么要用缓存"></a>为什么要用 redis/为什么要用缓存</h3><p>主要从“高性能”和“高并发”这两点来看待这个问题。</p>
+<p><strong>高性能：</strong></p>
+<p>假如用户第一次访问数据库中的某些数据。这个过程会比较慢，因为是从硬盘上读取的。将该用户访问的数据存在缓存中，这样下一次再访问这些数据的时候就可以直接从缓存中获取了。操作缓存就是直接操作内存，所以速度相当快。如果数据库中的对应数据改变的之后，同步改变缓存中相应的数据即可！</p>
+<p><img src="http://my-blog-to-use.oss-cn-beijing.aliyuncs.com/18-9-24/54316596.jpg" alt></p>
+<p><strong>高并发：</strong></p>
+<p>直接操作缓存能够承受的请求是远远大于直接访问数据库的，所以我们可以考虑把数据库中的部分数据转移到缓存中去，这样用户的一部分请求会直接到缓存这里而不用经过数据库。</p>
+<p><img src="http://my-blog-to-use.oss-cn-beijing.aliyuncs.com/18-9-24/85146760.jpg" alt></p>
+<h3 id="redis-设置过期时间"><a href="#redis-设置过期时间" class="headerlink" title="redis 设置过期时间"></a>redis 设置过期时间</h3><p>Redis中有个设置时间过期的功能，即对存储在 redis 数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的。如我们一般项目中的 token 或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。</p>
+<p>我们 set key 的时候，都可以给一个 expire time，就是过期时间，通过过期时间我们可以指定这个 key 可以存活的时间。</p>
+<p>如果假设你设置了一批 key 只能存活1个小时，那么接下来1小时后，redis是怎么对这批key进行删除的？</p>
+<p><strong>定期删除+惰性删除。</strong></p>
+<p>通过名字大概就能猜出这两个删除方式的意思了。</p>
+<ul>
+<li><strong>定期删除</strong>：redis默认是每隔 100ms 就<strong>随机抽取</strong>一些设置了过期时间的key，检查其是否过期，如果过期就删除。注意这里是随机抽取的。为什么要随机呢？你想一想假如 redis 存了几十万个 key ，每隔100ms就遍历所有的设置过期时间的 key 的话，就会给 CPU 带来很大的负载！</li>
+<li><strong>惰性删除</strong> ：定期删除可能会导致很多过期 key 到了时间并没有被删除掉。所以就有了惰性删除。假如你的过期 key，靠定期删除没有被删除掉，还停留在内存里，除非你的系统去查一下那个 key，才会被redis给删除掉。这就是所谓的惰性删除，也是够懒的哈！</li>
+</ul>
+<p>但是仅仅通过设置过期时间还是有问题的。我们想一下：如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，此时会怎么样？如果大量过期key堆积在内存里，导致redis内存块耗尽了。怎么解决这个问题呢？ <strong>redis 内存淘汰机制。</strong></p>
+<h3 id="redis-持久化机制-怎么保证-redis-挂掉之后再重启数据可以进行恢复"><a href="#redis-持久化机制-怎么保证-redis-挂掉之后再重启数据可以进行恢复" class="headerlink" title="redis 持久化机制(怎么保证 redis 挂掉之后再重启数据可以进行恢复)"></a>redis 持久化机制(怎么保证 redis 挂掉之后再重启数据可以进行恢复)</h3><p>很多时候我们需要持久化数据也就是将内存中的数据写入到硬盘里面，大部分原因是为了之后重用数据（比如重启机器、机器故障之后恢复数据），或者是为了防止系统故障而将数据备份到一个远程位置。</p>
+<p>Redis不同于Memcached的很重一点就是，Redis支持持久化，而且支持两种不同的持久化操作。<strong>Redis的一种持久化方式叫快照（snapshotting，RDB），另一种方式是只追加文件（append-only file,AOF）</strong>。这两种方法各有千秋，下面我会详细这两种持久化方法是什么，怎么用，如何选择适合自己的持久化方法。</p>
+<p><strong>快照（snapshotting）持久化（RDB）</strong></p>
+<p>Redis可以通过创建快照来获得存储在内存里面的数据在某个时间点上的副本。Redis创建快照之后，可以对快照进行备份，可以将快照复制到其他服务器从而创建具有相同数据的服务器副本（Redis主从结构，主要用来提高Redis性能），还可以将快照留在原地以便重启服务器的时候使用。</p>
+<p>快照持久化是Redis默认采用的持久化方式，在redis.conf配置文件中默认有此下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">save 900 1           #在900秒(15分钟)之后，如果至少有1个key发生变化，Redis就会自动触发BGSAVE命令创建快照。</span><br><span class="line"></span><br><span class="line">save 300 10          #在300秒(5分钟)之后，如果至少有10个key发生变化，Redis就会自动触发BGSAVE命令创建快照。</span><br><span class="line"></span><br><span class="line">save 60 10000        #在60秒(1分钟)之后，如果至少有10000个key发生变化，Redis就会自动触发BGSAVE命令创建快照。</span><br></pre></td></tr></table></figure>
+<p><strong>AOF（append-only file）持久化</strong></p>
+<p>与快照持久化相比，AOF持久化 的实时性更好，因此已成为主流的持久化方案。默认情况下Redis没有开启AOF（append only file）方式的持久化，可以通过appendonly参数开启：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<p>开启AOF持久化后每执行一条会更改Redis中的数据的命令，Redis就会将该命令写入硬盘中的AOF文件。AOF文件的保存位置和RDB文件的位置相同，都是通过dir参数设置的，默认的文件名是appendonly.aof。</p>
+<p>在Redis的配置文件中存在三种不同的 AOF 持久化方式，它们分别是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">appendfsync always    #每次有数据修改发生时都会写入AOF文件,这样会严重降低Redis的速度</span><br><span class="line">appendfsync everysec  #每秒钟同步一次，显示地将多个写命令同步到硬盘</span><br><span class="line">appendfsync no        #让操作系统决定何时进行同步</span><br></pre></td></tr></table></figure>
+<p>为了兼顾数据和写入性能，用户可以考虑 appendfsync everysec选项 ，让Redis每秒同步一次AOF文件，Redis性能几乎没受到任何影响。而且这样即使出现系统崩溃，用户最多只会丢失一秒之内产生的数据。当硬盘忙于执行写入操作的时候，Redis还会优雅的放慢自己的速度以便适应硬盘的最大写入速度。</p>
+<p><strong>Redis 4.0 对于持久化机制的优化</strong></p>
+<p>Redis 4.0 开始支持 RDB 和 AOF 的混合持久化（默认关闭，可以通过配置项 <code>aof-use-rdb-preamble</code> 开启）。</p>
+<p>如果把混合持久化打开，AOF 重写的时候就直接把 RDB 的内容写到 AOF 文件开头。这样做的好处是可以结合 RDB 和 AOF 的优点, 快速加载同时避免丢失过多的数据。当然缺点也是有的， AOF 里面的 RDB 部分是压缩格式不再是 AOF 格式，可读性较差。</p>
+<h3 id="缓存雪崩和缓存穿透问题解决方案"><a href="#缓存雪崩和缓存穿透问题解决方案" class="headerlink" title="缓存雪崩和缓存穿透问题解决方案"></a>缓存雪崩和缓存穿透问题解决方案</h3><p><strong>缓存雪崩</strong></p>
+<p>简介：缓存同一时间大面积的失效，所以，后面的请求都会落到数据库上，造成数据库短时间内承受大量请求而崩掉。</p>
+<p>解决办法（中华石杉老师在他的视频中提到过，视频地址在最后一个问题中有提到）：</p>
+<ul>
+<li>事前：尽量保证整个 redis 集群的高可用性，发现机器宕机尽快补上。选择合适的内存淘汰策略。</li>
+<li>事中：本地ehcache缓存 + hystrix限流&amp;降级，避免MySQL崩掉</li>
+<li>事后：利用 redis 持久化机制保存的数据尽快恢复缓存</li>
+</ul>
+<p><img src="http://my-blog-to-use.oss-cn-beijing.aliyuncs.com/18-9-25/6078367.jpg" alt="img"></p>
+<p><strong>缓存穿透</strong></p>
+<p>简介：一般是黑客故意去请求缓存中不存在的数据，导致所有的请求都落到数据库上，造成数据库短时间内承受大量请求而崩掉。</p>
+<p>解决办法： 有很多种方法可以有效地解决缓存穿透问题，最常见的则是采用布隆过滤器，将所有可能存在的数据哈希到一个足够大的bitmap中，一个一定不存在的数据会被 这个bitmap拦截掉，从而避免了对底层存储系统的查询压力。另外也有一个更为简单粗暴的方法（我们采用的就是这种），如果一个查询返回的数据为空（不管是数 据不存在，还是系统故障），我们仍然把这个空结果进行缓存，但它的过期时间会很短，最长不超过五分钟。</p>
+<h1 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h1><p><img src="https://images0.cnblogs.com/blog/288799/201408/241109342846403.jpg" alt></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/计算机网络/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1661,554 +2448,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/08/前端学习网站/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/08/前端学习网站/" itemprop="url">前端学习网站</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-08T20:38:26+08:00">
-                2019-08-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/前端/" itemprop="url" rel="index">
-                    <span itemprop="name">前端</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  410
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>React官方文档 <a href="https://reactjs.org/" target="_blank" rel="noopener">https://reactjs.org/</a><br>ECMAScript 6入门 <a href="http://es6.ruanyifeng.com/" target="_blank" rel="noopener">http://es6.ruanyifeng.com/</a><br>（特别是解构赋值、箭头函数和 Class）<br>MDN - JavaScript <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript" target="_blank" rel="noopener">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript</a><br>（JS基础语法）<br>MDN - Array.prototype.map() <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" target="_blank" rel="noopener">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map</a><br>（数组map方法）</p>
-<h2 id="ES6入门"><a href="#ES6入门" class="headerlink" title="ES6入门"></a>ES6入门</h2><h2 id="javaScript"><a href="#javaScript" class="headerlink" title="javaScript"></a>javaScript</h2><ol>
-<li>JavaScript里一切皆对象，一切皆可储存在变量里。 let 声明变量。</li>
-<li>浏览器出现Cannot set property ‘onclick’ of null的问题<br>浏览器先加载玩按钮节点才执行的js ,所以当浏览器自顶向下解析时，找不到onclick绑定的按钮节点。因此，需要把js文件放在底部加载，就会避免该问题</li>
-<li><p>ES6 中let 命令，用来声明变量，所声明的变量，只在let命令所在的代码块中有效。<br>var命令声明的，在全局范围内都有效</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> for (let i = 0; i &lt; 3; i++) &#123;</span><br><span class="line">  let i = &apos;abc&apos;;</span><br><span class="line">  console.log(i);</span><br><span class="line">&#125;</span><br><span class="line">// abc</span><br><span class="line">// abc</span><br><span class="line">// abc</span><br></pre></td></tr></table></figure>
-<p>上面代码正确运行，输出了 3 次abc。let 命令在for循环中，函数内部变量的i,与循环变量i不在同一个作用域。</p>
-</li>
-<li><p>变量的结构赋值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">let [foo, [[bar], baz]] = [1, [[2], 3]];</span><br><span class="line">foo // 1</span><br><span class="line">bar // 2</span><br><span class="line">baz // 3</span><br><span class="line"></span><br><span class="line">let [ , , third] = [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;];</span><br><span class="line">third // &quot;baz&quot;</span><br><span class="line"></span><br><span class="line">let [x, , y] = [1, 2, 3];</span><br><span class="line">x // 1</span><br><span class="line">y // 3</span><br><span class="line"></span><br><span class="line">let [head, ...tail] = [1, 2, 3, 4];</span><br><span class="line">head // 1</span><br><span class="line">tail // [2, 3, 4]</span><br><span class="line"></span><br><span class="line">let [x, y, ...z] = [&apos;a&apos;];</span><br><span class="line">x // &quot;a&quot;</span><br><span class="line">y // undefined</span><br><span class="line">z // []</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>解构失败例子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let [foo] = [];</span><br><span class="line">let [bar, foo] = [1];</span><br></pre></td></tr></table></figure></p>
-<p> 等号左边的模式，只匹配一部分的等号右边的数组。这种情况下，解构依然可以成功。<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> let [x, y] = [1, 2, 3];</span><br><span class="line">x // 1</span><br><span class="line">y // 2</span><br><span class="line"></span><br><span class="line">let [a, [b], d] = [1, [2, 3], 4];</span><br><span class="line">a // 1</span><br><span class="line">b // 2</span><br><span class="line">d // 4</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/06/数据锁/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/06/数据锁/" itemprop="url">数据锁</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-06T11:32:55+08:00">
-                2019-08-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  15
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="https://www.javazhiyin.com/39348.html" target="_blank" rel="noopener">解决并发问题，数据库常用的两把锁</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/05/Linux/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/05/Linux/" itemprop="url">Linux</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-05T21:17:43+08:00">
-                2019-08-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  376
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="1-vim编辑器"><a href="#1-vim编辑器" class="headerlink" title="1. vim编辑器"></a>1. vim编辑器</h2><p>一般模式：<br>编辑模式：[i,0,a,r]  ,  [ESC] 退出<br>指令列命令模式 ：[:  /  ?]<br>:wq  保存后退出<br>:q!  强制退出不保存</p>
-<p>Linux的分类：<br>1.内核版本：Linux不是一个操作系统，严格来讲，只是一个操作系统的内核。内核建立计算机软件和硬件之间通讯的平台。<br>2.发行版本：一些组织或公司在内核上进行二次开发的版本。<br>Linux一个重要概念，一切都是文件。</p>
-<p>Linux常用命令</p>
-<ol>
-<li>mkdir：增加目录   rmdir：删除目录</li>
-<li>ls 或 ll :( ll 是ls -l缩写  ll可看到该目录下所有目录和文件的详细信息 )</li>
-<li>find 目录 参数  :寻找目录<br>eg : find .  -name ‘x.txt’  -o  -name ‘x.pdf’<br>当前目录及子目录下 所有以 .txt , .pdf结尾的文件</li>
-<li>mv 目录名称 新目录名称 （改名）<br>mv 目录名称 目录新位置 （剪切）</li>
-<li>cp  -r  目录  目录新名字  （拷贝，-r递归拷贝）</li>
-<li>rm  [-rf]  目录 ：删除目录<br>tar  -zcvf  压缩后的名字  要打包的文件<br>-s 还原文件的顺序和备份文件内的存放顺序相同。<br>-t 列出备份文件的内容。<br>-v 显示指令执行过程。<br>-f 指定压缩文件<br>-x 从备份文件中还原文件。<br>tar -xvf  压缩文件   -x 解压</li>
-<li>Linux 查看负载<ul>
-<li>uptime 显示当前机器负载</li>
-<li>w 列出所有user分别的情况</li>
-<li>top wa超10%表示IO压力很大。</li>
-</ul>
-</li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2261,7 +2500,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">50</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2283,7 +2522,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2357,7 +2596,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共92.8k字</span>
+  <span class="post-count">博客全站共98.2k字</span>
 </div>
 
         

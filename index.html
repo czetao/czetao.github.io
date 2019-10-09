@@ -281,6 +281,662 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/09/mysql慢查询配置/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/09/mysql慢查询配置/" itemprop="url">mysql慢查询配置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-09T10:10:17+08:00">
+                2019-10-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.8k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="第一步-开启-MySQL-慢查询"><a href="#第一步-开启-MySQL-慢查询" class="headerlink" title="第一步.开启 MySQL 慢查询"></a>第一步.开启 MySQL 慢查询</h2><h3 id="方式一、修改配置文件"><a href="#方式一、修改配置文件" class="headerlink" title="方式一、修改配置文件"></a>方式一、修改配置文件</h3><p>Windows：配置文件为 my.ini，一般在 MySQL 安装目录下或者 c:\Windows 下。<br>Linux：配置文件为 my.cnf ，一般在 /etc 下。<br>在 my.ini 增加下面代码:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]  </span><br><span class="line">long_query_time=<span class="number">2</span>  </span><br><span class="line"></span><br><span class="line">#<span class="number">5.5</span>以前版本配置如下选项  </span><br><span class="line"><span class="built_in">log</span>-slow-queries=<span class="string">"mysql_slow_query.log"</span>  </span><br><span class="line">#<span class="number">5.5</span>及以上版本配置如下选项  </span><br><span class="line">slow-query-<span class="built_in">log</span>=On  </span><br><span class="line">slow_query_log_file=<span class="string">"mysql_slow_query.log"</span>  </span><br><span class="line"></span><br><span class="line"><span class="built_in">log</span>-query-<span class="keyword">not</span>-<span class="keyword">using</span>-indexes</span><br></pre></td></tr></table></figure>
+<p>第一句：定义超过多少秒的查询算是慢查询，这里定义的是2秒<br>第二句：定义慢查询日志的路径（注意如果是 Linux 或 Mac 系统要考虑权限问题）<br>第三句：记录下没有使用索引的query</p>
+<h3 id="方式二、通过命令行开启慢查询"><a href="#方式二、通过命令行开启慢查询" class="headerlink" title="方式二、通过命令行开启慢查询"></a>方式二、通过命令行开启慢查询</h3><p>上面的配置需要重启 mysql server 进程 mysqld 才会生效。但很多时候，尤其是产品生产环境，不希望每次修改都要重新启动mysql服务器，而是希望能在某些特定时间记录。MySQL5.1 之后为我们提供了灵活的运行时控制，使得你不必重新启动 mysql 服务器，也能选择性地记录或不记录某些 slow queries。</p>
+<p>MySQL5.1中，提供了全局变量 slow_query_log、slow_query_log_file，可以灵活地控制enable/disable慢查询。同时可以通过 long_query_time 设置慢查询时间</p>
+<p><strong>注意:设置了全局变量 slow_query_log ,则变量 log_slow_queries 也会隐性地跟着改变</strong></p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;<span class="keyword">set</span> <span class="keyword">global</span> slow_query_log=ON</span><br></pre></td></tr></table></figure>
+<p>不幸的是,在 MySQL5.1 之前并没有提供类似的全局变量来灵活控制，但是我们可以通过将long_query_time 设置得足够大来避免记录某些查询语句。比如</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;<span class="keyword">set</span> <span class="keyword">global</span> long_query_time = <span class="number">3600</span>;</span><br><span class="line">mysql&gt;<span class="keyword">set</span> <span class="keyword">global</span> log_querise_not_using_indexes = ON;</span><br></pre></td></tr></table></figure>
+<p>MySQL5.0 在不关闭服务的情况下，希望不记录日志的办法是让日志文件成为 /dev/null 的符号链接(symbolic link)。注意:你只需要在改变后运行 flush logs 以确定MySQL释放当前的日志文件描述符，重新把日志记录到/dev/null。</p>
+<p>和 MySQL5.0 不同, MySQL5.1 后可以在运行时改变日记行为，将日志记录到数据库表中。只要将 MySQL 全局变量 log_output 设置为 table 即可。MySQL 会将日志分别记录到mysql.gengera_log 和 mysql.slow_log 两张表中。但是，推荐的做法是将日志记录在日记文件中。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like ‘log_output’\G</span><br><span class="line">Variable_name: log_output</span><br><span class="line">Value: FILE</span><br><span class="line">mysql&gt;<span class="keyword">set</span> <span class="keyword">global</span> log_output=’table’;</span><br></pre></td></tr></table></figure>
+<p><strong>缺陷与审记</strong><br>如果开启了 log_queries_not_using_indexes 选项，slow query 日志会充满过多的垃圾日志记录，这些快且高效的全表扫描查询(表小)会冲掉真正有用的slow queries记录。比如 select * from category 这样的查询也会被记录下来。<br>通过microslow-patch补丁可使用更细的时间粒度，和记录所有执行过的sql语句。不过，使用这个补订不得不自己编译MySQL，出于稳定性考滤，我们推荐在开发测试环境，可以打上这个补丁，享受这个补丁带来的便利。在运营环境尽量不要这么做…</p>
+<h2 id="第五步-分析慢查询日志"><a href="#第五步-分析慢查询日志" class="headerlink" title="第五步.分析慢查询日志"></a>第五步.分析慢查询日志</h2><h3 id="方式一-通过工具分析"><a href="#方式一-通过工具分析" class="headerlink" title="方式一.通过工具分析"></a>方式一.通过工具分析</h3><p>MySQL 自带了 mysqldumpslow 工具用来分析 slow query 日志，除此之外，还有一些好用的开源工具。比如<a href="https://link.jianshu.com/?t=http://sourceforge.net/projects/myprofi/" target="_blank" rel="noopener">MyProfi</a>、mysql-log-filter，当然还有 mysqlsla。</p>
+<p>以下是 mysqldumpslow 常用参数说明，详细内容可用 mysqldumpslow -help 查询。<br>-s，表示按照何种方式排序，c、t、l、r分别是按照记录次数、时间、查询时间、返回的记录数来排序（从大到小），ac、at、al、ar表示相应的倒序。<br>-t，是top n的意思，即为返回前面多少条数据。<br>-g，后边可以写一个正则匹配模式，大小写不敏感。</p>
+<p>接下来就是用MySQL 自带的慢查询工具 mysqldumpslow 分析了（该工具位于 MySQL 的bin 目录下），我这里的日志文件名字是host-slow.log。</p>
+<p>列出记录次数最多的10个sql语句</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldumpslow -s c -t <span class="number">10</span> host-slow.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>列出返回记录集最多的10个sql语句</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldumpslow -s r -t <span class="number">10</span> host-slow.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<h3 id="explain"><a href="#explain" class="headerlink" title="explain"></a>explain</h3><p><strong>6 keys</strong> MYSQL使用的索引，简单且重要</p>
+<p><strong>7 key_len</strong> MYSQL使用的索引长度</p>
+<p><strong>8 ref</strong>   ref列显示使用哪个列或常数与key一起从表中选择行。</p>
+<p><strong>9 rows</strong> 显示MYSQL执行查询的行数，简单且重要，数值越大越不好，说明没有用好索引</p>
+<p>在日常工作中，我们会有时会开慢查询去记录一些执行时间比较久的SQL语句，找出这些SQL语句并不意味着完事了，些时我们常常用到explain这个命令来查看一个这些SQL语句的执行计划，查看该SQL语句有没有使用上了索引，有没有做全表扫描，这都可以通过explain命令来查看。所以我们深入了解MySQL的基于开销的优化器，还可以获得很多可能被优化器考虑到的访问策略的细节，以及当运行SQL语句时哪种策略预计会被优化器采用。（QEP：sql生成一个执行计划query Execution plan）</p>
+<p><a href="javascript:void(0" target="_blank" rel="noopener"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from servers;</span><br><span class="line">+----+-------------+---------+------+---------------+------+---------+------+------+-------+</span><br><span class="line">| id | select_type | table   | type | possible_keys | key  | key_len | ref  | rows | Extra |</span><br><span class="line">+----+-------------+---------+------+---------------+------+---------+------+------+-------+</span><br><span class="line">|  1 | SIMPLE      | servers | ALL  | NULL          | NULL | NULL    | NULL |    1 | NULL  |</span><br><span class="line">+----+-------------+---------+------+---------------+------+---------+------+------+-------+</span><br><span class="line">1 row in set (0.03 sec)</span><br></pre></td></tr></table></figure>
+<p><a href="javascript:void(0" target="_blank" rel="noopener"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<p>expain出来的信息有10列，分别是id、select_type、table、type、possible_keys、key、key_len、ref、rows、Extra,下面对这些字段出现的可能进行解释：</p>
+<p>一、 <strong>id</strong></p>
+<p>​     <strong>我的理解是SQL执行的顺序的标识,SQL从大到小的执行</strong></p>
+<p>\1. id相同时，执行顺序由上至下</p>
+<p>\2. 如果是子查询，id的序号会递增，id值越大优先级越高，越先被执行</p>
+<p>3.id如果相同，可以认为是一组，从上往下顺序执行；在所有组中，id值越大，优先级越高，越先执行</p>
+<p><strong>二、select_type</strong></p>
+<p>​      <strong>示查询中每个select子句的类型</strong></p>
+<p>(1) SIMPLE(简单SELECT,不使用UNION或子查询等)</p>
+<p>(2) PRIMARY(查询中若包含任何复杂的子部分,最外层的select被标记为PRIMARY)</p>
+<p>(3) UNION(UNION中的第二个或后面的SELECT语句)</p>
+<p>(4) DEPENDENT UNION(UNION中的第二个或后面的SELECT语句，取决于外面的查询)</p>
+<p>(5) UNION RESULT(UNION的结果)</p>
+<p>(6) SUBQUERY(子查询中的第一个SELECT)</p>
+<p>(7) DEPENDENT SUBQUERY(子查询中的第一个SELECT，取决于外面的查询)</p>
+<p>(8) DERIVED(派生表的SELECT, FROM子句的子查询)</p>
+<p>(9) UNCACHEABLE SUBQUERY(一个子查询的结果不能被缓存，必须重新评估外链接的第一行)</p>
+<p><strong>三、table</strong></p>
+<p>显示这一行的数据是关于哪张表的，有时不是真实的表名字,看到的是derivedx(x是个数字,我的理解是第几步执行的结果)</p>
+<p><a href="javascript:void(0" target="_blank" rel="noopener"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from (select * from ( select * from t1 where id=2602) a) b;</span><br><span class="line">+----+-------------+------------+--------+-------------------+---------+---------+------+------+-------+</span><br><span class="line">| id | select_type | table      | type   | possible_keys     | key     | key_len | ref  | rows | Extra |</span><br><span class="line">+----+-------------+------------+--------+-------------------+---------+---------+------+------+-------+</span><br><span class="line">|  1 | PRIMARY     | &lt;derived2&gt; | system | NULL              | NULL    | NULL    | NULL |    1 |       |</span><br><span class="line">|  2 | DERIVED     | &lt;derived3&gt; | system | NULL              | NULL    | NULL    | NULL |    1 |       |</span><br><span class="line">|  3 | DERIVED     | t1         | const  | PRIMARY,idx_t1_id | PRIMARY | 4       |      |    1 |       |</span><br><span class="line">+----+-------------+------------+--------+-------------------+---------+---------+------+------+-------+</span><br></pre></td></tr></table></figure>
+<p><a href="javascript:void(0" target="_blank" rel="noopener"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<p><strong>四、type</strong></p>
+<p>表示MySQL在表中找到所需行的方式，又称“访问类型”。</p>
+<p>常用的类型有： <strong>ALL, index,  range, ref, eq_ref, const, system, NULL（从左到右，性能从差到好）</strong></p>
+<p>ALL：Full Table Scan， MySQL将遍历全表以找到匹配的行</p>
+<p>index: Full Index Scan，index与ALL区别为index类型只遍历索引树</p>
+<p>range:只检索给定范围的行，使用一个索引来选择行</p>
+<p>ref: 表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值</p>
+<p>eq_ref: 类似ref，区别就在使用的索引是唯一索引，对于每个索引键值，表中只有一条记录匹配，简单来说，就是多表连接中使用primary key或者 unique key作为关联条件</p>
+<p>const、system: 当MySQL对查询某部分进行优化，并转换为一个常量时，使用这些类型访问。如将主键置于where列表中，MySQL就能将该查询转换为一个常量,system是const类型的特例，当查询的表只有一行的情况下，使用system</p>
+<p>NULL: MySQL在优化过程中分解语句，执行时甚至不用访问表或索引，例如从一个索引列里选取最小值可以通过单独索引查找完成。</p>
+<p><strong>五、possible_keys</strong></p>
+<p><strong>指出MySQL能使用哪个索引在表中找到记录，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用</strong></p>
+<p>该列完全独立于EXPLAIN输出所示的表的次序。这意味着在possible_keys中的某些键实际上不能按生成的表次序使用。<br>如果该列是NULL，则没有相关的索引。在这种情况下，可以通过检查WHERE子句看是否它引用某些列或适合索引的列来提高你的查询性能。如果是这样，创造一个适当的索引并且再次用EXPLAIN检查查询</p>
+<p><strong>六、Key</strong></p>
+<p><strong>key列显示MySQL实际决定使用的键（索引）</strong></p>
+<p>如果没有选择索引，键是NULL。要想强制MySQL使用或忽视possible_keys列中的索引，在查询中使用FORCE INDEX、USE INDEX或者IGNORE INDEX。</p>
+<p><strong>七、key_len</strong></p>
+<p><strong>表示索引中使用的字节数，可通过该列计算查询中使用的索引的长度（key_len显示的值为索引字段的最大可能长度，并非实际使用长度，即key_len是根据表定义计算而得，不是通过表内检索出的）</strong></p>
+<p>不损失精确性的情况下，长度越短越好 </p>
+<p><strong>八、ref</strong></p>
+<p><strong>表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值</strong></p>
+<p><strong>九、rows</strong></p>
+<p> <strong>表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数</strong></p>
+<p><strong>十、Extra</strong></p>
+<p><strong>该列包含MySQL解决查询的详细信息,有以下几种情况：</strong></p>
+<p>Using where:列数据是从仅仅使用了索引中的信息而没有读取实际的行动的表返回的，这发生在对表的全部的请求列都是同一个索引的部分的时候，表示mysql服务器将在存储引擎检索行后再进行过滤</p>
+<p>Using temporary：表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询</p>
+<p>Using filesort：MySQL中无法利用索引完成的排序操作称为“文件排序”</p>
+<p>Using join buffer：改值强调了在获取连接条件时没有使用索引，并且需要连接缓冲区来存储中间结果。如果出现了这个值，那应该注意，根据查询的具体情况可能需要添加索引来改进能。</p>
+<p>Impossible where：这个值强调了where语句会导致没有符合条件的行。</p>
+<p>Select tables optimized away：这个值意味着仅通过使用索引，优化器可能仅从聚合函数结果中返回一行</p>
+<p><strong>总结：**</strong>• EXPLAIN不会告诉你关于触发器、存储过程的信息或用户自定义函数对查询的影响情况• EXPLAIN不考虑各种Cache• EXPLAIN不能显示MySQL在执行查询时所作的优化工作• 部分统计信息是估算的，并非精确值• EXPALIN只能解释SELECT操作，其他操作要重写为SELECT后查看执行计划。**</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/08/nginx解答/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/08/nginx解答/" itemprop="url">nginx解答</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-08T23:52:31+08:00">
+                2019-10-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h3><p>  正向代理是一个位于客户端和目标服务器之间的代理服务器(中间服务器)。为了从原始服务器取得内容，客户端向代理服务器发送一个请求，并且指定目标服务器，之后代理向目标服务器转交并且将获得的内容返回给客户端。正向代理的情况下客户端必须要进行一些特别的设置才能使用。</p>
+<p>  反向代理正好相反。对于客户端来说，反向代理就好像目标服务器。并且客户端不需要进行任何设置。客户端向反向代理发送请求，接着反向代理判断请求走向何处，并将请求转交给客户端，使得这些内容就好似他自己一样，一次客户端并不会感知到反向代理后面的服务，也因此不需要客户端做任何设置，只需要把反向代理服务器当成真正的服务器就好了。</p>
+<h3 id="2-区别"><a href="#2-区别" class="headerlink" title="2. 区别"></a>2. 区别</h3><p>  正向代理需要你主动设置代理服务器ip或者域名进行访问，由设置的服务器ip或者域名去获取访问内容并返回；而反向代理不需要你做任何设置，直接访问服务器真实ip或者域名，但是服务器内部会自动根据访问内容进行跳转及内容返回，你不知道它最终访问的是哪些机器。</p>
+<p>  正向代理是代理客户端，为客户端收发请求，使真实客户端对服务器不可见；而反向代理是代理服务器端，为服务器收发请求，使真实服务器对客户端不可见。</p>
+<p>2、安装tomcat2个,现在我们模拟的话服务器就采用tomcat来模拟。</p>
+<p>安装tomcat的过程就不介绍了，在<a href="http://blog.csdn.net/u013144287/article/details/78499485过程中有介绍，" target="_blank" rel="noopener">http://blog.csdn.net/u013144287/article/details/78499485过程中有介绍，</a><br>（1）创建一个tomcat目录mkdir -p /usr/local/tomcats<br>在此目录下安装两个tomcat如图所示：</p>
+<p>（2）修改tomcat2的端口号，vi ./tomcat2/conf/server.xml</p>
+<p><server port="8006" shutdown="SHUTDOWN"></server></p>
+<p><connector port="8081" protocol="HTTP/1.1" connectiontimeout="20000" redirectport="8443"></connector></p>
+<p><connector port="8010" protocol="AJP/1.3" redirectport="8443"><br>修改此3处端口号，分别在原来基础上加1，然后wq保存，启动两台tomcat</connector></p>
+<p>3、需求<br>nginx的安装可以参考<a href="http://blog.csdn.net/u013144287/article/details/78408001此篇文章" target="_blank" rel="noopener">http://blog.csdn.net/u013144287/article/details/78408001此篇文章</a><br>通过访问不同的域名访问运行在tomcat不同端口的服务器，中间使用nginx反向代理服务器<br>windows上访问需要修改hosts文件进行配置如下：<br>8080.zcinfo.com 访问运行8080端口的tomcat</p>
+<p>8082.zcinfo.com 访问运行8081端口的tomcat</p>
+<p>如图所示：hosts目录是：C:\Windows\System32\drivers\etc</p>
+<p>4、Nginx的配置<br>在Nginx的配置文件里面加入如下配置<br>   upstream tomcatserver1 {<br>    server 192.168.3.43:8080;<br>    }<br>    upstream tomcatserver2 {<br>    server 192.168.3.43:8082;<br>    }<br>   server {<br>        listen       80;<br>        server_name  8080.zcinfo.com;</p>
+<pre><code>    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    location / {
+        proxy_pass   http://tomcatserver1;
+        index  index.html index.htm;
+    }  
+}
+server {
+    listen       80;
+    server_name  8082.zcinfo.com;
+
+    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    location / {
+        proxy_pass   http://tomcatserver2;
+        index  index.html index.htm;
+    }
+}
+</code></pre><p>重启nginx<br>ps：如果在同一个域名下有多台服务器提供服务，此时需要nginx负载均衡。<br>5、测试</p>
+<p>至此恭喜您，nginx反向代理成功<br>二、负载均衡<br>1、什么是负载均衡？<br>负载均衡建立在现有网络结构之上，它提供了一种廉价有效透明的方法扩展网络设备和服务器的带宽、增加吞吐量、加强网络数据处理能力、提高网络的灵活性和可用性。</p>
+<p>负载均衡，英文名称为Load Balance，其意思就是分摊到多个操作单元上进行执行，例如Web服务器、FTP服务器、企业关键应用服务器和其它关键任务服务器等，从而共同完成工作任务。</p>
+<p>2、需求</p>
+<p>nginx作为负载均衡服务器，用户请求先到达nginx，再由nginx根据负载配置将请求转发至tomcat服务器。</p>
+<p>nginx负载均衡服务器：192.168.3.43</p>
+<p>tomcat1服务器：192.168.3.43:8080</p>
+<p>tomcat2服务器：192.168.3.43:8081</p>
+<p>3、nginx的配置</p>
+<p>  upstream tomcatserver1 {<br>    server 192.168.3.43:8080;<br>        server 192.168.3.43:8082; #多加了此台服务器<br> }<br>    upstream tomcatserver2 {<br>    server 192.168.3.43:8082;<br>    }<br>   server {<br>        listen       80;<br>        server_name  8080.zcinfo.com;</p>
+<pre><code>    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    location / {
+        proxy_pass   http://tomcatserver1;
+        index  index.html index.htm;
+    }  
+}
+server {
+    listen       80;
+    server_name  8082.zcinfo.com;
+
+    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    location / {
+        proxy_pass   http://tomcatserver2;
+        index  index.html index.htm;
+    }
+}
+</code></pre><p>如果两台服务器性能差不多这样设置重启nginx就行了，但是现在假如两台服务器性能不一样，还需要设置性能权重，让性能高服务器做更多事情。只需要加入weight=?就行了，如下：</p>
+<p>upstream tomcatserver1 {<br>    server 192.168.3.43:8080 weight=2;<br>        server 192.168.3.43:8082 weight=1;<br> }<br>    upstream tomcatserver2 {<br>    server 192.168.3.43:8082;<br>    }<br>   server {<br>        listen       80;<br>        server_name  8080.zcinfo.com;</p>
+<pre><code>    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    location / {
+        proxy_pass   http://tomcatserver1;
+        index  index.html index.htm;
+    }  
+}
+server {
+    listen       80;
+    server_name  8082.zcinfo.com;
+
+    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+
+    location / {
+        proxy_pass   http://tomcatserver2;
+        index  index.html index.htm;
+    }
+}
+</code></pre><p>重新启动nginx,会发现8080出现了两次，8082出现一次这样轮循。<br>ps:关于nginx负载均衡的一些参数介绍例子</p>
+<p>节点说明：<br>在http节点里添加:</p>
+<p>#定义负载均衡设备的 Ip及设备状态<br>upstream myServer {   </p>
+<pre><code>server 127.0.0.1:9090 down; 
+server 127.0.0.1:8080 weight=2; 
+server 127.0.0.1:6060; 
+server 127.0.0.1:7070 backup; 
+</code></pre><p>}</p>
+<p>在需要使用负载的Server节点下添加</p>
+<p>proxy_pass <a href="http://myServer" target="_blank" rel="noopener">http://myServer</a>;</p>
+<p>upstream 每个设备的状态:</p>
+<p>down 表示单前的server暂时不参与负载<br>weight  默认为1.weight越大，负载的权重就越大。<br>max_fails ：允许请求失败的次数默认为1.当超过最大次数时，返回proxy_next_upstream 模块定义的错误<br>fail_timeout:max_fails 次失败后，暂停的时间。<br>backup： 其它所有的非backup机器down或者忙的时候，请求backup机器。所以这台机器压力会最轻。</p>
+<p>4、效果</p>
+<p>————————————————<br>版权声明：本文为CSDN博主「演员赵诗绎」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/u013144287/article/details/78551398" target="_blank" rel="noopener">https://blog.csdn.net/u013144287/article/details/78551398</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/07/分布式锁实现对比/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/07/分布式锁实现对比/" itemprop="url">分布式锁实现对比</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-07T23:21:01+08:00">
+                2019-10-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  609
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="分布式情况下，怎么解决订单号生成不重复"><a href="#分布式情况下，怎么解决订单号生成不重复" class="headerlink" title="分布式情况下，怎么解决订单号生成不重复"></a>分布式情况下，怎么解决订单号生成不重复</h2><ol>
+<li>使用分布式锁</li>
+<li>提前生成好，订单号，存放在redis取。获取订单号，直接从redis中取。</li>
+</ol>
+<h2 id="使用分布式锁生成订单号技术"><a href="#使用分布式锁生成订单号技术" class="headerlink" title="使用分布式锁生成订单号技术"></a>使用分布式锁生成订单号技术</h2><p>1.使用数据库实现分布式锁</p>
+<p>缺点:性能差、线程出现异常时，容易出现死锁</p>
+<p>2.使用redis实现分布式锁</p>
+<p>缺点:锁的失效时间难控制、容易产生死锁、非阻塞式、不可重入</p>
+<p><strong>3.**</strong>使用zookeeper实现分布式锁**</p>
+<p><strong>实现相对简单、可靠性强、使用临时节点，失效时间容易控制</strong></p>
+<h2 id="什么是分布式锁"><a href="#什么是分布式锁" class="headerlink" title="什么是分布式锁"></a>什么是分布式锁</h2><p>分布式锁一般用在分布式系统或者多个应用中，用来控制同一任务是否执行或者任务的执行顺序。在项目中，部署了多个tomcat应用，在执行定时任务时就会遇到同一任务可能执行多次的情况，我们可以借助分布式锁，保证在同一时间只有一个tomcat应用执行了定时任务</p>
+<h2 id="使用Zookeeper实现分布式锁"><a href="#使用Zookeeper实现分布式锁" class="headerlink" title="使用Zookeeper实现分布式锁"></a>使用Zookeeper实现分布式锁</h2><h3 id="Zookeeper实现分布式锁原理"><a href="#Zookeeper实现分布式锁原理" class="headerlink" title="Zookeeper实现分布式锁原理"></a>Zookeeper实现分布式锁原理</h3><p>使用zookeeper创建临时序列节点来实现分布式锁，适用于顺序执行的程序，大体思路就是创建临时序列节点，找出最小的序列节点，获取分布式锁，程序执行完成之后此序列节点消失，通过watch来监控节点的变化，从剩下的节点的找到最小的序列节点，获取分布式锁，执行相应处理，依次类推……</p>
+<p>实现步骤:</p>
+<p>多个Jvm同时在Zookeeper上创建同一个相同的节点( /Lock)</p>
+<p>zk节点唯一的！ 不能重复！节点类型为临时节点， jvm1创建成功时候，jvm2和jvm3创建节点时候会报错，该节点已经存在。这时候 jvm2和jvm3进行等待。</p>
+<p> jvm1的程序现在执行完毕，执行释放锁。关闭当前会话。临时节点不复存在了并且事件通知Watcher，jvm2和jvm3继续创建。               </p>
+<p> ps：zk强制关闭时候，通知会有延迟。但是close（）方法关闭时候，延迟小</p>
+<p>  如果程序一直不处理完，可能导致思索（其他的一直等待）。设置有效期~ 直接close（）掉 其实连接也是有有效期设置的 大家可以找下相关资料看下哦</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/幂等性保证机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1586,604 +2242,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/03/缓存雪崩解决方案/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/03/缓存雪崩解决方案/" itemprop="url">缓存雪崩解决方案</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-03T11:36:38+08:00">
-                2019-10-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  681
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  2
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p> 相对来说，考虑的比较完善的一套方案，分为事前，事中，事后三个层次去思考怎么来应对缓存雪崩的场景</p>
-<p>1、事前解决方案</p>
-<p>发生缓存雪崩之前，事情之前，怎么去避免redis彻底挂掉</p>
-<p>redis本身的高可用性，复制，主从架构，操作主节点，读写，数据同步到从节点，一旦主节点挂掉，从节点跟上</p>
-<p>双机房部署，一套redis cluster，部分机器在一个机房，另一部分机器在另外一个机房</p>
-<p>还有一种部署方式，两套redis cluster，两套redis cluster之间做一个数据的同步，redis集群是可以搭建成树状的结构的</p>
-<p>一旦说单个机房出了故障，至少说另外一个机房还能有些redis实例提供服务</p>
-<p>2、事中解决方案</p>
-<p>redis cluster已经彻底崩溃了，已经开始大量的访问无法访问到redis了</p>
-<p>（1）ehcache本地缓存</p>
-<p>所做的多级缓存架构的作用上了，ehcache的缓存，应对零散的redis中数据被清除掉的现象，另外一个主要是预防redis彻底崩溃</p>
-<p>多台机器上部署的缓存服务实例的内存中，还有一套ehcache的缓存</p>
-<p>ehcache的缓存还能支撑一阵</p>
-<p>（2）对redis访问的资源隔离</p>
-<p>（3）对源服务访问的限流以及资源隔离</p>
-<p>3、事后解决方案</p>
-<p>（1）redis数据可以恢复，做了备份，redis数据备份和恢复，redis重新启动起来</p>
-<p>（2）redis数据彻底丢失了，或者数据过旧，快速缓存预热，redis重新启动起来</p>
-<p>redis对外提供服务</p>
-<p>缓存服务里，熔断策略，自动可以恢复，half-open，发现redis可以访问了，自动恢复了，自动就继续去访问redis了</p>
-<p>基于hystrix的高可用服务这块技术之后，先讲解缓存服务如何设计成高可用的架构</p>
-<p>缓存架构应对高并发下的缓存雪崩的解决方案，基于hystrix去做缓存服务的保护</p>
-<p>要带着大家去实现的有什么东西？事前和事后不用了吧</p>
-<p>事中，ehcache本身也做好了</p>
-<p>基于hystrix对redis的访问进行保护，对源服务的访问进行保护，讲解hystrix的时候，也说过对源服务的访问怎么怎么进行这种高可用的保护</p>
-<p>但是站的角度不同，源服务如果自己本身不知道什么原因出了故障，我们怎么去保护，调用商品服务的接口大量的报错、超时</p>
-<p>限流，资源隔离，降级</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/03/线程池学习及优化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/03/线程池学习及优化/" itemprop="url">线程池学习及优化</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-03T10:51:47+08:00">
-                2019-10-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.2k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="多线程并发"><a href="#多线程并发" class="headerlink" title="多线程并发"></a>多线程并发</h3><p>生产环境里面，一个是线程池的大小怎么设置，timeout时长怎么</p>
-<p>不合理的话，问题还是很大的</p>
-<p>在生产环境中部署一个短路器，一开始需要将一些关键配置设置的大一些，比如timeout超时时长，线程池大小，或信号量容量</p>
-<p>然后逐渐优化这些配置，直到在一个生产系统中运作良好</p>
-<p>（1）一开始先不要设置timeout超时时长，默认就是1000ms，也就是1s<br>（2）一开始也不要设置线程池大小，默认就是10<br>（3）直接部署hystrix到生产环境，如果运行的很良好，那么就让它这样运行好了<br>（4）让hystrix应用，24小时运行在生产环境中<br>（5）依赖标准的监控和报警机制来捕获到系统的异常运行情况<br>（6）在24小时之后，看一下调用延迟的占比，以及流量，来计算出让短路器生效的最小的配置数字<br>（7）直接对hystrix配置进行热修改，然后继续在hystrix dashboard上监控<br>（8）看看修改配置后的系统表现有没有改善</p>
-<p>下面是根据系统表现优化和调整线程池大小，队列大小，信号量容量，以及timeout超时时间的经验</p>
-<p>假设对一个依赖服务的高峰调用QPS是每秒30次</p>
-<p>一开始如果默认的线程池大小是10</p>
-<p>我们想的是，理想情况下，每秒的高峰访问次数 <em> 99%的访问延时 + buffer = 30 </em> 0.2 + 4 = 10线程，10个线程每秒处理30次访问应该足够了，每个线程处理3次访问</p>
-<p>此时，我们合理的timeout设置应该为300ms，也就是99.5%的访问延时，计算方法是，因为判断每次访问延时最多在250ms（TP99如果是200ms的话），再加一次重试时间50ms，就是300ms，感觉也应该足够了</p>
-<p>因为如果timeout设置的太多了，比如400ms，比如如果实际上，在高峰期，还有网络情况较差的时候，可能每次调用要耗费350ms，也就是达到了最长的访问时长</p>
-<p>那么每个线程处理2个请求，就会执行700ms，然后处理第三个请求的时候，就超过1秒钟了，此时会导致线程池全部被占满，都在处理请求</p>
-<p>这个时候下一秒的30个请求再进来了，那么就会导致线程池已满，拒绝请求的情况，就会调用fallback降级机制</p>
-<p>因此对于短路器来说，timeout超时一般应该设置成TP99.5，比如设置成300ms，那么可以确保说，10个线程，每个线程处理3个访问，每个访问最多就允许执行300ms，过时就timeout了</p>
-<p>这样才能保证说每个线程都在1s内执行完，才不会导致线程池被占满，然后后续的请求过来大量的reject</p>
-<p>对于线程池大小来说，一般应该控制在10个左右，20个以内，最少5个，不要太多，也不要太少</p>
-<p>大家可能会想，每秒的高峰访问次数是30次，如果是300次，甚至是3000次，30000次呢？？？</p>
-<p>30000 * 0.2 = 6000 + buffer = 6100，一个服务器内一个线程池给6000个线程把</p>
-<p>如果你一个依赖服务占据的线程数量太多的话，会导致其他的依赖服务对应的线程池里没有资源可以用了</p>
-<p>6000 / 20 = 300台虚拟机也是ok的</p>
-<p>虚拟机，4个cpu core，4G内存，虚拟机，300台</p>
-<p>物理机，十几个cpu core，几十个G的内存，5~8个虚拟机，300个虚拟机 = 50台物理机</p>
-<p>你要真的说是，你的公司服务的用户量，或者数据量，或者请求量，真要是到了每秒几万的QPS，</p>
-<p>3万QPS，60 * 3 = 180万访问量，1800，1亿8千，1亿，10个小时，10亿的访问量，app，系统</p>
-<p>几十台服务器去支撑，我觉得很正常</p>
-<p>QPS每秒在几千都算多的了</p>
-<h3 id="为什么要用线程池"><a href="#为什么要用线程池" class="headerlink" title="为什么要用线程池?"></a>为什么要用线程池?</h3><p>线程池提供了一种限制和管理资源（包括执行一个任务）。 每个线程池还维护一些基本统计信息，例如已完成任务 </p>
-<p>的数量。 </p>
-<p>这里借用《Java并发编程的艺术》提到的来说一下使用线程池的好处： </p>
-<ul>
-<li><p><strong>降低资源消耗。</strong> 通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 </p>
-</li>
-<li><p><strong>提高响应速度。</strong> 当任务到达时，任务可以不需要的等到线程创建就能立即执行。 </p>
-</li>
-<li><p><strong>提高线程的可管理性。</strong> 线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性， </p>
-</li>
-</ul>
-<p>使用线程池可以进行统一的分配，调优和监控。 </p>
-<h2 id="线程池的核心原理和实现方法，7大参数讲一下"><a href="#线程池的核心原理和实现方法，7大参数讲一下" class="headerlink" title="线程池的核心原理和实现方法，7大参数讲一下"></a>线程池的核心原理和实现方法，7大参数讲一下</h2><ol>
-<li>corePoolSize：表示核心线程池的大小。当提交一个任务时，如果当前核心线程池的线程个数没有达到corePoolSize，则会创建新的线程来执行所提交的任务，<strong>即使当前核心线程池有空闲的线程</strong>。如果当前核心线程池的线程个数已经达到了corePoolSize，则不再重新创建线程。如果调用了prestartCoreThread()或者 prestartAllCoreThreads()，线程池创建的时候所有的核心线程都会被创建并且启动。</li>
-<li>maximumPoolSize：表示线程池能创建线程的最大个数。如果当阻塞队列已满时，并且当前线程池线程个数没有超过maximumPoolSize的话，就会创建新的线程来执行任务。</li>
-<li>keepAliveTime：空闲线程存活时间。如果当前线程池的线程个数已经超过了corePoolSize，并且线程空闲时间超过了keepAliveTime的话，就会将这些空闲线程销毁，这样可以尽可能降低系统资源消耗。</li>
-<li>unit：时间单位。为keepAliveTime指定时间单位。</li>
-<li>workQueue：阻塞队列。用于保存任务的阻塞队列，关于阻塞队列可以看这篇文章。可以使用ArrayBlockingQueue, LinkedBlockingQueue, SynchronousQueue, PriorityBlockingQueue。</li>
-<li>threadFactory：创建线程的工程类。可以通过指定线程工厂为每个创建出来的线程设置更有意义的名字，如果出现并发问题，也方便查找问题原因。</li>
-<li>handler：饱和策略。当线程池的阻塞队列已满和指定的线程都已经开启，说明当前线程池已经处于饱和状态了，那么就需要采用一种策略来处理这种情况。采用的策略有这几种：</li>
-</ol>
-<p>AbortPolicy： 直接拒绝所提交的任务，并抛出RejectedExecutionException异常；<br>CallerRunsPolicy：只用调用者所在的线程来执行任务；<br>DiscardPolicy：不处理直接丢弃掉任务；<br>DiscardOldestPolicy：丢弃掉阻塞队列中存放时间最久的任务，执行当前任务</p>
-<h1 id="4-线程池的关闭"><a href="#4-线程池的关闭" class="headerlink" title="4. 线程池的关闭"></a>4. 线程池的关闭</h1><p>关闭线程池，可以通过<code>shutdown</code>和<code>shutdownNow</code>这两个方法。它们的原理都是遍历线程池中所有的线程，然后依次中断线程。<code>shutdown</code>和<code>shutdownNow</code>还是有不一样的地方：</p>
-<ol>
-<li><code>shutdownNow</code>首先将线程池的状态设置为<strong>STOP</strong>,然后尝试<strong>停止所有的正在执行和未执行任务</strong>的线程，并返回等待执行任务的列表；</li>
-<li><code>shutdown</code>只是将线程池的状态设置为<strong>SHUTDOWN</strong>状态，然后中断所有没有正在执行任务的线程</li>
-</ol>
-<p>可以看出shutdown方法会将正在执行的任务继续执行完，而shutdownNow会直接中断正在执行的任务。调用了这两个方法的任意一个，<code>isShutdown</code>方法都会返回true，当所有的线程都关闭成功，才表示线程池成功关闭，这时调用<code>isTerminated</code>方法才会返回true。</p>
-<p>作者：你听___<br>链接：<a href="https://juejin.im/post/5aeec0106fb9a07ab379574f" target="_blank" rel="noopener">https://juejin.im/post/5aeec0106fb9a07ab379574f</a><br>来源：掘金<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><ol>
-<li><p>线程池判断核心线程池是否都在执行任务。如果不是，则创建一个新的工作线程执行任务，如果都在执行任务，则进入下一个流程</p>
-</li>
-<li><p>线程池判断工作队列是否已经满了，如果不是，则将新提交的任务存储在这个工作队列中。如果工作队列满了，则进入下一个流程。</p>
-</li>
-<li><p>线程池判断线程池中的线程是否都处于工作状态，如果没有，则创建一个新的工作线程来执行任务，如果满了，则交给饱和策略来处理这个任务。</p>
-</li>
-</ol>
-<p>提交线程有execute和submit方法，execute方法用于没有返回值的任务，submit处理有返回的callable</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/03/zookeeper分布式锁/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/03/zookeeper分布式锁/" itemprop="url">zookeeper分布式锁</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-03T00:56:25+08:00">
-                2019-10-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.6k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  10
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="缓存重建问题及解决"><a href="#缓存重建问题及解决" class="headerlink" title="缓存重建问题及解决"></a>缓存重建问题及解决</h3><p>整个三级缓存的架构已经走通了</p>
-<p>我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了</p>
-<p>这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中</p>
-<p>分布式重建缓存的并发冲突问题</p>
-<p><strong>重建缓存：比如我们这里，数据在所有的缓存中都不存在了（LRU算法弄掉了），就需要重新查询数据写入缓存，重建缓存分布式的重建缓存，在不同的机器上，不同的服务实例中，去做上面的事情，就会出现多个机器分布式重建去读取相同的数据，然后写入缓存中</strong></p>
-<p>分布式重建缓存的并发冲突问题。。。。。。</p>
-<p>1、流量均匀分布到所有缓存服务实例上</p>
-<p>应用层nginx，是将请求流量均匀地打到各个缓存服务实例中的，可能咱们的eshop-cache那个服务，可能会部署多实例在不同的机器上</p>
-<p>2、应用层nginx的hash，固定商品id，走固定的缓存服务实例</p>
-<p>分发层的nginx的lua脚本，是怎么写的，怎么玩儿的，搞一堆应用层nginx的地址列表，对每个商品id做一个hash，然后对应用nginx数量取模</p>
-<p>将每个商品的请求固定分发到同一个应用层nginx上面去</p>
-<p>在应用层nginx里，发现自己本地lua shared dict缓存中没有数据的时候，就采取一样的方式，对product id取模，然后将请求固定分发到同一个缓存服务实例中去</p>
-<p>这样的话，就不会出现说多个缓存服务实例分布式的去更新那个缓存了</p>
-<p>留个作业，大家去做吧，这个东西，之前已经讲解果了，lua脚本几乎都是一模一样的，我们就不去做了，节省点时间</p>
-<p>3、源信息服务发送的变更消息，需要按照商品id去分区，固定的商品变更走固定的kafka分区，也就是固定的一个缓存服务实例获取到</p>
-<p>缓存服务，是监听kafka topic的，一个缓存服务实例，作为一个kafka consumer，就消费topic中的一个partition</p>
-<p>所以你有多个缓存服务实例的话，每个缓存服务实例就消费一个kafka partition</p>
-<p>所以这里，一般来说，你的源头信息服务，在发送消息到kafka topic的时候，都需要按照product id去分区</p>
-<p>也就时说，同一个product id变更的消息一定是到同一个kafka partition中去的，也就是说同一个product id的变更消息，一定是同一个缓存服务实例消费到的</p>
-<p>我们也不去做了，其实很简单，kafka producer api，里面send message的时候，多加一个参数就可以了，product id传递进去，就可以了</p>
-<p>4、问题是，自己写的简易的hash分发，与kafka的分区，可能并不一致！！！</p>
-<p>我们自己写的简易的hash分发策略，是按照crc32去取hash值，然后再取模的</p>
-<p>关键你又不知道你的kafka producer的hash策略是什么，很可能说跟我们的策略是不一样的</p>
-<p>拿就可能导致说，数据变更的消息所到的缓存服务实例，跟我们的应用层nginx分发到的那个缓存服务实例也许就不在一台机器上了</p>
-<p>这样的话，在高并发，极端的情况下，可能就会出现冲突</p>
-<p>5、分布式的缓存重建并发冲突问题发生了。。。</p>
-<p>6、基于zookeeper分布式锁的解决方案</p>
-<p><strong>分布式锁，如果你有多个机器在访问同一个共享资源，那么这个时候，如果你需要加个锁，让多个分布式的机器在访问共享资源的时候串行起来</strong></p>
-<p>那么这个时候，那个锁，多个不同机器上的服务共享的锁，就是分布式锁</p>
-<p>分布式锁当然有很多种不同的实现方案，redis分布式锁，zookeeper分布式锁</p>
-<p>zk，做分布式协调这一块，还是很流行的，大数据应用里面，hadoop，storm，都是基于zk去做分布式协调</p>
-<p>zk分布式锁的解决并发冲突的方案</p>
-<p>（1）变更缓存重建以及空缓存请求重建，更新redis之前，都需要先获取对应商品id的分布式锁<br>（2）拿到分布式锁之后，需要根据时间版本去比较一下，如果自己的版本新于redis中的版本，那么就更新，否则就不更新<br>（3）如果拿不到分布式锁，那么就等待，不断轮询等待，直到自己获取到分布式的锁</p>
-<h3 id="分布锁实现一"><a href="#分布锁实现一" class="headerlink" title="分布锁实现一"></a>分布锁实现一</h3><p>zk分布式锁的代码封装</p>
-<p>zookeeper java client api去封装连接zk，以及获取分布式锁，还有释放分布式锁的代码</p>
-<p>先简单介绍一下zk分布式锁的原理</p>
-<p>我们通过去创建zk的一个临时node，来模拟给摸一个商品id加锁</p>
-<p>zk会给你保证说，只会创建一个临时node，其他请求过来如果再要创建临时node，就会报错，NodeExistsException</p>
-<p>那么所以说，我们的所谓上锁，其实就是去创建某个product id对应的一个临时node</p>
-<p>如果临时node创建成功了，那么说明我们成功加锁了，此时就可以去执行对redis立面数据的操作</p>
-<p>如果临时node创建失败了，说明有人已经在拿到锁了，在操作reids中的数据，那么就不断的等待，直到自己可以获取到锁为止</p>
-<p>基于zk client api，去封装上面的这个代码逻辑</p>
-<p>释放一个分布式锁，去删除掉那个临时node就可以了，就代表释放了一个锁，那么此时其他的机器就可以成功创建临时node，获取到锁</p>
-<p>即使是用zk去实现一个分布式锁，也有很多种做法，有复杂的，也有简单的</p>
-<p>应该说，我演示的这种分布式锁的做法，是非常简单的一种，但是很实用，大部分情况下，用这种简单的分布式锁都能搞定</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">连接zookeeper客户端实例代码逻辑：</span><br><span class="line">使用countdownlauch来控制多线程的并发。</span><br><span class="line">CountDownLatch connectedSemaphore = new CountDownLatch(1);</span><br><span class="line">zookeeper在连接客户端的时候，是一个异步的过程，在连接的下一步中通过connectedSemaphore.await()阻塞线程。封装一个监听器，监听zookeeper连接，当连接成功的时候，connectedSemaphore.countdown(),释放线程。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分布式加锁封装逻辑：</span><br><span class="line">通过商品id创建一个zookeeper临时节点，如果创建失败，说明此时有人已经创建了。会抛出异常，那么在catch中进入死循环，不断的尝试创建临时节点，直到创建成功，跳出死循环。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">分布式释放锁的逻辑：</span><br><span class="line">释放一个分布式锁，只要删除这个商品id创建的临时节点就可以。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.4.5&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * ZooKeeperSession</span><br><span class="line"> * @author Administrator</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">public class ZooKeeperSession &#123;</span><br><span class="line">	</span><br><span class="line">	private static CountDownLatch connectedSemaphore = new CountDownLatch(1);</span><br><span class="line">	</span><br><span class="line">	private ZooKeeper zookeeper;</span><br><span class="line"></span><br><span class="line">	public ZooKeeperSession() &#123;</span><br><span class="line">		// 去连接zookeeper server，创建会话的时候，是异步去进行的</span><br><span class="line">		// 所以要给一个监听器，说告诉我们什么时候才是真正完成了跟zk server的连接</span><br><span class="line">		try &#123;</span><br><span class="line">			this.zookeeper = new ZooKeeper(</span><br><span class="line">					&quot;192.168.31.187:2181,192.168.31.19:2181,192.168.31.227:2181&quot;, </span><br><span class="line">					50000, </span><br><span class="line">					new ZooKeeperWatcher());</span><br><span class="line">			// 给一个状态CONNECTING，连接中</span><br><span class="line">			System.out.println(zookeeper.getState());</span><br><span class="line">			</span><br><span class="line">			try &#123;</span><br><span class="line">				// CountDownLatch</span><br><span class="line">				// java多线程并发同步的一个工具类</span><br><span class="line">				// 会传递进去一些数字，比如说1,2 ，3 都可以</span><br><span class="line">				// 然后await()，如果数字不是0，那么久卡住，等待</span><br><span class="line">				</span><br><span class="line">				// 其他的线程可以调用coutnDown()，减1</span><br><span class="line">				// 如果数字减到0，那么之前所有在await的线程，都会逃出阻塞的状态</span><br><span class="line">				// 继续向下运行</span><br><span class="line">				</span><br><span class="line">				connectedSemaphore.await();</span><br><span class="line">			&#125; catch(InterruptedException e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">	</span><br><span class="line">			System.out.println(&quot;ZooKeeper session established......&quot;);</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取分布式锁</span><br><span class="line">	 * @param productId</span><br><span class="line">	 */</span><br><span class="line">	public void acquireDistributedLock(Long productId) &#123;</span><br><span class="line">		String path = &quot;/product-lock-&quot; + productId;</span><br><span class="line">	</span><br><span class="line">		try &#123;</span><br><span class="line">			zookeeper.create(path, &quot;&quot;.getBytes(), </span><br><span class="line">					Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">			System.out.println(&quot;success to acquire lock for product[id=&quot; + productId + &quot;]&quot;);  </span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			// 如果那个商品对应的锁的node，已经存在了，就是已经被别人加锁了，那么就这里就会报错</span><br><span class="line">			// NodeExistsException</span><br><span class="line">			int count = 0;</span><br><span class="line">			while(true) &#123;</span><br><span class="line">				try &#123;</span><br><span class="line">					Thread.sleep(20); </span><br><span class="line">					zookeeper.create(path, &quot;&quot;.getBytes(), </span><br><span class="line">							Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);</span><br><span class="line">				&#125; catch (Exception e2) &#123;</span><br><span class="line">					e2.printStackTrace();</span><br><span class="line">					count++;</span><br><span class="line">					continue;</span><br><span class="line">				&#125;</span><br><span class="line">				System.out.println(&quot;success to acquire lock for product[id=&quot; + productId + &quot;] after &quot; + count + &quot; times try......&quot;);</span><br><span class="line">				break;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 释放掉一个分布式锁</span><br><span class="line">	 * @param productId</span><br><span class="line">	 */</span><br><span class="line">	public void releaseDistributedLock(Long productId) &#123;</span><br><span class="line">		String path = &quot;/product-lock-&quot; + productId;</span><br><span class="line">		try &#123;</span><br><span class="line">			zookeeper.delete(path, -1); </span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 建立zk session的watcher</span><br><span class="line">	 * @author Administrator</span><br><span class="line">	 *</span><br><span class="line">	 */</span><br><span class="line">	private class ZooKeeperWatcher implements Watcher &#123;</span><br><span class="line"></span><br><span class="line">		public void process(WatchedEvent event) &#123;</span><br><span class="line">			System.out.println(&quot;Receive watched event: &quot; + event.getState());</span><br><span class="line">			if(KeeperState.SyncConnected == event.getState()) &#123;</span><br><span class="line">				connectedSemaphore.countDown();</span><br><span class="line">			&#125; </span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 封装单例的静态内部类</span><br><span class="line">	 * @author Administrator</span><br><span class="line">	 *</span><br><span class="line">	 */</span><br><span class="line">	private static class Singleton &#123;</span><br><span class="line">		</span><br><span class="line">		private static ZooKeeperSession instance;</span><br><span class="line">		</span><br><span class="line">		static &#123;</span><br><span class="line">			instance = new ZooKeeperSession();</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		public static ZooKeeperSession getInstance() &#123;</span><br><span class="line">			return instance;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 获取单例</span><br><span class="line">	 * @return</span><br><span class="line">	 */</span><br><span class="line">	public static ZooKeeperSession getInstance() &#123;</span><br><span class="line">		return Singleton.getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	/**</span><br><span class="line">	 * 初始化单例的便捷方法</span><br><span class="line">	 */</span><br><span class="line">	public static void init() &#123;</span><br><span class="line">		getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="获取分布式锁写缓存的业务逻辑"><a href="#获取分布式锁写缓存的业务逻辑" class="headerlink" title="获取分布式锁写缓存的业务逻辑"></a>获取分布式锁写缓存的业务逻辑</h3><p>业务代码</p>
-<p>1、主动更新</p>
-<p>监听kafka消息队列，获取到一个商品变更的消息之后，去哪个源服务中调用接口拉取数据，更新到ehcache和redis中</p>
-<p>先获取分布式锁，然后才能更新redis，同时更新时要比较时间版本</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">先获取分布式锁，从redis中拿取相同key的商品id的缓存数据，比较时间版本，如果时间更新，则覆盖缓存，反之，不更新缓存。</span><br></pre></td></tr></table></figure>
-<p>2、被动重建 </p>
-<p>直接读取源头数据，直接返回给nginx，同时推送一条消息到一个队列，后台线程异步消费</p>
-<p>后台现成负责先获取分布式锁，然后才能更新redis，同时要比较时间版本</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2236,7 +2294,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">50</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2258,7 +2316,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2332,7 +2390,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共92.8k字</span>
+  <span class="post-count">博客全站共98.2k字</span>
 </div>
 
         

@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="缓存重建问题及解决整个三级缓存的架构已经走通了 我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了 这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中 分布式重建缓存的并发冲突问题 重建缓存：比如我们这里，数据在所有的缓存中都不存在了（LRU算法弄掉了），就需要重新查">
+<meta name="description" content="一、什么是分布式锁？要介绍分布式锁，首先要提到与分布式锁相对应的是线程锁、进程锁。 线程锁：主要用来给方法、代码块加锁。当某个方法或代码使用锁，在同一时刻仅有一个线程执行该方法或该代码段。线程锁只在同一JVM中有效果，因为线程锁的实现在根本上是依靠线程之间共享内存实现的，比如synchronized是共享对象头，显示锁Lock是共享某个变量（state）。 进程锁：为了控制同一操作系统中多个进程访">
 <meta name="keywords" content="项目">
 <meta property="og:type" content="article">
 <meta property="og:title" content="zookeeper分布式锁">
 <meta property="og:url" content="http://yoursite.com/2019/10/03/zookeeper分布式锁/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="缓存重建问题及解决整个三级缓存的架构已经走通了 我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了 这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中 分布式重建缓存的并发冲突问题 重建缓存：比如我们这里，数据在所有的缓存中都不存在了（LRU算法弄掉了），就需要重新查">
+<meta property="og:description" content="一、什么是分布式锁？要介绍分布式锁，首先要提到与分布式锁相对应的是线程锁、进程锁。 线程锁：主要用来给方法、代码块加锁。当某个方法或代码使用锁，在同一时刻仅有一个线程执行该方法或该代码段。线程锁只在同一JVM中有效果，因为线程锁的实现在根本上是依靠线程之间共享内存实现的，比如synchronized是共享对象头，显示锁Lock是共享某个变量（state）。 进程锁：为了控制同一操作系统中多个进程访">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-03T02:12:59.129Z">
+<meta property="og:updated_time" content="2019-10-08T08:02:37.450Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zookeeper分布式锁">
-<meta name="twitter:description" content="缓存重建问题及解决整个三级缓存的架构已经走通了 我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了 这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中 分布式重建缓存的并发冲突问题 重建缓存：比如我们这里，数据在所有的缓存中都不存在了（LRU算法弄掉了），就需要重新查">
+<meta name="twitter:description" content="一、什么是分布式锁？要介绍分布式锁，首先要提到与分布式锁相对应的是线程锁、进程锁。 线程锁：主要用来给方法、代码块加锁。当某个方法或代码使用锁，在同一时刻仅有一个线程执行该方法或该代码段。线程锁只在同一JVM中有效果，因为线程锁的实现在根本上是依靠线程之间共享内存实现的，比如synchronized是共享对象头，显示锁Lock是共享某个变量（state）。 进程锁：为了控制同一操作系统中多个进程访">
 
 
 
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2.6k
+                  3.1k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  10
+                  11
                 </span>
               
             </div>
@@ -388,7 +388,15 @@
       
 
       
-        <h3 id="缓存重建问题及解决"><a href="#缓存重建问题及解决" class="headerlink" title="缓存重建问题及解决"></a>缓存重建问题及解决</h3><p>整个三级缓存的架构已经走通了</p>
+        <h2 id="一、什么是分布式锁？"><a href="#一、什么是分布式锁？" class="headerlink" title="一、什么是分布式锁？"></a>一、什么是分布式锁？</h2><p>要介绍分布式锁，首先要提到与分布式锁相对应的是线程锁、进程锁。</p>
+<p>线程锁：主要用来给方法、代码块加锁。当某个方法或代码使用锁，在同一时刻仅有一个线程执行该方法或该代码段。线程锁只在同一JVM中有效果，因为线程锁的实现在根本上是依靠线程之间共享内存实现的，比如synchronized是共享对象头，显示锁Lock是共享某个变量（state）。</p>
+<p>进程锁：为了控制同一操作系统中多个进程访问某个共享资源，因为进程具有独立性，各个进程无法访问其他进程的资源，因此无法通过synchronized等线程锁实现进程锁。</p>
+<p>分布式锁：当多个进程不在同一个系统中，用分布式锁控制多个进程对资源的访问。</p>
+<h2 id="二、分布式锁的使用场景。"><a href="#二、分布式锁的使用场景。" class="headerlink" title="二、分布式锁的使用场景。"></a>二、分布式锁的使用场景。</h2><p>线程间并发问题和进程间并发问题都是可以通过分布式锁解决的，但是强烈不建议这样做！因为采用分布式锁解决这些小问题是非常消耗资源的！分布式锁应该用来解决分布式情况下的多进程并发问题才是最合适的。</p>
+<p>有这样一个情境，线程A和线程B都共享某个变量X。</p>
+<p>如果是单机情况下（单JVM），线程之间共享内存，只要使用线程锁就可以解决并发问题。</p>
+<p>如果是分布式情况下（多JVM），线程A和线程B很可能不是在同一JVM中，这样线程锁就无法起到作用了，这时候就要用到分布式锁来解决。</p>
+<h3 id="缓存重建问题及解决"><a href="#缓存重建问题及解决" class="headerlink" title="缓存重建问题及解决"></a>缓存重建问题及解决</h3><p>整个三级缓存的架构已经走通了</p>
 <p>我们还遇到一个问题，就是说，如果缓存服务在本地的ehcache中都读取不到数据，那就恩坑爹了</p>
 <p>这个时候就意味着，需要重新到源头的服务中去拉去数据，拉取到数据之后，赶紧先给nginx的请求返回，同时将数据写入ehcache和redis中</p>
 <p>分布式重建缓存的并发冲突问题</p>
@@ -566,7 +574,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">50</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -588,7 +596,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -621,7 +629,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存重建问题及解决"><span class="nav-number">1.</span> <span class="nav-text">缓存重建问题及解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布锁实现一"><span class="nav-number">2.</span> <span class="nav-text">分布锁实现一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取分布式锁写缓存的业务逻辑"><span class="nav-number">3.</span> <span class="nav-text">获取分布式锁写缓存的业务逻辑</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、什么是分布式锁？"><span class="nav-number">1.</span> <span class="nav-text">一、什么是分布式锁？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、分布式锁的使用场景。"><span class="nav-number">2.</span> <span class="nav-text">二、分布式锁的使用场景。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存重建问题及解决"><span class="nav-number">2.1.</span> <span class="nav-text">缓存重建问题及解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布锁实现一"><span class="nav-number">2.2.</span> <span class="nav-text">分布锁实现一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取分布式锁写缓存的业务逻辑"><span class="nav-number">2.3.</span> <span class="nav-text">获取分布式锁写缓存的业务逻辑</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -678,7 +686,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共92.8k字</span>
+  <span class="post-count">博客全站共98.2k字</span>
 </div>
 
         
