@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
 <meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
 <meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
-<meta property="og:updated_time" content="2019-10-09T02:18:30.478Z">
+<meta property="og:updated_time" content="2019-10-09T15:03:30.795Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql慢查询配置">
 <meta name="twitter:description" content="第一步.开启 MySQL 慢查询方式一、修改配置文件Windows：配置文件为 my.ini，一般在 MySQL 安装目录下或者 c:\Windows 下。Linux：配置文件为 my.cnf ，一般在 /etc 下。在 my.ini 增加下面代码: 12345678910[mysqld]  long_query_time=2  #5.5以前版本配置如下选项  log-slow-queries=&quot;">
@@ -474,7 +474,7 @@
 <p>Using join buffer：改值强调了在获取连接条件时没有使用索引，并且需要连接缓冲区来存储中间结果。如果出现了这个值，那应该注意，根据查询的具体情况可能需要添加索引来改进能。</p>
 <p>Impossible where：这个值强调了where语句会导致没有符合条件的行。</p>
 <p>Select tables optimized away：这个值意味着仅通过使用索引，优化器可能仅从聚合函数结果中返回一行</p>
-<p><strong>总结：**</strong>• EXPLAIN不会告诉你关于触发器、存储过程的信息或用户自定义函数对查询的影响情况• EXPLAIN不考虑各种Cache• EXPLAIN不能显示MySQL在执行查询时所作的优化工作• 部分统计信息是估算的，并非精确值• EXPALIN只能解释SELECT操作，其他操作要重写为SELECT后查看执行计划。**</p>
+<p><strong>总结： EXPLAIN不会告诉你关于触发器、存储过程的信息或用户自定义函数对查询的影响情况• EXPLAIN不考虑各种Cache• EXPLAIN不能显示MySQL在执行查询时所作的优化工作• 部分统计信息是估算的，并非精确值• EXPALIN只能解释SELECT操作，其他操作要重写为SELECT后查看执行计划。</strong></p>
 
       
     </div>
@@ -514,6 +514,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/10/简历坑/" rel="prev" title="简历坑">
+                简历坑 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -592,7 +596,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">50</span>
+                  <span class="site-state-item-count">51</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -704,7 +708,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共98.2k字</span>
+  <span class="post-count">博客全站共100.8k字</span>
 </div>
 
         
