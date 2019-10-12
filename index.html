@@ -281,6 +281,391 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/12/redis主从复制详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/12/redis主从复制详解/" itemprop="url">redis主从复制详解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-12T23:18:29+08:00">
+                2019-10-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  3.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  10
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="旧版复制功能的实现"><a href="#旧版复制功能的实现" class="headerlink" title="旧版复制功能的实现"></a>旧版复制功能的实现</h3><p>Redis的复制功能分为同步（sync）和命令传播（command propagate）两个操作：</p>
+<ul>
+<li>同步操作用于将从服务器的数据库状态更新至主服务器当前所处的数据库状态；</li>
+<li>命令传播操作则用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态。</li>
+</ul>
+<h4 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h4><p>当客户端向从服务器发送SLAVEOF命令，要求从服务器复制主服务器时，从服务器首先需要执行同步操作，也即是，将从服务器的数据库状态更新至主服务器当前所处的数据库状态。</p>
+<p>从服务器对主服务器的同步操作需要通过向主服务器发送SYNC命令来完成，以下是SYNC命令的执行步骤：</p>
+<ol>
+<li>从服务器向主服务器发送SYNC命令；</li>
+<li>收到SYNC命令的主服务器执行BGSAVE命令，在后台生成一个RDB文件，并使用一个缓冲区记录从现在开始执行的所有写命令；</li>
+<li>当主服务器的BGSAVE命令执行完毕时，主服务器会将BGSAVE命令生成的RDB文件发送给从服务器，从服务器接收并载入这个RDB文件，将自己的数据库状态更新至主服务器<strong>执行BGSAVE命令时的数据库状态</strong>。</li>
+<li>主服务器将记录在缓冲区里面的所有写命令发送给从服务器，<strong>从服务器执行这些写命令</strong>，将自己的数据库状态更新至主服务器数据库当前所处的状态。</li>
+</ol>
+<h4 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h4><p>在执行完同步操作之后，主从服务器之间数据库状态已经相同了。但这个状态并非一成不变，如果主服务器执行了写操作，那么主服务器的数据库状态就会修改，并导致主从服务器状态不再一致。</p>
+<p>所以为了让主从服务器再次回到一致状态，主服务器需要对从服务器执行命令传播操作：主服务器会将自己执行的写命令，也即是造成主从服务器不一致的那条写命令，发送给从服务器执行，当从服务器执行了相同的写命令之后，主从服务器将再次回到一致状态。</p>
+<h3 id="旧版复制功能的缺陷"><a href="#旧版复制功能的缺陷" class="headerlink" title="旧版复制功能的缺陷"></a>旧版复制功能的缺陷</h3><p>在Redis中，从服务器对主服务器的复制可以分为以下两种情况：</p>
+<ul>
+<li>初次复制：从服务器以前没有复制过任何主服务器，或者从服务器当前要复制的主服务器和上一次复制的主服务器不同；</li>
+<li>断线后重复制：处于命令传播阶段的主从服务器因为网络原因而中断了复制，但从服务器通过自动重连接重新连上了主服务器，并继续复制主服务器。</li>
+</ul>
+<p>对于初次复制来说，旧版复制功能能够很好地完成任务，但对于断线后重复制来说，旧版复制功能虽然也能让主从服务器重新回到一致状态，但效率却非常低。</p>
+<p>我们给出一个例子进行说明：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/071952224558416.png" alt="img"></p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/071952474555112.png" alt="img"></p>
+<p>从服务器终于重新连接上主服务器，因为这时主从服务器的状态已经不再一致，所以从服务器将向主服务器发送SYNC命令，而主服务器会将包含键k1至键k10089的RDB文件发送给从服务器，从服务器通过接收和载入这个RDB文件来将自己的数据库更新至主服务器数据库当前所处的状态。</p>
+<p>上面给出的例子可能有一点理想化，因为在主从服务器断线期间，主服务器执行的写命令可能会有成百上千个之多，而不仅仅是两三个写命令。但总的来说，主从服务器断开的时间越短，主服务器在断线期间执行的写命令就越少，而执行少量写命令所产生的数据量通常比整个数据库的数据量要少得多，在这种情况下，为了让从服务器补足一小部分缺失的数据，却要让主从服务器重新执行一次SYNC命令，这种做法无疑是非常低效的。</p>
+<h4 id="SYNC命令是一个非常耗费资源的操作"><a href="#SYNC命令是一个非常耗费资源的操作" class="headerlink" title="SYNC命令是一个非常耗费资源的操作"></a>SYNC命令是一个非常耗费资源的操作</h4><p>SYNC命令是非常消耗资源的，因为每次执行SYNC命令，主从服务器需要执行一下操作：</p>
+<ol>
+<li>主服务器需要执行BGSAVE命令来生成RDB文件，这个生成操作会耗费主服务器大量的CPU、内存和磁盘I/O资源；</li>
+<li>主服务器需要将自己生成的RDB文件发送给从服务器，这个发送操作会耗费主从服务器大量的网络资源（带宽和流量），并对主服务器响应命令请求的时间产生影响；</li>
+<li>接收到RDB文件的从服务器需要载入主服务器发来的RDB文件，并且在载入期间，从<strong>服务器会因为阻塞而没办法处理命令请求</strong>。</li>
+</ol>
+<p>SYNC是一个如此消耗资源的命令，所以Redis最好在真需要的时候才需要执行SYNC命令。</p>
+<h3 id="新版复制功能的实现"><a href="#新版复制功能的实现" class="headerlink" title="新版复制功能的实现"></a>新版复制功能的实现</h3><p>为了解决旧版复制功能在处理断线重复制情况时的低效问题，Redis从2.8版本开始，使用<strong>PSYNC</strong>命令代替SYNC命令来执行复制时的同步操作。</p>
+<p>PSYNC命令具有完整重同步（full resynchronization）和部分重同步（partial resynchronization）两种模式：</p>
+<ul>
+<li>其中完整重同步用于处理初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，它们都是通过让主服务器创建并发送RDB文件，以及向从服务器发送保存在缓冲区里面的写命令来进行同步；</li>
+<li>而部分重同步则用于处理断线后重复制情况：当从服务器在断线后重新连接主服务器时，<strong>如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</strong></li>
+</ul>
+<p>我们现在试举一例来看看使用PSYNC处理断线后情况：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072019234716554.png" alt="img"></p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072018554554146.png" alt="img"></p>
+<p>下图展示了主从服务器在执行部分重同步时的通信过程。</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072022256438933.png" alt="img"></p>
+<p>其实看到这里的时候心里还是有一个疑问的：如果上面的例子是T3时候从服务器掉线，然后在T10093的时候才连接上或者更长的时间呢！！！你这样一条指令一条指令地传输过去还不如直接来一个SYNC命令快一些。所以在我看来使用PSYNC进行操作时，什么时候部分重同步，什么时候全部重同步是一个策略问题。当然Redis会解决这个问题，所以大家继续看0_0</p>
+<h3 id="部分重同步的实现"><a href="#部分重同步的实现" class="headerlink" title="部分重同步的实现"></a><strong>部分重同步的实现</strong></h3><p>部分重同步功能由以下三个部分构成：</p>
+<ul>
+<li>主服务器的<strong>复制偏移量</strong>（replication offset）和从服务器的复制偏移量；</li>
+<li><strong>主服务器的复制积压缓冲区（replication backlog）</strong>；</li>
+<li><strong>服务器的运行ID</strong>（run ID）。</li>
+</ul>
+<h4 id="复制偏移量"><a href="#复制偏移量" class="headerlink" title="复制偏移量"></a>复制偏移量</h4><p>执行复制的双方——主服务器和从服务器会分别维护一个复制偏移量：</p>
+<ul>
+<li>主服务器每次向从服务器传播N个字节的数据时，就将自己的复制偏移量的值加上N；</li>
+<li>从服务器每次收到主服务器传播来的N个字节的数据时，就将自己的复制偏移量的值加上N；</li>
+</ul>
+<p>（我靠！！难道从服务器没有反馈吗？丢包了怎么办？难道是用TCP？大家继续看，我只是想穿插一些我的思路）</p>
+<p>通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态：</p>
+<ul>
+<li>如果主从服务器处于一致状态，那么主从服务器两者的偏移量总是相同的；</li>
+<li>相反，如果主从服务器两者的偏移量并不相同，那么说明主从服务器并未处于一致状态。</li>
+</ul>
+<p>如下面的情况：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072056005964020.png" alt="img"></p>
+<p>假设从服务器A在断线之后就立即重新连接主服务器，并且成功，那么接下来，<strong>从服务器将向主服务器发送PSYNC命令，报告从服务器A当前的复制偏移量为10086，</strong>那么这时，主服务器应该对从服务器执行完整重同步还是部分重同步呢？如果执行部分重同步的话，主服务器又如何补偿从服务器A在断线期间丢失的那部分数据呢？以上问题的答案都和复制积压缓冲区有关。</p>
+<h4 id="复制积压缓冲区"><a href="#复制积压缓冲区" class="headerlink" title="复制积压缓冲区"></a>复制积压缓冲区</h4><p>复制积压缓冲区是由主服务器维护的一个固定长度（fixed-size）先进先出（FIFO）队列，默认大小为1MB。</p>
+<p>和普通先进先出队列随着元素的增加和减少而动态调整长度不同，固定长度先进先出队列的长度是固定的，当入队元素的数量大于队列长度时，最先入队的元素会被弹出，而新元素会被放入队列。</p>
+<p>当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器，还会将写命令入队到复制积压缓冲区里面，如图所示。</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072109146748058.png" alt="img"></p>
+<p>因此，主服务器的复制积压缓冲区里面会保存着一部分最近传播的写命令，并且复制积压缓冲区会为队列中的每个字节记录相应的复制偏移量，就像下表所示的那样。</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072110329246085.png" alt="img"></p>
+<p>当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+<ul>
+<li>如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行部分重同步操作；</li>
+<li>相反，如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行完整重同步操作。</li>
+</ul>
+<h4 id="根据需要调整复制积压缓冲区的大小"><a href="#根据需要调整复制积压缓冲区的大小" class="headerlink" title="根据需要调整复制积压缓冲区的大小"></a>根据需要调整复制积压缓冲区的大小</h4><p>Redis为复制积压缓冲区设置的默认大小为1MB，如果主服务器需要执行大量写命令，又或者主从服务器断线后重连接所需的时间比较长，那么这个大小也许并不合适。如果复制积压缓冲区的大小设置得不恰当，那么PSYNC命令的复制重同步模式就不能正常发挥作用，因此，正确估算和设置复制积压缓冲区的大小非常重要。<br>复制积压缓冲区的最小大小可以根据公式second*write_size_per_second来估算：</p>
+<ul>
+<li>其中second为从服务器断线后重新连接上主服务器所需的平均时间（以秒计算）；</li>
+<li>而write_size_per_second则是主服务器平均每秒产生的写命令数据量（协议格式的写命令的长度总和）；</li>
+</ul>
+<p>例如，如果主服务器平均每秒产生1 MB的写数据，而从服务器断线之后平均要5秒才能重新连接上主服务器，那么复制积压缓冲区的大小就不能低于5MB。<br>为了安全起见，可以将复<strong>制积压缓冲区的大小设为2*second*write_size_per_second</strong>，这样可以保证绝大部分断线情况都能用部分重同步来处理。<br>至于复制积压缓冲区大小的修改方法，可以参考配置文件中关于<strong>repl-backlog-size</strong>选项的说明。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/12/count-1-count-count-col/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/12/count-1-count-count-col/" itemprop="url">count(1),count(*),count(col)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-12T21:55:17+08:00">
+                2019-10-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  231
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="count-1-and-count"><a href="#count-1-and-count" class="headerlink" title="count(1) and count(*)"></a>count(1) and count(*)</h3><p>当表的数据量大些时，对表作分析之后，使用count(1)还要比使用count(<em>)用时多了！<br>从执行计划来看，count(1)和count(</em>)的效果是一样的。 但是在表做过分析之后，count(1)会比count(*)的用时少些（1w以内数据量），不过差不了多少。 </p>
+<p>如果count(1)是聚索引,id,那肯定是count(1)快。但是差的很小的。<br>因为count(<em>),自动会优化指定到那一个字段。所以没必要去count(1)，用count(</em>)，sql会帮你完成优化的 因此：count(1)和count(*)基本没有差别！ </p>
+<h3 id="count-1-and-count-字段"><a href="#count-1-and-count-字段" class="headerlink" title="count(1) and count(字段)"></a>count(1) and count(字段)</h3><p>两者的主要区别是<br>（1） count(1) 会统计表中的所有的记录数，包含字段为null 的记录。<br>（2） count(字段) 会统计该字段在表中出现的次数，忽略字段为null 的情况。即不统计字段为null 的记录。 </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/10/简历坑/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -421,7 +806,7 @@
 <p><strong>这里补充一下Docker Registry 公开服务和私有 Docker Registry的概念：</strong></p>
 <p>　　<strong>Docker Registry 公开服务</strong> 是开放给用户使用、允许用户管理镜像的 Registry 服务。一般这类公开服务允许用户免费上传、下载公开的镜像，并可能提供收费服务供用户管理私有镜像。</p>
 <p>　　最常使用的 Registry 公开服务是官方的 <strong>Docker Hub</strong> ，这也是默认的 Registry，并拥有大量的高质量的官方镜像，网址为：<a href="https://hub.docker.com/" target="_blank" rel="noopener">https://hub.docker.com/</a> 。在国内访问<strong>Docker Hub</strong> 可能会比较慢国内也有一些云服务商提供类似于 Docker Hub 的公开服务。比如 <a href="https://hub.tenxcloud.com/" target="_blank" rel="noopener">时速云镜像库</a>、<a href="https://www.163yun.com/product/repo" target="_blank" rel="noopener">网易云镜像服务</a>、<a href="https://www.daocloud.io/" target="_blank" rel="noopener">DaoCloud 镜像市场</a>、<a href="https://www.aliyun.com/product/containerservice?utm_content=se_1292836" target="_blank" rel="noopener">阿里云镜像库</a>等。</p>
-<p>　　除了使用公开服务外，用户还可以在 <strong>本地搭建私有 Docker Registry</strong> 。Docker 官方提供了 Docker Registry 镜像，可以直接使用做为私有 Registry 服务。开源的 Docker Registry 镜像只提供了 Docker Registry API 的服务端实现，足以支持 docker 命令，不影响使用。但不包含图形界面，以及镜像维护、用户管理、访问控制等高级功能。</p>
+<p>　　除了使用公开服务外，用户还可以在 <strong>本地搭建私有 Docker Registry</strong> 。Docker 官方提供了 Docker Registry 镜像，可以直接使用做为私有 Registry 服务。开源的 Docker Registry 镜像只提供了 Docker Registry API 的服务端实现，足以支持 docker 命令，不影响使用。但不包含图形界面，以及镜像维护、用户管理、访问控制等高级功能。zhen </p>
 
           
         
@@ -1895,392 +2280,6 @@ server 127.0.0.1:7070 backup;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/MVCC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/06/MVCC/" itemprop="url">MVCC</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T10:35:28+08:00">
-                2019-10-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.5k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  6
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>原文链接：<a href="https://blog.csdn.net/whoamiyang/article/details/51901888" target="_blank" rel="noopener">https://blog.csdn.net/whoamiyang/article/details/51901888</a></p>
-<ol>
-<li>MVCC简介<br>1.1 什么是MVCC<br>MVCC是一种多版本并发控制机制。</li>
-</ol>
-<p>1.2 MVCC是为了解决什么问题?<br>大多数的MYSQL事务型存储引擎,如,InnoDB，Falcon以及PBXT都不使用一种简单的行锁机制.事实上,他们都和MVCC–多版本并发控制来一起使用.<br>大家都应该知道,锁机制可以控制并发操作,但是其系统开销较大,而MVCC可以在大多数情况下代替行级锁,使用MVCC,能降低其系统开销.<br>1.3 MVCC实现<br>MVCC是通过保存数据在某个时间点的快照来实现的. 不同存储引擎的MVCC. 不同存储引擎的MVCC实现是不同的,典型的有乐观并发控制和悲观并发控制.</p>
-<p>2.MVCC 具体实现分析<br>下面,我们通过InnoDB的MVCC实现来分析MVCC使怎样进行并发控制的.<br>InnoDB的MVCC,是通过在每行记录后面保存两个隐藏的列来实现的,这两个列，分别保存了这个行的创建时间，一个保存的是行的删除时间。这里存储的并不是实际的时间值,而是系统版本号(可以理解为事务的ID)，没开始一个新的事务，系统版本号就会自动递增，事务开始时刻的系统版本号会作为事务的ID.下面看一下在REPEATABLE READ隔离级别下,MVCC具体是如何操作的.</p>
-<p>2.1简单的小例子<br>create table yang(<br>id int primary key auto_increment,<br>name varchar(20));</p>
-<p>假设系统的版本号从1开始.</p>
-<p>INSERT<br>InnoDB为新插入的每一行保存当前系统版本号作为版本号.<br>第一个事务ID为1；</p>
-<p>start transaction;<br>insert into yang values(NULL,’yang’) ;<br>insert into yang values(NULL,’long’);<br>insert into yang values(NULL,’fei’);<br>commit;<br>1<br>2<br>3<br>4<br>5<br>对应在数据中的表如下(后面两列是隐藏列,我们通过查询语句并看不到)</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    undefined<br>2    long    1    undefined<br>3    fei    1    undefined<br>SELECT<br>InnoDB会根据以下两个条件检查每行记录:<br>a.InnoDB只会查找版本早于当前事务版本的数据行(也就是,行的系统版本号小于或等于事务的系统版本号)，这样可以确保事务读取的行，要么是在事务开始前已经存在的，要么是事务自身插入或者修改过的.<br>b.行的删除版本要么未定义,要么大于当前事务版本号,这可以确保事务读取到的行，在事务开始之前未被删除.<br>只有a,b同时满足的记录，才能返回作为查询结果.</p>
-<p>DELETE<br>InnoDB会为删除的每一行保存当前系统的版本号(事务的ID)作为删除标识.<br>看下面的具体例子分析:<br>第二个事务,ID为2;</p>
-<p>start transaction;<br>select <em> from yang;  //(1)<br>select </em> from yang;  //(2)<br>commit;<br>1<br>2<br>3<br>4<br>假设1<br>假设在执行这个事务ID为2的过程中,刚执行到(1),这时,有另一个事务ID为3往这个表里插入了一条数据;<br>第三个事务ID为3;</p>
-<p>start transaction;<br>insert into yang values(NULL,’tian’);<br>commit;<br>1<br>2<br>3<br>这时表中的数据如下:</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    undefined<br>2    long    1    undefined<br>3    fei    1    undefined<br>4    tian    3    undefined<br>然后接着执行事务2中的(2),由于id=4的数据的创建时间(事务ID为3),执行当前事务的ID为2,而InnoDB只会查找事务ID小于等于当前事务ID的数据行,所以id=4的数据行并不会在执行事务2中的(2)被检索出来,在事务2中的两条select 语句检索出来的数据都只会下表:</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    undefined<br>2    long    1    undefined<br>3    fei    1    undefined<br>假设2<br>假设在执行这个事务ID为2的过程中,刚执行到(1),假设事务执行完事务3后，接着又执行了事务4;<br>第四个事务:</p>
-<p>start   transaction;<br>delete from yang where id=1;<br>commit;<br>1<br>2<br>3<br>此时数据库中的表如下:</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    4<br>2    long    1    undefined<br>3    fei    1    undefined<br>4    tian    3    undefined<br>接着执行事务ID为2的事务(2),根据SELECT 检索条件可以知道,它会检索创建时间(创建事务的ID)小于当前事务ID的行和删除时间(删除事务的ID)大于当前事务的行,而id=4的行上面已经说过,而id=1的行由于删除时间(删除事务的ID)大于当前事务的ID,所以事务2的(2)select * from yang也会把id=1的数据检索出来.所以,事务2中的两条select 语句检索出来的数据都如下:</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    4<br>2    long    1    undefined<br>3    fei    1    undefined<br>UPDATE<br>InnoDB执行UPDATE，实际上是新插入了一行记录，并保存其创建时间为当前事务的ID，同时保存当前事务ID到要UPDATE的行的删除时间.</p>
-<p>假设3<br>假设在执行完事务2的(1)后又执行,其它用户执行了事务3,4,这时，又有一个用户对这张表执行了UPDATE操作:<br>第5个事务:</p>
-<p>start  transaction;<br>update yang set name=’Long’ where id=2;<br>commit;<br>1<br>2<br>3<br>根据update的更新原则:会生成新的一行,并在原来要修改的列的删除时间列上添加本事务ID,得到表如下:</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    4<br>2    long    1    5<br>3    fei    1    undefined<br>4    tian    3    undefined<br>2    Long    5    undefined<br>继续执行事务2的(2),根据select 语句的检索条件,得到下表:</p>
-<p>id    name    创建时间(事务ID)    删除时间(事务ID)<br>1    yang    1    4<br>2    long    1    5<br>3    fei    1    undefined<br>还是和事务2中(1)select 得到相同的结果.<br>————————————————<br>版权声明：本文为CSDN博主「杨龙飞的博客」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/whoamiyang/article/details/51901888" target="_blank" rel="noopener">https://blog.csdn.net/whoamiyang/article/details/51901888</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/04/Synchronize的可重入性/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/04/Synchronize的可重入性/" itemprop="url">Synchronize的可重入性</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-04T15:02:31+08:00">
-                2019-10-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.1k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="说一说自己对于-synchronized-关键字的了解"><a href="#说一说自己对于-synchronized-关键字的了解" class="headerlink" title="说一说自己对于 synchronized 关键字的了解"></a>说一说自己对于 synchronized 关键字的了解</h3><p>synchronized关键字解决的是多个线程之间访问资源的同步性，synchronized关键字可以保证被它修饰的方法或者代码块在任意时刻只能有一个线程执行。</p>
-<p>另外，在 Java 早期版本中，synchronized属于重量级锁，效率低下，因为监视器锁（monitor）是依赖于底层的操作系统的 Mutex Lock 来实现的，Java 的线程是映射到操作系统的原生线程之上的。如果要挂起或者唤醒一个线程，都需要操作系统帮忙完成，而操作系统实现线程之间的切换时需要从用户态转换到内核态，这个状态之间的转换需要相对比较长的时间，时间成本相对较高，这也是为什么早期的 synchronized 效率低的原因。庆幸的是在 Java 6 之后 Java 官方对从 JVM 层面对synchronized 较大优化，所以现在的 synchronized 锁效率也优化得很不错了。JDK1.6对锁的实现引入了大量的优化，如自旋锁、适应性自旋锁、锁消除、锁粗化、偏向锁、轻量级锁等技术来减少锁操作的开销。</p>
-<h2 id="synchronize的可重入性"><a href="#synchronize的可重入性" class="headerlink" title="synchronize的可重入性"></a>synchronize的可重入性</h2><p>在java 内部，同一个线程在调用自己类中其他synchronize方法/块或调用父类的synchronize方法/块都不会阻碍改线程的执行，就是说同一线程对同一个对象锁是可重入的，而且同一个线程可以获取同一把锁多次，也就是可以多次重入。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Child</span> <span class="keyword">extends</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Child child = <span class="keyword">new</span> Child();</span><br><span class="line">        child.doSomething();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"child.doSomething()"</span>);</span><br><span class="line">        doAnotherThing(); <span class="comment">// 调用自己类中其他的synchronized方法</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doAnotherThing</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.doSomething(); <span class="comment">// 调用父类的synchronized方法</span></span><br><span class="line">        System.out.println(<span class="string">"child.doAnotherThing()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"father.doSomething()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">运行结果：</span><br><span class="line"></span><br><span class="line">child.doSomething() </span><br><span class="line">father.doSomething() </span><br><span class="line">child.doAnotherThing()</span><br></pre></td></tr></table></figure>
-<p>这里的对象锁只有一个,就是child对象的锁,当执行child.doSomething时，该线程获得child对象的锁，在doSomething方法内执行doAnotherThing时再次请求child对象的锁，因为synchronized是重入锁，所以可以得到该锁，继续在doAnotherThing里执行父类的doSomething方法时第三次请求child对象的锁，同理可得到，如果不是重入锁的话，那这后面这两次请求锁将会被一直阻塞，从而导致死锁。</p>
-<h2 id="synchonized可重入锁的实现"><a href="#synchonized可重入锁的实现" class="headerlink" title="synchonized可重入锁的实现"></a>synchonized可重入锁的实现</h2><p>每个锁会关联一个线程持有者和一个计数器。当计数器为0时表示该锁没有被任何线程持有，那么任何线程都可能获得该锁而调用相应方法，当一个线程请求成功后，JVM会记下持有锁的线程，并将计数器计为1，此时其他线程请求该锁，则必须等待。而该持有锁的线程如果再次请求这个锁，就可以再次拿到这个锁，同时计数器会递增。当线程退出一个synchronize方法/块时,计数器会递减，如果计数器为0则释放该锁。</p>
-<h2 id="偏向锁、轻量级锁和重量级锁"><a href="#偏向锁、轻量级锁和重量级锁" class="headerlink" title="偏向锁、轻量级锁和重量级锁"></a>偏向锁、轻量级锁和重量级锁</h2><p>synchronized的偏向锁、轻量级锁以及重量级锁是通过Java对象头实现的。博主在Java对象大小内幕浅析中提到了<strong>Java对象的内存布局分为：对象头、实例数据和对齐填充</strong>，而对象头又可以分为”Mark Word”和类型指针klass。”Mark Word”是关键，默认情况下，其存储对象的HashCode、分代年龄和锁标记位。</p>
-<p>这里说的都是以HotSpot虚拟机为基准的。首先来看一下”Mark Word”的内容：</p>
-<table>
-<thead>
-<tr>
-<th>状态</th>
-<th>存储内容</th>
-<th>标志位</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>无锁</td>
-<td>对象的hashCode、对象分代年龄、是否是偏向锁（0）</td>
-<td>01</td>
-</tr>
-<tr>
-<td>轻量级</td>
-<td>指向栈中锁记录的指针</td>
-<td>00</td>
-</tr>
-<tr>
-<td>重量级</td>
-<td>指向互斥量（重量级锁）的指针</td>
-<td>10</td>
-</tr>
-<tr>
-<td>GC标记</td>
-<td>（空）</td>
-<td>11</td>
-</tr>
-<tr>
-<td>偏向锁</td>
-<td>偏向线程ID、偏向时间戳、对象分代年龄、是否是偏向锁（1）</td>
-<td>01</td>
-</tr>
-</tbody>
-</table>
-<p>偏向锁是JDK6中引入的一项锁优化，它的目的是消除数据在无竞争情况下的同步原语，进一步提高程序的运行性能。</p>
-<p>偏向锁会偏向于第一个获得它的线程，如果在接下来的执行过程中，该锁没有被其他的线程获取，则持有偏向锁的线程将永远不需要同步。大多数情况下，锁不仅不存在多线程竞争，而且总是由同一线程多次获得，为了让线程获得锁的代价更低而引入了偏向锁。</p>
-<p><strong>当锁对象第一次被线程获取的时候，线程使用CAS操作把这个锁的线程ID记录在对象Mark Word之中，同时置偏向标志位1。以后该线程在进入和退出同步块时不需要进行CAS操作来加锁和解锁，只需要简单地测试一下对象头的Mark Word里是否存储着指向当前线程的偏向锁。如果测试成功，表示线程已经获得了锁。</strong></p>
-<p>如果线程使用CAS操作时失败则表示该锁对象上存在竞争并且这个时候另外一个线程获得偏向锁的所有权。当到达全局安全点（safepoint，这个时间点上没有正在执行的字节码）时获得偏向锁的线程被挂起，膨胀为轻量级锁（涉及Monitor Record，Lock Record相关操作，这里不展开），同时被撤销偏向锁的线程继续往下执行同步代码。</p>
-<p>则当有另外一个线程去尝试获取这个锁时，偏向模式就宣告结束。</p>
-<p>线程在执行同步块之前，JVM会先在当前线程的栈帧中创建用于存储锁记录(Lock Record)的空间，并将对象头中的Mard Word复制到锁记录中，官方称为Displaced Mark Word。然后线程尝试使用CAS将对象头中的Mark Word替换为指向锁记录的指针。如果成功，当前线程获得锁，如果失败，表示其他线程竞争锁，当前线程便尝试使用自旋来获取锁。如果自旋失败则锁会膨胀成重量级锁。如果自旋成功则依然处于轻量级锁的状态。</p>
-<p>轻量级锁的解锁过程也是通过CAS操作来进行的，如果对象的Mark Word仍然指向线程的锁记录，那就用CAS操作把对象当前的Mark Word和线程中赋值的Displaced Mark Word替换回来，如果替换成功，整个同步过程就完成了，如果替换失败，就说明有其他线程尝试过获取该锁，那就要在释放锁的同时，唤醒被挂起的线程。</p>
-<p>轻量级锁提升程序同步性能的依据是：对于绝大部分的锁，在整个同步周期内都是不存在竞争的（区别于偏向锁）。这是一个经验数据。如果没有竞争，轻量级锁使用CAS操作避免了使用互斥量的开销，但如果存在锁竞争，除了互斥量的开销外，还额外发生了CAS操作，因此在有竞争的情况下，轻量级锁比传统的重量级锁更慢。</p>
-<p>整个synchronized锁流程如下：</p>
-<ol>
-<li>检测Mark Word里面是不是当前线程的ID，如果是，表示当前线程处于偏向锁</li>
-<li>如果不是，则使用CAS将当前线程的ID替换Mard Word，如果成功则表示当前线程获得偏向锁，置偏向标志位1</li>
-<li>如果失败，则说明发生竞争，撤销偏向锁，进而升级为轻量级锁。</li>
-<li>当前线程使用CAS将对象头的Mark Word替换为锁记录指针，如果成功，当前线程获得锁</li>
-<li>如果失败，表示其他线程竞争锁，当前线程便尝试使用自旋来获取锁。</li>
-<li>如果自旋成功则依然处于轻量级状态。</li>
-<li>如果自旋失败，则升级为重量级锁。<br>————————————————<br>版权声明：本文为CSDN博主「朱小厮」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/u013256816/article/details/51204385" target="_blank" rel="noopener">https://blog.csdn.net/u013256816/article/details/51204385</a></li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2333,7 +2332,7 @@ server 127.0.0.1:7070 backup;
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-count">53</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2429,7 +2428,7 @@ server 127.0.0.1:7070 backup;
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共100.8k字</span>
+  <span class="post-count">博客全站共104.1k字</span>
 </div>
 
         

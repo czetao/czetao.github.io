@@ -281,6 +281,353 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/02/排序/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/02/排序/" itemprop="url">排序</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-02T11:01:41+08:00">
+                2019-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.3k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  16
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="排序的稳定性"><a href="#排序的稳定性" class="headerlink" title="排序的稳定性"></a>排序的稳定性</h2><p>假设在排序前的序列中ri 领先于rj(即i&lt;j)。如果排序后ri仍领先于rj，则称所用的排序方法是稳定的；反之，若可能使得排序后的序列中rj领先ri,则称所用的排序方法是不稳定的。</p>
+<h2 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h2><p>冒泡排序一种交换排序，它的基本思想是：两两比较相邻记录的关键字，如果反序则交换，直到没有反序的记录为止。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表做冒泡排序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BubbleSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>;i&lt;list.length;i++)&#123;</span><br><span class="line">		<span class="keyword">for</span> (j = list.length-<span class="number">1</span>;j&gt;=i;j--)&#123;   <span class="comment">//注意j是从后往前递减	</span></span><br><span class="line">			<span class="keyword">if</span>(list[j-<span class="number">1</span>]&gt;list[j])&#123;		    <span class="comment">//若前者大于后者</span></span><br><span class="line">				swap(list,j-<span class="number">1</span>,j);			<span class="comment">//交换前者和后者的位置</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>较小的数字如同气泡般慢慢浮到上面，因此将此算法命名为冒泡排序。</p>
+<h3 id="冒泡排序优化"><a href="#冒泡排序优化" class="headerlink" title="冒泡排序优化"></a>冒泡排序优化</h3><p>如果待排序的序列是{2,1,3,4,5,6,7,8}，也就是说，除了第一和第二的关键字需要交换外，别的已经是正常的顺序。当i=1时，交换了2和1，此时序列已将有序，但是算法仍然将i=2到8都执行了一遍，尽管没有交换数据，但是之后的大量比较大大的多余。<br>当i=2时，我们已经对9与8,8与7……3与2作了比较，没有任何数据交换，这就说明此序列已将有序，不需要再继续后面的循环判断工作。为了实现这个想法，需要改进代码，增加一个标记变量flag来实现算法的改进。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BubbleSort2</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	Boolean flag = <span class="keyword">false</span>;					<span class="comment">//flag用来做标记</span></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>;i&lt;list.length &amp;&amp; flag;i++)&#123;	<span class="comment">//若flag为false则退出循环</span></span><br><span class="line">		flag = <span class="keyword">false</span>;						<span class="comment">//初始flag为false</span></span><br><span class="line">		<span class="keyword">for</span> (j = list.length-<span class="number">1</span>;j&gt;=i;j--)&#123;   </span><br><span class="line">			<span class="keyword">if</span>(list[j-<span class="number">1</span>]&gt;list[j])&#123;		    </span><br><span class="line">				swap(list,j-<span class="number">1</span>,j);			</span><br><span class="line">				flag = <span class="keyword">true</span>;				<span class="comment">//若发生交换，flag=true</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>最好的情况，排序的表本身就是有序的，根据最后改进的代码，可以推断出就是n-1次的比较，没有数据交换，时间复杂度是O(n)。<br>最坏的情况，即排序表时逆序的情况，此时需要比较1+2+3+4+5…+（n-1）= n(n-1)/2次，因此，总的时间复杂度为O(n2)。</p>
+<h2 id="简单选择排序"><a href="#简单选择排序" class="headerlink" title="简单选择排序"></a>简单选择排序</h2><p>选择排序法的初步思想，冒泡排序的思想是不断的交换，通过交换完成最终的排序，我们可以在排序时找到合适的关键字再做交换，并且只移动一次就完成相应关键字的排序定位工作。<br>简单选择排序法就是通过n-i次关键字间的比较，从n-i+1个记录中选出关键字最小的记录，并和第i个记录交换之。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*对顺序表L作简单选择排序*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SelectSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j,min;</span><br><span class="line">	<span class="keyword">for</span> (i=<span class="number">1</span>;i&lt;list.length;i++)&#123;</span><br><span class="line">		min = i;						<span class="comment">//将当前下标定义为最小值下标	</span></span><br><span class="line">		<span class="keyword">for</span>(j=i+<span class="number">1</span>;j&lt;list.length;j++)&#123;	</span><br><span class="line">			<span class="keyword">if</span> (list[min] &gt; list[j])&#123;	<span class="comment">//从n-i+1中选出关键字最小的记录</span></span><br><span class="line">				min = j;				<span class="comment">//将此关键字的下标赋值给min</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (min != i)&#123;					<span class="comment">//若min不等于i,找到最小值，交换</span></span><br><span class="line">			swap(list,i,min);			<span class="comment">//交换list[i]和list[min]的值</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="简单选择排序复杂度分析"><a href="#简单选择排序复杂度分析" class="headerlink" title="简单选择排序复杂度分析"></a>简单选择排序复杂度分析</h3><p>从过程来看，它最大的特点就是交换移动数据次数相当少，这样也就节约了相应的时间。分析复杂度发现，无论最好最坏情况，其比较次数都是一样的多，第i趟排序需要进行n-i次关键字的比较，此时需要比较n-1+n-2+…=1 = n(n-1)/2次。因此，总的时间复杂度依然是O(n2).<br>应该说，尽管与冒泡排序同为O(n2),但简单选择排序的性能上还是要略优于冒泡排序。</p>
+<h2 id="直接插入排序"><a href="#直接插入排序" class="headerlink" title="直接插入排序"></a>直接插入排序</h2><p>直接插入排序的基本操作是将一个记录插入到已经排好序的有序表中，从而得到一个新的，记录数增1的有序表。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InsertSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="comment">//0的位置当成哨兵，假设list[1]已经排好位置，后面的牌其实就是插入到它的左侧还是右侧的问题</span></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">2</span>,j&lt;=list.length;i++)&#123;		</span><br><span class="line">		<span class="keyword">if</span> (list[i] &lt; list[i-<span class="number">1</span>])&#123;		<span class="comment">//升序，需将list[i]插入有序子表</span></span><br><span class="line">			list[<span class="number">0</span>] = list[i];			<span class="comment">//设置哨兵</span></span><br><span class="line">			<span class="keyword">for</span> (j=i-<span class="number">1</span>;list[j]&gt;list[<span class="number">0</span>];j--) &#123;</span><br><span class="line">				list[j+<span class="number">1</span>] = list[j];	<span class="comment">//记录后移				</span></span><br><span class="line">			&#125;</span><br><span class="line">			list[j+<span class="number">1</span>] = list[<span class="number">0</span>];		<span class="comment">//插入到正确位置</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="直接插入排序时间复杂度分析"><a href="#直接插入排序时间复杂度分析" class="headerlink" title="直接插入排序时间复杂度分析"></a>直接插入排序时间复杂度分析</h3><p>最好的情况，也就是要排序的表本身就是有序的，那么比较次数，其实就是代码第6行每个list[i]与list[i-1]的比较。时间复杂度为O(n)。<br>最坏的情况，2+3+4+…+n=(n+2)(n-1)/2,直接插入排序的时间复杂度为O(n2),同样的O(n2)时间复杂度，直接插入排序法比冒泡和简单选择排序的性能要好一些。</p>
+<h2 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h2><p>在这之前排序算法的时间复杂度基本都是O(n2)，希尔排序算法是突破这个时间复杂度的第一批算法之一。在直接插入排序的基础上进行改进。<br>将原本有大量记录数的记录进行分组，分割成若干序列，采取跳跃分割的策略：将相距某个“增量”的记录组成一个子序列，这样才能保证在子序列内分别进行直接插入排序后得到的结果是基本有序而不是局部有序。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表L做希尔排序</span></span><br><span class="line"><span class="comment">//将关键字较小的记录，不是一步一步地往前挪动，而是跳跃式地往前移，使得每完成一轮循环后，整个序列就朝着有序坚持地迈进了一步</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SheelSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="keyword">int</span> increment = list.length();</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		increment = increment/<span class="number">3</span> +<span class="number">1</span>;				<span class="comment">//增量序列</span></span><br><span class="line">		<span class="keyword">for</span>(i=increment+<span class="number">1</span>;i&lt;=list.length();i++)&#123;</span><br><span class="line">			<span class="keyword">if</span> (list[i] &lt; list[i-increment])&#123;	<span class="comment">//跳跃判断</span></span><br><span class="line">				list[<span class="number">0</span>] = list[i]; 				<span class="comment">//暂存在list[0]</span></span><br><span class="line">				<span class="keyword">for</span> (j = i-increment;j&gt;<span class="number">0</span>&amp;&amp;list[<span class="number">0</span>]&lt;list[i];j-=increment)&#123;</span><br><span class="line">					list[j+increment] = list[j];	<span class="comment">//记录后移，查找插入位置</span></span><br><span class="line">				&#125;</span><br><span class="line">				list[j+increment] = list[<span class="number">0</span>];		<span class="comment">//插入</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">while</span>(increment&gt;<span class="number">1</span>);		<span class="comment">//当增量为1时，就停止循环</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="希尔排序复杂度分析"><a href="#希尔排序复杂度分析" class="headerlink" title="希尔排序复杂度分析"></a>希尔排序复杂度分析</h3><p>希尔排序的关键并不是随便分组后各自排序，而是将相隔某个“增量”的记录组成一个子序列，实现跳跃式的移动，使得排序的效率提高。<br>其时间复杂度为O(n3/2)，要好于直接排序的O(n2)，需要注意的是，增量序列的最后一个增量值必须等于1才行，另外记录是跳跃式的移动，希尔排序并不是一种稳定的排序算法。</p>
+<h2 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2><p>前面讲到简单选择排序，他在待排序的n个记录中选择一个最小的记录需要比较n-1次，本来可以理解，查找第一个数据需要比较这么多次是正常的，可惜的是，这样的操作并没有把每一趟的比较结果保存下来，在后一趟的比较中，有许多比较在前一趟已经做过了，但由于前一趟排序时未保存这些比较结果，所以后一趟排序时又重复执行了这些比较操作，因而记录的比较次数较多，如果可以做到每次在选择到最小记录的同时，并根据比较结果对其他记录做出相应的调整，那排序的总体效率就会非常高。而堆排序就是对简单排序进行的一种改进。同时，他们发明了“堆”这样的数据结构。</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>堆是具有下列性质的完成二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆。<br>或者每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆。<br>根结点一定是堆中所有结点最大（小）者。<br>如果按照层序遍历的方式给结点从1开始编号，则结点之间满足如下关系：<br>完全二叉树的特性，下标i与2i和2i+1是双亲子女关系。<br><strong>核心   大顶堆：ki &gt;= k2i , ki &gt;= k2i+1  小顶堆： ki &lt;=k2i , ki&lt;=k2i+1  ( 1&lt;= i &lt;= n/2 )</strong><br>堆排序利用此规则，完成排序。</p>
+<h3 id="堆排序算法"><a href="#堆排序算法" class="headerlink" title="堆排序算法"></a>堆排序算法</h3><p>将要排序的数组，看成是按照层序遍历的完全二叉树。<br>堆排序就是利用堆（假设利用大顶堆）进行排序的方法。它的基本思想是，<strong>将待排序的序列构造成一个大顶堆，此时整个序列的最大值就是堆顶的根结点。将它移走（其实就是将其与堆数组的末尾元素交换，此时末尾元素就是最大值），然后将剩余的n-1个序列重新构造成一个堆，这样就会得到n个元素的次大顶堆，如此反复执行，便能得到一个有序序列。</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//本函数调整list[s]的关键字，使list[s..m]成为一个大顶堆</span></span><br><span class="line"><span class="comment">//s 根节点 ，m 数组长度</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HeadAdjust</span><span class="params">(SqlList list,<span class="keyword">int</span> s,<span class="keyword">int</span> m)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> temp,j;</span><br><span class="line">	temp = list[s];</span><br><span class="line">	<span class="keyword">for</span> (j=<span class="number">2</span>*s;j&lt;=m;j*=<span class="number">2</span>)&#123;				<span class="comment">//沿关键字较大的孩子结点向下筛选</span></span><br><span class="line">		<span class="comment">//找出s结点下，最大的孩子结点。j为关键字中较大的记录的下标。</span></span><br><span class="line">		<span class="keyword">if</span> (j&lt;m &amp;&amp; list[j]&lt;list[j+<span class="number">1</span>])&#123;	</span><br><span class="line">			++j;		</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (temp &gt;= list[j])&#123;</span><br><span class="line">			<span class="keyword">break</span>;					<span class="comment">//根节点是最大的值，不需要改变位置</span></span><br><span class="line">		&#125;</span><br><span class="line">		list[s] =list[j];			<span class="comment">//将根节点与孩子结点数值交换，</span></span><br><span class="line">		<span class="comment">//s替换为j,进入下一次循环，看是否需要与下一个根节点互换</span></span><br><span class="line">		s=j;	</span><br><span class="line">	&#125;</span><br><span class="line">	list[s] = temp;				<span class="comment">//将孩子结点换成根节点的数值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>堆排序的核心算法已经有了，接下来就是对数组进行排序。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HeapSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">for</span> (i = list.length()/<span class="number">2</span>;i&gt;<span class="number">0</span>;i--)&#123;	   **		</span><br><span class="line">		HeadAdjust(list,i,list.length());	<span class="comment">//把list构建成一个大顶堆</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> (i = list.length() ;i&gt;<span class="number">1</span>;i--)&#123;</span><br><span class="line">		swap(list,<span class="number">1</span>,i);		<span class="comment">//将堆顶记录和当前子序列的最后一个记录交换。</span></span><br><span class="line">		HeadAdjust(list,<span class="number">1</span>,i-<span class="number">1</span>);  <span class="comment">//将list[1..i-1]重新调整为大顶堆</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>假设list长度是9，从4往下递减，是因为都是有孩子的结点。<br>我们所谓的将待排序的序列构建成为一个大顶堆，其实就是从下往上，从右往左，将每个非终端结点（非叶结点）当成根节点，将其和其子树调整成大顶堆。</p>
+<h3 id="堆排序的时间复杂度"><a href="#堆排序的时间复杂度" class="headerlink" title="堆排序的时间复杂度"></a>堆排序的时间复杂度</h3><p>堆排序的运行时间主要是消耗在初始构建堆和重建堆时的反复筛选上。<br>在构建堆的过程中，因为我们是完成二叉树从最下层最右边的非终端结点开始构建将它与其孩子进行和若有必要的互换，对于每个非终端结点来说，其实最多进行两次比较和互换操作，因此整个构建堆的时间复杂度为O(n)。<br>在正式排序时，第i次取堆顶记录重建堆需要用O(logi)的时间（完全二叉树的某个结点到根节点的距离为logi+1）,并且需要去n-1次堆顶记录，因此，重建堆的时间复杂度为O(nlogn)。<br>所以，总体来说，堆排序的时间复杂度为O(nlogn).</p>
+<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><p>前面我们讲 了堆排序，因为它用到了完全二叉树，充分利用了完全二叉树的深度是log2n + 1的特性，所以效率比较高。不过堆结构的设计本身是比较复杂的，有没有更直接简单的方法利用完成二叉树来排序。当然有。归并排序法涉及到完全二叉树结构的排序算法。<br>归并排序就像是一颗倒置的完全二叉树</p>
+<h3 id="归并排序算法"><a href="#归并排序算法" class="headerlink" title="归并排序算法"></a>归并排序算法</h3><p>归并排序就是利用归并的思想实现的排序方法。<strong>他的原理是假设初始序列含有n个记录，则可以看成是n个有序的子序列，每个子序列的长度为1，然后两两归并，得到[n/2]个长度为2或1的有序子序列，再两两归并，…..,如此重复，直至得到一个长度为n的有序序列位置，这种排序方法称为2路归并排序。</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表L作归并排序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MergeSort</span><span class="params">(Sqlist list)</span></span>&#123;</span><br><span class="line">	Msort(list,list,<span class="number">1</span>,list.length());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Msort</span><span class="params">(<span class="keyword">int</span> sr[],<span class="keyword">int</span> tr1[],<span class="keyword">int</span> s,<span class="keyword">int</span> t)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> m;</span><br><span class="line">	<span class="keyword">int</span> tr2[MAXSIZE+<span class="number">1</span>];</span><br><span class="line">	<span class="keyword">if</span> (s == t)&#123;		<span class="comment">//当细分到一个记录填入tr2后，此时s和t相等，递归返回</span></span><br><span class="line">		tr1[s] = sr[s];</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		m = (s+t) /<span class="number">2</span>;  	 <span class="comment">//将sr[s..t]平分为sr[s..m]和sr[m+1..t]</span></span><br><span class="line">	<span class="number">10</span>	Msort(sr,tr2,s,m); <span class="comment">//递归将sr[s..m]归并为有序的tr2[s..m]</span></span><br><span class="line">		Msort(sr,tr2,m+<span class="number">1</span>,t); <span class="comment">//递归将sr[m+1..t]归并成有序的tr2[m+1..m]</span></span><br><span class="line">	<span class="number">12</span> 	Merge(tr2,tr1,s,m,t); <span class="comment">//将tr2[s..m]和tr2[m+1..t],归并到tr1[s..t]</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看第10行继续递归进去后，直到细分为一个记录填入tr2,此时s与t相等，递归返回，每次递归返回后都会执行当前递归函数的第12行，将tr2归并到tr1中，最终使得当前序列有序。<br>现在我们来看看Merge函数的代码是如果实现的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//sr[] 待归并的数组，tr[]归并排序后的数组，i=1，m正中间值,n数组长度</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Merge</span><span class="params">(<span class="keyword">int</span> sr[],<span class="keyword">int</span> tr[],<span class="keyword">int</span> i,<span class="keyword">int</span> m,<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> j,k,l;	<span class="comment">//k记录tr数组坐标。 j记录sr数组右半段数组下标</span></span><br><span class="line">	<span class="keyword">for</span> (j = m+<span class="number">1</span>,k=i;i&lt;=m &amp;&amp; j&lt;=n;k++)&#123;  <span class="comment">//将sr中记录由小到大归并到tr</span></span><br><span class="line">		<span class="keyword">if</span> (sr[i] &lt;sr[j])&#123;</span><br><span class="line">			tr[k] = sr[i++];	<span class="comment">//将前后两段数组进行对比，牛逼</span></span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			tr[k] = sr[j++];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;   </span><br><span class="line">	<span class="keyword">if</span> (i &lt;=m)&#123;			<span class="comment">//将没有归并到tr的sr[1..m]复制到tr</span></span><br><span class="line">		<span class="keyword">for</span>(l=<span class="number">0</span>;l&lt;m-i;l++)&#123;</span><br><span class="line">			tr[k+<span class="number">1</span>]=sr[i+<span class="number">1</span>];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (j &lt;=n)&#123;			<span class="comment">//将没有归并到tr的sr[m+1..n]复制到tr</span></span><br><span class="line">		<span class="keyword">for</span>(l=<span class="number">0</span>;l&lt;n-j;l++)&#123;</span><br><span class="line">			tr[k+<span class="number">1</span>]=sr[i+<span class="number">1</span>];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="归并排序复杂度分析"><a href="#归并排序复杂度分析" class="headerlink" title="归并排序复杂度分析"></a>归并排序复杂度分析</h3><p>总的时间复杂度为O(nlogn),这是归并排序算法中最好，最坏，平均的时间性能。<br>归并排序Merge函数中有if（sr[i]&lt;sr[j]）,这就说明它需要两两比较，不存在跳跃，因此归并排序是一种稳定的排序算法。</p>
+<h2 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h2><p>希尔排序相当于直接插入排序的升级，堆排序相当于简单选择排序的升级，它们同属于选择排序类，而快速排序其实就是最慢的冒泡排序的升级，都属于交换排序类，只不过它的实现，增大了记录的比较和移动的距离，将关键字较大的记录从前面直接移动到后面，关键字较小的记录从后面直接移动到前面，从而减小了总的比较次数和移动交换次数。</p>
+<h3 id="快速排序算法"><a href="#快速排序算法" class="headerlink" title="快速排序算法"></a>快速排序算法</h3><p>快速排序的基本思想是:通过一趟排序将待排序记录分割成独立的两部分，其中一部分记录的关键字均比另一部分的关键字小，则可分别对这两部分记录继续进行排序，以达到整个序列有序的目的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表L的子序列作快速排序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">QSort</span><span class="params">(SqList list , <span class="keyword">int</span> low ,<span class="keyword">int</span> high)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> pivot;</span><br><span class="line">	<span class="keyword">if</span> (low &lt; high)&#123;</span><br><span class="line">		pivot = Partition(L,low,high);  <span class="comment">//将list一分为二 算出枢轴值pivot</span></span><br><span class="line">		Qsort(list,low,pivot-<span class="number">1</span>);		<span class="comment">//对低子表递归排序</span></span><br><span class="line">		Qsort(list,pivot+<span class="number">1</span>,length);		<span class="comment">//对高子表递归排序</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Partition</span><span class="params">(SqList list,<span class="keyword">int</span> low ,<span class="keyword">int</span> high)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> pivotkey;</span><br><span class="line">	pivotkey = list[low]; 		<span class="comment">//用子表的第一个记录做枢轴记录</span></span><br><span class="line">	<span class="keyword">while</span>(low &lt; high)&#123;</span><br><span class="line">	<span class="comment">//将第一个记录作为枢轴，则一定要从后往前扫</span></span><br><span class="line">		<span class="keyword">while</span> (low &lt;high &amp;&amp; list[high] &gt;=pivotkey)&#123;</span><br><span class="line">			high --;</span><br><span class="line">		&#125;			</span><br><span class="line">		swap(list,low,high);	<span class="comment">//将比枢轴小的记录交换到低端</span></span><br><span class="line">		<span class="keyword">while</span>(low &gt;high &amp;&amp; list[low] &lt;=pivotkey)&#123;</span><br><span class="line">			low ++;</span><br><span class="line">		&#125;</span><br><span class="line">		swap(list,low,high);	<span class="comment">//将比枢轴大的记录交换到高端</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> low;   <span class="comment">//返回枢轴所在位置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="快速排序时间复杂度分析"><a href="#快速排序时间复杂度分析" class="headerlink" title="快速排序时间复杂度分析"></a>快速排序时间复杂度分析</h3><p>在最优的情况下，快速排序算法的时间复杂度为O(nlogn)。<br>最坏情况下，其时间复杂度是O(n*n)。<br>快速排序是一种不稳定的排序方法。<br>java对快速的实现  java.util.Arrays  —-&gt; static void sort(type[] a)</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/21/递归/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/21/递归/" itemprop="url">递归</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-21T15:15:23+08:00">
+                2019-08-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  5
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><a href="http://lylblog.cn/blog/4" target="_blank" rel="noopener">http://lylblog.cn/blog/4</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/react框架/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1949,365 +2296,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第三周/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/25/实习第三周/" itemprop="url">实习第三周</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:54+08:00">
-                2019-07-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/实习/" itemprop="url" rel="index">
-                    <span itemprop="name">实习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  157
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>新增功能节点之后，给用户分配职责。</p>
-<p>使用用户账号登录后，查看功能节点。</p>
-<p>用户分配角色，分配职责。</p>
-<h2 id="参照设置-nc65sql"><a href="#参照设置-nc65sql" class="headerlink" title="参照设置 nc65sql"></a>参照设置 nc65sql</h2><p>insert into bd_refinfo (CODE, DR, ISNEEDPARA, ISSPECIALREF, LAYER, METADATANAMESPACE,<br>METADATATYPENAME, MODULENAME, NAME, PARA1, PARA2, PARA3, PK_COUNTRY, PK_INDUSTRY, PK_REFINFO, REFCLASS, REFPATH,<br> REFSYSTEM, REFTYPE, RESERV1, RESERV2, RESERV3, RESID, RESIDPATH, TS, WHEREPART)<br>values (‘TR1010020’, 0,  null, null, null, ‘uap’, ‘CustVo’, ‘uap’, ‘客户分类’, null, null, null, null, null,<br>‘0001Z0100000002TRAIN’, ‘’, ‘nc.ui.train.pub.ref.CustClassRefModel’, null, 2, null, null, null, ‘客户分类’, ‘ref’,<br>‘2019-05-29 13:44:08’, null);<br>参照注意点：<br>METADATATYPENAME：设置为空，对应的是实体的属性。</p>
-<h2 id="ORA-12541-数据库服务未监听服务"><a href="#ORA-12541-数据库服务未监听服务" class="headerlink" title="ORA-12541 数据库服务未监听服务"></a>ORA-12541 数据库服务未监听服务</h2><p>管理员启动监听服务 –》lsnrctl start</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/实习第二周/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/25/实习第二周/" itemprop="url">实习第二周</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-25T15:33:47+08:00">
-                2019-07-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/实习/" itemprop="url" rel="index">
-                    <span itemprop="name">实习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  339
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="oracle数据库配置："><a href="#oracle数据库配置：" class="headerlink" title="oracle数据库配置："></a>oracle数据库配置：</h2><p>在本地oracle环境中，tnsnames.ora文件中配置数据库信息。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">APPORCL(连接数据库的别名) =</span><br><span class="line">  (DESCRIPTION =</span><br><span class="line">    (ADDRESS_LIST =</span><br><span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = 115.28.**.**)(PORT = 1521))</span><br><span class="line">    )</span><br><span class="line">    (CONNECT_DATA =</span><br><span class="line">      (SERVICE_NAME （数据库名）= corcl)</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
-<p>nc63train/a</p>
-<h2 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE [OR REPLACE] [&#123;FORCE|NOFORCE&#125;] VIEW view_name</span><br><span class="line">AS</span><br><span class="line">SELECT查询</span><br><span class="line">[WITH READ ONLY CONSTRAINT]</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line">create or REPLACE view p_rate</span><br><span class="line">AS</span><br><span class="line">select r.userid,r.rateset,p.usercode,p.username,p.alipayid </span><br><span class="line">from rate r,pro_user p where r.userid=p.userid;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>OR REPLACE：如果视图已经存在，则替换旧视图。</li>
-<li>FORCE：即使基表不存在，也可以创建该视图，但是该视图不能正常使用，当基表创建成功后，视图才能正常使用。</li>
-<li>NOFORCE：如果基表不存在，无法创建视图，该项是默认选项。</li>
-<li>WITH READ ONLY：默认可以通过视图对基表执行增删改操作，但是有很多在基表上的限制(比如：基表中某列不能为空，但是该列没有出现在视图中，则不能通过视图执行insert操作)，WITH READ ONLY说明视图是只读视图，不能通过该视图进行增删改操作。现实开发中，基本上不通过视图对表中的数据进行增删改操作。<h2 id="删除视图"><a href="#删除视图" class="headerlink" title="删除视图"></a>删除视图</h2>可以使用“DROP VIEW 视图名称”，删除视图不会影响基表的数据。</li>
-</ol>
-<p>全局数据库名称orcl<br>管理口令 ilzzr888</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2360,7 +2348,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-count">53</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2456,7 +2444,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共100.8k字</span>
+  <span class="post-count">博客全站共104.1k字</span>
 </div>
 
         

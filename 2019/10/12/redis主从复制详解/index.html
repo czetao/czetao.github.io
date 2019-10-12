@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="linux,">
+  <meta name="keywords" content="redis,">
 
 
 
@@ -79,18 +79,27 @@
 
 
 
-<meta name="description" content="1. vim编辑器一般模式：编辑模式：[i,0,a,r]  ,  [ESC] 退出指令列命令模式 ：[:  /  ?]:wq  保存后退出:q!  强制退出不保存 Linux的分类：1.内核版本：Linux不是一个操作系统，严格来讲，只是一个操作系统的内核。内核建立计算机软件和硬件之间通讯的平台。2.发行版本：一些组织或公司在内核上进行二次开发的版本。Linux一个重要概念，一切都是文件。 Lin">
-<meta name="keywords" content="linux">
+<meta name="description" content="旧版复制功能的实现Redis的复制功能分为同步（sync）和命令传播（command propagate）两个操作：  同步操作用于将从服务器的数据库状态更新至主服务器当前所处的数据库状态； 命令传播操作则用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态。  同步当客户端向从服务器发送SLAVEOF命令，要求从服务器复制主服务器时，从服">
+<meta name="keywords" content="redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux">
-<meta property="og:url" content="http://yoursite.com/2019/08/05/Linux/index.html">
+<meta property="og:title" content="redis主从复制详解">
+<meta property="og:url" content="http://yoursite.com/2019/10/12/redis主从复制详解/index.html">
 <meta property="og:site_name" content="ddd `Blog">
-<meta property="og:description" content="1. vim编辑器一般模式：编辑模式：[i,0,a,r]  ,  [ESC] 退出指令列命令模式 ：[:  /  ?]:wq  保存后退出:q!  强制退出不保存 Linux的分类：1.内核版本：Linux不是一个操作系统，严格来讲，只是一个操作系统的内核。内核建立计算机软件和硬件之间通讯的平台。2.发行版本：一些组织或公司在内核上进行二次开发的版本。Linux一个重要概念，一切都是文件。 Lin">
+<meta property="og:description" content="旧版复制功能的实现Redis的复制功能分为同步（sync）和命令传播（command propagate）两个操作：  同步操作用于将从服务器的数据库状态更新至主服务器当前所处的数据库状态； 命令传播操作则用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态。  同步当客户端向从服务器发送SLAVEOF命令，要求从服务器复制主服务器时，从服">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-07T08:04:10.785Z">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/071952224558416.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/071952474555112.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/072019234716554.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/072018554554146.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/072022256438933.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/072056005964020.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/072109146748058.png">
+<meta property="og:image" content="https://images0.cnblogs.com/blog2015/754165/201508/072110329246085.png">
+<meta property="og:updated_time" content="2019-10-12T16:29:50.439Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux">
-<meta name="twitter:description" content="1. vim编辑器一般模式：编辑模式：[i,0,a,r]  ,  [ESC] 退出指令列命令模式 ：[:  /  ?]:wq  保存后退出:q!  强制退出不保存 Linux的分类：1.内核版本：Linux不是一个操作系统，严格来讲，只是一个操作系统的内核。内核建立计算机软件和硬件之间通讯的平台。2.发行版本：一些组织或公司在内核上进行二次开发的版本。Linux一个重要概念，一切都是文件。 Lin">
+<meta name="twitter:title" content="redis主从复制详解">
+<meta name="twitter:description" content="旧版复制功能的实现Redis的复制功能分为同步（sync）和命令传播（command propagate）两个操作：  同步操作用于将从服务器的数据库状态更新至主服务器当前所处的数据库状态； 命令传播操作则用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态。  同步当客户端向从服务器发送SLAVEOF命令，要求从服务器复制主服务器时，从服">
+<meta name="twitter:image" content="https://images0.cnblogs.com/blog2015/754165/201508/071952224558416.png">
 
 
 
@@ -120,13 +129,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/08/05/Linux/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/12/redis主从复制详解/">
 
 
 
 
 
-  <title>Linux | ddd `Blog</title>
+  <title>redis主从复制详解 | ddd `Blog</title>
   
 
 
@@ -285,7 +294,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/05/Linux/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/12/redis主从复制详解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Chen ZeTao">
@@ -302,7 +311,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Linux</h1>
+          <h1 class="post-title" itemprop="name headline">redis主从复制详解</h1>
         
 
         <div class="post-meta">
@@ -314,8 +323,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-05T21:17:43+08:00">
-                2019-08-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-12T23:18:29+08:00">
+                2019-10-12
               </time>
             
 
@@ -324,28 +333,6 @@
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/linux/" itemprop="url" rel="index">
-                    <span itemprop="name">linux</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -373,7 +360,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  376
+                  3.1k
                 </span>
               
 
@@ -389,7 +376,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1
+                  10
                 </span>
               
             </div>
@@ -410,23 +397,88 @@
       
 
       
-        <h2 id="1-vim编辑器"><a href="#1-vim编辑器" class="headerlink" title="1. vim编辑器"></a>1. vim编辑器</h2><p>一般模式：<br>编辑模式：[i,0,a,r]  ,  [ESC] 退出<br>指令列命令模式 ：[:  /  ?]<br>:wq  保存后退出<br>:q!  强制退出不保存</p>
-<p>Linux的分类：<br>1.内核版本：Linux不是一个操作系统，严格来讲，只是一个操作系统的内核。内核建立计算机软件和硬件之间通讯的平台。<br>2.发行版本：一些组织或公司在内核上进行二次开发的版本。<br>Linux一个重要概念，一切都是文件。</p>
-<p>Linux常用命令</p>
-<ol>
-<li>mkdir：增加目录   rmdir：删除目录</li>
-<li>ls 或 ll :( ll 是ls -l缩写  ll可看到该目录下所有目录和文件的详细信息 )</li>
-<li>find 目录 参数  :寻找目录<br>eg : find .  -name ‘x.txt’  -o  -name ‘x.pdf’<br>当前目录及子目录下 所有以 .txt , .pdf结尾的文件</li>
-<li>mv 目录名称 新目录名称 （改名）<br>mv 目录名称 目录新位置 （剪切）</li>
-<li>cp  -r  目录  目录新名字  （拷贝，-r递归拷贝）</li>
-<li>rm  [-rf]  目录 ：删除目录<br>tar  -zcvf  压缩后的名字  要打包的文件<br>-s 还原文件的顺序和备份文件内的存放顺序相同。<br>-t 列出备份文件的内容。<br>-v 显示指令执行过程。<br>-f 指定压缩文件<br>-x 从备份文件中还原文件。<br>tar -xvf  压缩文件   -x 解压</li>
-<li>Linux 查看负载<ul>
-<li>uptime 显示当前机器负载</li>
-<li>w 列出所有user分别的情况</li>
-<li>top wa超10%表示IO压力很大。</li>
+        <h3 id="旧版复制功能的实现"><a href="#旧版复制功能的实现" class="headerlink" title="旧版复制功能的实现"></a>旧版复制功能的实现</h3><p>Redis的复制功能分为同步（sync）和命令传播（command propagate）两个操作：</p>
+<ul>
+<li>同步操作用于将从服务器的数据库状态更新至主服务器当前所处的数据库状态；</li>
+<li>命令传播操作则用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态。</li>
 </ul>
-</li>
+<h4 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h4><p>当客户端向从服务器发送SLAVEOF命令，要求从服务器复制主服务器时，从服务器首先需要执行同步操作，也即是，将从服务器的数据库状态更新至主服务器当前所处的数据库状态。</p>
+<p>从服务器对主服务器的同步操作需要通过向主服务器发送SYNC命令来完成，以下是SYNC命令的执行步骤：</p>
+<ol>
+<li>从服务器向主服务器发送SYNC命令；</li>
+<li>收到SYNC命令的主服务器执行BGSAVE命令，在后台生成一个RDB文件，并使用一个缓冲区记录从现在开始执行的所有写命令；</li>
+<li>当主服务器的BGSAVE命令执行完毕时，主服务器会将BGSAVE命令生成的RDB文件发送给从服务器，从服务器接收并载入这个RDB文件，将自己的数据库状态更新至主服务器<strong>执行BGSAVE命令时的数据库状态</strong>。</li>
+<li>主服务器将记录在缓冲区里面的所有写命令发送给从服务器，<strong>从服务器执行这些写命令</strong>，将自己的数据库状态更新至主服务器数据库当前所处的状态。</li>
 </ol>
+<h4 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h4><p>在执行完同步操作之后，主从服务器之间数据库状态已经相同了。但这个状态并非一成不变，如果主服务器执行了写操作，那么主服务器的数据库状态就会修改，并导致主从服务器状态不再一致。</p>
+<p>所以为了让主从服务器再次回到一致状态，主服务器需要对从服务器执行命令传播操作：主服务器会将自己执行的写命令，也即是造成主从服务器不一致的那条写命令，发送给从服务器执行，当从服务器执行了相同的写命令之后，主从服务器将再次回到一致状态。</p>
+<h3 id="旧版复制功能的缺陷"><a href="#旧版复制功能的缺陷" class="headerlink" title="旧版复制功能的缺陷"></a>旧版复制功能的缺陷</h3><p>在Redis中，从服务器对主服务器的复制可以分为以下两种情况：</p>
+<ul>
+<li>初次复制：从服务器以前没有复制过任何主服务器，或者从服务器当前要复制的主服务器和上一次复制的主服务器不同；</li>
+<li>断线后重复制：处于命令传播阶段的主从服务器因为网络原因而中断了复制，但从服务器通过自动重连接重新连上了主服务器，并继续复制主服务器。</li>
+</ul>
+<p>对于初次复制来说，旧版复制功能能够很好地完成任务，但对于断线后重复制来说，旧版复制功能虽然也能让主从服务器重新回到一致状态，但效率却非常低。</p>
+<p>我们给出一个例子进行说明：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/071952224558416.png" alt="img"></p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/071952474555112.png" alt="img"></p>
+<p>从服务器终于重新连接上主服务器，因为这时主从服务器的状态已经不再一致，所以从服务器将向主服务器发送SYNC命令，而主服务器会将包含键k1至键k10089的RDB文件发送给从服务器，从服务器通过接收和载入这个RDB文件来将自己的数据库更新至主服务器数据库当前所处的状态。</p>
+<p>上面给出的例子可能有一点理想化，因为在主从服务器断线期间，主服务器执行的写命令可能会有成百上千个之多，而不仅仅是两三个写命令。但总的来说，主从服务器断开的时间越短，主服务器在断线期间执行的写命令就越少，而执行少量写命令所产生的数据量通常比整个数据库的数据量要少得多，在这种情况下，为了让从服务器补足一小部分缺失的数据，却要让主从服务器重新执行一次SYNC命令，这种做法无疑是非常低效的。</p>
+<h4 id="SYNC命令是一个非常耗费资源的操作"><a href="#SYNC命令是一个非常耗费资源的操作" class="headerlink" title="SYNC命令是一个非常耗费资源的操作"></a>SYNC命令是一个非常耗费资源的操作</h4><p>SYNC命令是非常消耗资源的，因为每次执行SYNC命令，主从服务器需要执行一下操作：</p>
+<ol>
+<li>主服务器需要执行BGSAVE命令来生成RDB文件，这个生成操作会耗费主服务器大量的CPU、内存和磁盘I/O资源；</li>
+<li>主服务器需要将自己生成的RDB文件发送给从服务器，这个发送操作会耗费主从服务器大量的网络资源（带宽和流量），并对主服务器响应命令请求的时间产生影响；</li>
+<li>接收到RDB文件的从服务器需要载入主服务器发来的RDB文件，并且在载入期间，从<strong>服务器会因为阻塞而没办法处理命令请求</strong>。</li>
+</ol>
+<p>SYNC是一个如此消耗资源的命令，所以Redis最好在真需要的时候才需要执行SYNC命令。</p>
+<h3 id="新版复制功能的实现"><a href="#新版复制功能的实现" class="headerlink" title="新版复制功能的实现"></a>新版复制功能的实现</h3><p>为了解决旧版复制功能在处理断线重复制情况时的低效问题，Redis从2.8版本开始，使用<strong>PSYNC</strong>命令代替SYNC命令来执行复制时的同步操作。</p>
+<p>PSYNC命令具有完整重同步（full resynchronization）和部分重同步（partial resynchronization）两种模式：</p>
+<ul>
+<li>其中完整重同步用于处理初次复制情况：完整重同步的执行步骤和SYNC命令的执行步骤基本一样，它们都是通过让主服务器创建并发送RDB文件，以及向从服务器发送保存在缓冲区里面的写命令来进行同步；</li>
+<li>而部分重同步则用于处理断线后重复制情况：当从服务器在断线后重新连接主服务器时，<strong>如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</strong></li>
+</ul>
+<p>我们现在试举一例来看看使用PSYNC处理断线后情况：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072019234716554.png" alt="img"></p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072018554554146.png" alt="img"></p>
+<p>下图展示了主从服务器在执行部分重同步时的通信过程。</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072022256438933.png" alt="img"></p>
+<p>其实看到这里的时候心里还是有一个疑问的：如果上面的例子是T3时候从服务器掉线，然后在T10093的时候才连接上或者更长的时间呢！！！你这样一条指令一条指令地传输过去还不如直接来一个SYNC命令快一些。所以在我看来使用PSYNC进行操作时，什么时候部分重同步，什么时候全部重同步是一个策略问题。当然Redis会解决这个问题，所以大家继续看0_0</p>
+<h3 id="部分重同步的实现"><a href="#部分重同步的实现" class="headerlink" title="部分重同步的实现"></a><strong>部分重同步的实现</strong></h3><p>部分重同步功能由以下三个部分构成：</p>
+<ul>
+<li>主服务器的<strong>复制偏移量</strong>（replication offset）和从服务器的复制偏移量；</li>
+<li><strong>主服务器的复制积压缓冲区（replication backlog）</strong>；</li>
+<li><strong>服务器的运行ID</strong>（run ID）。</li>
+</ul>
+<h4 id="复制偏移量"><a href="#复制偏移量" class="headerlink" title="复制偏移量"></a>复制偏移量</h4><p>执行复制的双方——主服务器和从服务器会分别维护一个复制偏移量：</p>
+<ul>
+<li>主服务器每次向从服务器传播N个字节的数据时，就将自己的复制偏移量的值加上N；</li>
+<li>从服务器每次收到主服务器传播来的N个字节的数据时，就将自己的复制偏移量的值加上N；</li>
+</ul>
+<p>（我靠！！难道从服务器没有反馈吗？丢包了怎么办？难道是用TCP？大家继续看，我只是想穿插一些我的思路）</p>
+<p>通过对比主从服务器的复制偏移量，程序可以很容易地知道主从服务器是否处于一致状态：</p>
+<ul>
+<li>如果主从服务器处于一致状态，那么主从服务器两者的偏移量总是相同的；</li>
+<li>相反，如果主从服务器两者的偏移量并不相同，那么说明主从服务器并未处于一致状态。</li>
+</ul>
+<p>如下面的情况：</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072056005964020.png" alt="img"></p>
+<p>假设从服务器A在断线之后就立即重新连接主服务器，并且成功，那么接下来，<strong>从服务器将向主服务器发送PSYNC命令，报告从服务器A当前的复制偏移量为10086，</strong>那么这时，主服务器应该对从服务器执行完整重同步还是部分重同步呢？如果执行部分重同步的话，主服务器又如何补偿从服务器A在断线期间丢失的那部分数据呢？以上问题的答案都和复制积压缓冲区有关。</p>
+<h4 id="复制积压缓冲区"><a href="#复制积压缓冲区" class="headerlink" title="复制积压缓冲区"></a>复制积压缓冲区</h4><p>复制积压缓冲区是由主服务器维护的一个固定长度（fixed-size）先进先出（FIFO）队列，默认大小为1MB。</p>
+<p>和普通先进先出队列随着元素的增加和减少而动态调整长度不同，固定长度先进先出队列的长度是固定的，当入队元素的数量大于队列长度时，最先入队的元素会被弹出，而新元素会被放入队列。</p>
+<p>当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器，还会将写命令入队到复制积压缓冲区里面，如图所示。</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072109146748058.png" alt="img"></p>
+<p>因此，主服务器的复制积压缓冲区里面会保存着一部分最近传播的写命令，并且复制积压缓冲区会为队列中的每个字节记录相应的复制偏移量，就像下表所示的那样。</p>
+<p><img src="https://images0.cnblogs.com/blog2015/754165/201508/072110329246085.png" alt="img"></p>
+<p>当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+<ul>
+<li>如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行部分重同步操作；</li>
+<li>相反，如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行完整重同步操作。</li>
+</ul>
+<h4 id="根据需要调整复制积压缓冲区的大小"><a href="#根据需要调整复制积压缓冲区的大小" class="headerlink" title="根据需要调整复制积压缓冲区的大小"></a>根据需要调整复制积压缓冲区的大小</h4><p>Redis为复制积压缓冲区设置的默认大小为1MB，如果主服务器需要执行大量写命令，又或者主从服务器断线后重连接所需的时间比较长，那么这个大小也许并不合适。如果复制积压缓冲区的大小设置得不恰当，那么PSYNC命令的复制重同步模式就不能正常发挥作用，因此，正确估算和设置复制积压缓冲区的大小非常重要。<br>复制积压缓冲区的最小大小可以根据公式second*write_size_per_second来估算：</p>
+<ul>
+<li>其中second为从服务器断线后重新连接上主服务器所需的平均时间（以秒计算）；</li>
+<li>而write_size_per_second则是主服务器平均每秒产生的写命令数据量（协议格式的写命令的长度总和）；</li>
+</ul>
+<p>例如，如果主服务器平均每秒产生1 MB的写数据，而从服务器断线之后平均要5秒才能重新连接上主服务器，那么复制积压缓冲区的大小就不能低于5MB。<br>为了安全起见，可以将复<strong>制积压缓冲区的大小设为2*second*write_size_per_second</strong>，这样可以保证绝大部分断线情况都能用部分重同步来处理。<br>至于复制积压缓冲区大小的修改方法，可以参考配置文件中关于<strong>repl-backlog-size</strong>选项的说明。</p>
 
       
     </div>
@@ -444,7 +496,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/linux/" rel="tag"># linux</a>
+            <a href="/tags/redis/" rel="tag"># redis</a>
           
         </div>
       
@@ -457,8 +509,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/02/微服务架构/" rel="next" title="微服务架构">
-                <i class="fa fa-chevron-left"></i> 微服务架构
+              <a href="/2019/10/12/count-1-count-count-col/" rel="next" title="count(1),count(*),count(col)">
+                <i class="fa fa-chevron-left"></i> count(1),count(*),count(col)
               </a>
             
           </div>
@@ -466,10 +518,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/08/06/数据锁/" rel="prev" title="数据锁">
-                数据锁 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -603,7 +651,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-vim编辑器"><span class="nav-number">1.</span> <span class="nav-text">1. vim编辑器</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#旧版复制功能的实现"><span class="nav-number">1.</span> <span class="nav-text">旧版复制功能的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#同步"><span class="nav-number">1.1.</span> <span class="nav-text">同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#命令传播"><span class="nav-number">1.2.</span> <span class="nav-text">命令传播</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#旧版复制功能的缺陷"><span class="nav-number">2.</span> <span class="nav-text">旧版复制功能的缺陷</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SYNC命令是一个非常耗费资源的操作"><span class="nav-number">2.1.</span> <span class="nav-text">SYNC命令是一个非常耗费资源的操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新版复制功能的实现"><span class="nav-number">3.</span> <span class="nav-text">新版复制功能的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部分重同步的实现"><span class="nav-number">4.</span> <span class="nav-text">部分重同步的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#复制偏移量"><span class="nav-number">4.1.</span> <span class="nav-text">复制偏移量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#复制积压缓冲区"><span class="nav-number">4.2.</span> <span class="nav-text">复制积压缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#根据需要调整复制积压缓冲区的大小"><span class="nav-number">4.3.</span> <span class="nav-text">根据需要调整复制积压缓冲区的大小</span></a></li></ol></li></ol></div>
             
 
           </div>

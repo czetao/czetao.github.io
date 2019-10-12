@@ -281,6 +281,405 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/01/SQL注入/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/01/SQL注入/" itemprop="url">SQL注入</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-01T17:50:41+08:00">
+                2019-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.6k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  6
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="SQL注入简介"><a href="#SQL注入简介" class="headerlink" title="SQL注入简介"></a>SQL注入简介</h2><p>SQL注入是网站存在最多也是最简单的漏洞，主要原因是程序员在开发用户和数据库交互的系统时，没有对用户输入的字符串进行过滤，转义，限制或处理不严谨，导致用户可以通过输入精心构造的字符串去非法获取到数据库中的数据。</p>
+<h3 id="SQL注入原理"><a href="#SQL注入原理" class="headerlink" title="SQL注入原理"></a>SQL注入原理</h3><p>一般用户登录用的SQL语句为：SELECT <em> FROM user WHERE username=’admin’ AND password=’passwd’，此处admin和passwd分别为用户输入的用户名和密码，如果程序员没有对用户输入的用户名和密码做处理，就可以构造万能密码成功绕过登录验证，如用户输入<strong>‘or 1#</strong>,SQL语句将变为：SELECT </em> FROM user WHERE username=’’or 1#’ AND password=’’，‘’or 1为TRUE，#注释掉后面的内容，所以查询语句可以正确执行。</p>
+<h3 id="mybatis是如何防止SQL注入的"><a href="#mybatis是如何防止SQL注入的" class="headerlink" title="mybatis是如何防止SQL注入的"></a>mybatis是如何防止SQL注入的</h3><h3 id="1、首先看一下下面两个sql语句的区别："><a href="#1、首先看一下下面两个sql语句的区别：" class="headerlink" title="1、首先看一下下面两个sql语句的区别："></a>1、首先看一下下面两个sql语句的区别：</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id="selectByNameAndPassword" parameterType="java.util.Map" resultMap="BaseResultMap"&gt;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">id</span>, username, <span class="keyword">password</span>, <span class="keyword">role</span></span><br><span class="line"><span class="keyword">from</span> <span class="keyword">user</span></span><br><span class="line"><span class="keyword">where</span> username = <span class="comment">#&#123;username,jdbcType=VARCHAR&#125;</span></span><br><span class="line"><span class="keyword">and</span> <span class="keyword">password</span> = <span class="comment">#&#123;password,jdbcType=VARCHAR&#125;</span></span><br><span class="line">&lt;/<span class="keyword">select</span>&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id="selectByNameAndPassword" parameterType="java.util.Map" resultMap="BaseResultMap"&gt;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">id</span>, username, <span class="keyword">password</span>, <span class="keyword">role</span></span><br><span class="line"><span class="keyword">from</span> <span class="keyword">user</span></span><br><span class="line"><span class="keyword">where</span> username = $&#123;username,jdbcType=<span class="built_in">VARCHAR</span>&#125;</span><br><span class="line"><span class="keyword">and</span> <span class="keyword">password</span> = $&#123;<span class="keyword">password</span>,jdbcType=<span class="built_in">VARCHAR</span>&#125;</span><br><span class="line">&lt;/<span class="keyword">select</span>&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>mybatis中的#和$的区别：</strong></p>
+<p>1、#将传入的数据都当成一个字符串，会对自动传入的数据加一个双引号。<br>如：where username=#{username}，如果传入的值是111,那么解析成sql时的值为where username=”111”, 如果传入的值是id，则解析成的sql为where username=”id”.　<br>2、$将传入的数据直接显示生成在sql中。<br>如：where username=${username}，如果传入的值是111,那么解析成sql时的值为where username=111；<br>如果传入的值是;drop table user;，则解析成的sql为：select id, username, password, role from user where username=;drop table user;<br>3、#方式能够很大程度防止sql注入，$方式无法防止Sql注入。<br>4、$方式一般用于传入数据库对象，例如传入表名.<br>5、一般能用#的就别用$，若不得不使用“${xxx}”这样的参数，要手工地做好过滤工作，来防止sql注入攻击。<br>6、在MyBatis中，“${xxx}”这样格式的参数会直接参与SQL编译，从而不能避免注入攻击。但涉及到动态表名和列名时，只能使用“${xxx}”这样的参数格式。所以，这样的参数需要我们在代码中手工进行处理来防止注入。<br>【结论】在编写MyBatis的映射语句时，尽量采用“#{xxx}”这样的格式。若不得不使用“${xxx}”这样的参数，要手工地做好过滤工作，来防止SQL注入攻击。</p>
+<h3 id="2、什么是sql注入"><a href="#2、什么是sql注入" class="headerlink" title="2、什么是sql注入"></a>2、什么是sql注入</h3><p>　　<a href="https://en.wikipedia.org/wiki/SQL_injection" target="_blank" rel="noopener"> sql注入解释</a>：是一种代码注入技术，用于攻击数据驱动的应用，恶意的SQL语句被插入到执行的实体字段中（例如，为了转储数据库内容给攻击者）</p>
+<p>　　<strong>SQL**</strong>注入<strong>，大家都不陌生，是一种常见的攻击方式。</strong>攻击者<strong>在界面的表单信息或URL上输入一些奇怪的SQL片段（例如“or ‘1’=’1’”这样的语句），有可能入侵</strong>参数检验不足<strong>的应用程序。所以，在我们的应用中需要做一些工作，来防备这样的攻击方式。在一些安全性要求很高的应用中（比如银行软件），经常使用将</strong>SQL<strong>**语句</strong>全部替换为<strong>存储过程</strong>这样的方式，来防止SQL注入。这当然是<strong>一种很安全的方式</strong>，但我们平时开发中，可能不需要这种死板的方式。</p>
+<h3 id="3、mybatis是如何做到防止sql注入的"><a href="#3、mybatis是如何做到防止sql注入的" class="headerlink" title="3、mybatis是如何做到防止sql注入的"></a>3、mybatis是如何做到防止sql注入的</h3><p>　　<a href="https://mybatis.github.io/mybatis-3/" target="_blank" rel="noopener">MyBatis</a>框架作为一款半自动化的持久层框架，其SQL语句都要我们自己手动编写，这个时候当然需要防止SQL注入。其实，MyBatis的SQL是一个具有“<strong>输入+输出</strong>”的功能，类似于函数的结构，参考上面的两个例子。其中，parameterType表示了输入的参数类型，resultType表示了输出的参数类型。回应上文，如果我们想防止SQL注入，理所当然地要在输入参数上下功夫。上面代码中使用 <strong>#</strong> 的即输入参数在SQL中拼接的部分，传入参数后，打印出执行的SQL语句，会看到SQL是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select id, username, password, role from user where username=? and password=?</span><br></pre></td></tr></table></figure>
+<p>　　不管输入什么参数，打印出的SQL都是这样的。这是因为MyBatis启用了预编译功能，在SQL执行前，会先将上面的SQL发送给数据库进行编译；执行时，直接使用编译好的SQL，替换占位符“?”就可以了。因为SQL注入只能对编译过程起作用，所以这样的方式就很好地避免了SQL注入的问题。</p>
+<p>　　【底层实现原理】MyBatis是如何做到SQL预编译的呢？其实在框架底层，是JDBC中的PreparedStatement类在起作用，PreparedStatement是我们很熟悉的Statement的子类，它的对象包含了编译好的SQL语句。这种“准备好”的方式不仅能提高安全性，而且在多次执行同一个SQL时，能够提高效率。原因是SQL已编译好，再次执行时无需再编译。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//安全的，预编译了的</span><br><span class="line">Connection conn = getConn();//获得连接</span><br><span class="line">String sql = &quot;select id, username, password, role from user where id=?&quot;; //执行sql前会预编译号该条语句</span><br><span class="line">PreparedStatement pstmt = conn.prepareStatement(sql); </span><br><span class="line">pstmt.setString(1, id); </span><br><span class="line">ResultSet rs=pstmt.executeUpdate(); </span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//不安全的，没进行预编译</span><br><span class="line">private String getNameByUserId(String userId) &#123;</span><br><span class="line">    Connection conn = getConn();//获得连接</span><br><span class="line">    String sql = &quot;select id,username,password,role from user where id=&quot; + id;</span><br><span class="line">    //当id参数为&quot;3;drop table user;&quot;时，执行的sql语句如下:</span><br><span class="line">    //select id,username,password,role from user where id=3; drop table user;  </span><br><span class="line">    PreparedStatement pstmt =  conn.prepareStatement(sql);</span><br><span class="line">    ResultSet rs=pstmt.executeUpdate();</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>【 <strong>结论</strong>：】</p>
+<table>
+<thead>
+<tr>
+<th>#{}：相当于JDBC中的PreparedStatement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>${}：是输出变量的值</td>
+</tr>
+</tbody>
+</table>
+<p>简单说，#{}是经过预编译的，是安全的；${}是未经过预编译的，仅仅是取变量的值，是非安全的，存在SQL注入。<br>如果我们order by语句后用了${}，那么不做任何处理的时候是存在SQL注入危险的。你说怎么防止，那我只能悲惨的告诉你，你得手动处理过滤一下输入的内容。如判断一下输入的参数的长度是否正常（注入语句一般很长），更精确的过滤则可以查询一下输入的参数是否在预期的参数集合中。</p>
+<p>作者：<a href="http://www.cnblogs.com/mmzs/" target="_blank" rel="noopener">淼淼之森</a></p>
+<p>### </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/01/JAVA锁/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/01/JAVA锁/" itemprop="url">JAVA锁</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-01T17:48:43+08:00">
+                2019-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  4.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  14
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="JAVA锁"><a href="#JAVA锁" class="headerlink" title="JAVA锁"></a>JAVA锁</h1><p>Java SE1.6为了减少获得锁和释放锁所带来的性能消耗，引入了“偏向锁”和“轻量级锁”，所以在Java SE1.6里锁一共有四种状态，无锁状态，偏向锁状态，轻量级锁状态和重量级锁状态，它会随着竞争情况逐渐升级。<strong>锁可以升级但不能降级，意味着偏向锁升级成轻量级锁后不能降级成偏向锁。这种锁升级却不能降级的策略，目的是为了提高获得锁和释放锁的效率。</strong></p>
+<h3 id="悲观锁与乐观锁"><a href="#悲观锁与乐观锁" class="headerlink" title="悲观锁与乐观锁"></a>悲观锁与乐观锁</h3><h4 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h4><p>总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁。传统的关系型数据库里边就用到了很多这种锁机制，比如行锁，表锁，读锁，写锁等，都是在做操作之前先上锁。JAVA中synchronize和ReentrantLock等独占锁就是悲观锁思想的实现。</p>
+<h4 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h4><p>总是假设最好的情况，每次拿数据都认为别人不会修改，所以不会上锁。<strong>但是在更新的时候会判断一下在此期间别人有没有去更新这个数据，可以使用版本号机制和CAS算法实现。</strong></p>
+<p>乐观锁适用于多读的应用类型，这样可以提高吞吐量。</p>
+<p><strong>java中的4种锁，分别是重量级锁，自旋锁，轻量级锁和偏向锁。重量级锁是悲观锁的一种，自旋锁，轻量级锁和偏向锁属于乐观锁。</strong></p>
+<h5 id="乐观锁常见的两种实现方式"><a href="#乐观锁常见的两种实现方式" class="headerlink" title="乐观锁常见的两种实现方式"></a>乐观锁常见的两种实现方式</h5><blockquote>
+<p><strong>乐观锁一般会使用版本号机制或CAS算法实现。</strong></p>
+</blockquote>
+<h4 id="1-版本号机制"><a href="#1-版本号机制" class="headerlink" title="1. 版本号机制"></a>1. 版本号机制</h4><p>一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。当线程A要更新数据值时，在读取数据的同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</p>
+<p><strong>举一个简单的例子：</strong> 假设数据库中帐户信息表中有一个 version 字段，当前值为 1 ；而当前帐户余额字段（ balance ）为 $100 。</p>
+<ol>
+<li>操作员 A 此时将其读出（ version=1 ），并从其帐户余额中扣除 $50（ $100-$50 ）。</li>
+<li>在操作员 A 操作的过程中，操作员B 也读入此用户信息（ version=1 ），并从其帐户余额中扣除 $20 （ $100-$20 ）。</li>
+<li>操作员 A 完成了修改工作，将数据版本号加一（ version=2 ），连同帐户扣除后余额（ balance=$50 ），提交至数据库更新，此时由于提交数据版本大于数据库记录当前版本，数据被更新，数据库记录 version 更新为 2 。</li>
+<li>操作员 B 完成了操作，也将版本号加一（ version=2 ）试图向数据库提交数据（ balance=$80 ），但此时比对数据库记录版本时发现，操作员 B 提交的数据版本号为 2 ，数据库记录当前版本也为 2 ，不满足 “ 提交版本必须大于记录当前版本才能执行更新 “ 的乐观锁策略，因此，操作员 B 的提交被驳回。</li>
+</ol>
+<p>这样，就避免了操作员 B 用基于 version=1 的旧数据修改的结果覆盖操作员A 的操作结果的可能。</p>
+<h4 id="2-简单回顾一下CAS算法"><a href="#2-简单回顾一下CAS算法" class="headerlink" title="2.简单回顾一下CAS算法"></a>2.简单回顾一下CAS算法</h4><p><strong>CAS算法</strong> 即compare and swap（比较与交换），是一种有名的无锁算法。无锁编程，即不使用锁的情况下实现多线程之间的变量同步，也就是在没有线程被阻塞的情况下实现变量的同步，所以也叫非阻塞同步（Non-blocking Synchronization）。CAS算法涉及到三个操作数</p>
+<ul>
+<li>需要读写的内存值 V</li>
+<li>进行比较的值 A</li>
+<li>拟写入的新值 B</li>
+</ul>
+<p>当且仅当 V 的值等于 A时，CAS通过原子方式用新值B来更新V的值，否则不会执行任何操作（比较和替换是一个原子操作）。一般情况下是一个自旋操作，即不断的重试。</p>
+<h3 id="乐观锁的缺点"><a href="#乐观锁的缺点" class="headerlink" title="乐观锁的缺点"></a>乐观锁的缺点</h3><blockquote>
+<p>ABA 问题是乐观锁一个常见的问题</p>
+</blockquote>
+<h4 id="1-ABA-问题"><a href="#1-ABA-问题" class="headerlink" title="1 ABA 问题"></a>1 ABA 问题</h4><p>如果一个变量V初次读取的时候是A值，并且在准备赋值的时候检查到它仍然是A值，那我们就能说明它的值没有被其他线程修改过了吗？很明显是不能的，因为在这段时间它的值可能被改为其他值，然后又改回A，那CAS操作就会误认为它从来没有被修改过。这个问题被称为CAS操作的 <strong>“ABA”问题。</strong></p>
+<p>JDK 1.5 以后的 <code>AtomicStampedReference 类</code>就提供了此种能力，其中的 <code>compareAndSet 方法</code>就是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。</p>
+<h4 id="2-循环时间长开销大"><a href="#2-循环时间长开销大" class="headerlink" title="2 循环时间长开销大"></a>2 循环时间长开销大</h4><p><strong>自旋CAS（也就是不成功就一直循环执行直到成功）如果长时间不成功，会给CPU带来非常大的执行开销。</strong> 如果JVM能支持处理器提供的pause指令那么效率会有一定的提升，pause指令有两个作用，第一它可以延迟流水线执行指令（de-pipeline）,使CPU不会消耗过多的执行资源，延迟的时间取决于具体实现的版本，在一些处理器上延迟时间是零。第二它可以避免在退出循环的时候因内存顺序冲突（memory order violation）而引起CPU流水线被清空（CPU pipeline flush），从而提高CPU的执行效率。</p>
+<h4 id="3-只能保证一个共享变量的原子操作"><a href="#3-只能保证一个共享变量的原子操作" class="headerlink" title="3 只能保证一个共享变量的原子操作"></a>3 只能保证一个共享变量的原子操作</h4><p>CAS 只对单个共享变量有效，当操作涉及跨多个共享变量时 CAS 无效。但是从 JDK 1.5开始，提供了<code>AtomicReference类</code>来保证引用对象之间的原子性，你可以把多个变量放在一个对象里来进行 CAS 操作.所以我们可以使用锁或者利用<code>AtomicReference类</code>把多个共享变量合并成一个共享变量来操作。</p>
+<h3 id="什么是自旋锁？"><a href="#什么是自旋锁？" class="headerlink" title="什么是自旋锁？"></a>什么是自旋锁？</h3><p>自旋锁（spinlock）：是指当一个线程在获取锁的时候，如果锁已经被其它线程获取，那么该线程将循环等待，然后不断的判断锁是否能够被成功获取，直到获取到锁才会退出循环。</p>
+<p>获取锁的线程一直处于活跃状态，但是并没有执行任何有效的任务，使用这种锁会造成<a href="https://en.wikipedia.org/wiki/Busy_waiting" target="_blank" rel="noopener">busy-waiting</a>。</p>
+<p>它是为实现保护共享资源而提出一种锁机制。其实，自旋锁与互斥锁比较类似，它们都是为了解决对某项资源的互斥使用。无论是互斥锁，还是自旋锁，在任何时刻，最多只能有一个保持者，也就说，在任何时刻最多只能有一个执行单元获得锁。但是两者在调度机制上略有不同。对于互斥锁，如果资源已经被占用，资源申请者只能进入睡眠状态。但是自旋锁不会引起调用者睡眠，如果自旋锁已经被别的执行单元保持，调用者就一直循环在那里看是否该自旋锁的保持者已经释放了锁，”自旋”一词就是因此而得名。</p>
+<h3 id="Java如何实现自旋锁？"><a href="#Java如何实现自旋锁？" class="headerlink" title="Java如何实现自旋锁？"></a>Java如何实现自旋锁？</h3><p>下面是个简单的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpinLock</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> AtomicReference&lt;Thread&gt; cas = <span class="keyword">new</span> AtomicReference&lt;Thread&gt;();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread current = Thread.currentThread();</span><br><span class="line">        <span class="comment">// 利用CAS</span></span><br><span class="line">        <span class="keyword">while</span> (!cas.compareAndSet(<span class="keyword">null</span>, current)) &#123;</span><br><span class="line">            <span class="comment">// DO nothing</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread current = Thread.currentThread();</span><br><span class="line">        cas.compareAndSet(current, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="number">1234567891011121314</span></span><br></pre></td></tr></table></figure>
+<p>lock（)方法利用的CAS，当第一个线程A获取锁的时候，能够成功获取到，不会进入while循环，如果此时线程A没有释放锁，另一个线程B又来获取锁，此时由于不满足CAS，所以就会进入while循环，不断判断是否满足CAS，直到A线程调用unlock方法释放了该锁。</p>
+<h3 id="自旋锁存在的问题"><a href="#自旋锁存在的问题" class="headerlink" title="自旋锁存在的问题"></a>自旋锁存在的问题</h3><ol>
+<li>如果某个线程持有锁的时间过长，就会导致其它等待获取锁的线程进入循环等待，消耗CPU。使用不当会造成CPU使用率极高。</li>
+<li>上面Java实现的自旋锁不是公平的，即无法满足等待时间最长的线程优先获取锁。不公平的锁就会存在“线程饥饿”问题。</li>
+</ol>
+<h3 id="自旋锁的优点"><a href="#自旋锁的优点" class="headerlink" title="自旋锁的优点"></a>自旋锁的优点</h3><ol>
+<li>自旋锁不会使线程状态发生切换，一直处于用户态，即线程一直都是active的；不会使线程进入阻塞状态，减少了不必要的上下文切换，执行速度快</li>
+<li>非自旋锁在获取不到锁的时候会进入阻塞状态，从而进入内核态，当获取到锁的时候需要从内核态恢复，需要线程上下文切换。 （线程被阻塞后便进入内核（Linux）调度状态，这个会导致系统在用户态与内核态之间来回切换，严重影响锁的性能）</li>
+</ol>
+<h3 id="TicketLock主要解决的是公平性的问题。"><a href="#TicketLock主要解决的是公平性的问题。" class="headerlink" title="TicketLock主要解决的是公平性的问题。"></a>TicketLock主要解决的是公平性的问题。</h3><p>思路：每当有线程获取锁的时候，就给该线程分配一个递增的id，我们称之为排队号，同时，锁对应一个服务号，每当有线程释放锁，服务号就会递增，此时如果服务号与某个线程排队号一致，那么该线程就获得锁，由于排队号是递增的，所以就保证了最先请求获取锁的线程可以最先获取到锁，就实现了公平性。</p>
+<p>可以想象成银行办理业务排队，排队的每一个顾客都代表一个需要请求锁的线程，而银行服务窗口表示锁，每当有窗口服务完成就把自己的服务号加一，此时在排队的所有顾客中，只有自己的排队号与服务号一致的才可以得到服务。</p>
+<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>Java偏向锁(Biased Locking)是Java6引入的一项多线程优化。<br>偏向锁，顾名思义，它会偏向于第一个访问锁的线程，如果在运行过程中，同步锁只有一个线程访问，不存在多线程争用的情况，则线程是不需要触发同步的，这种情况下，就会给线程加一个偏向锁。<br><strong>如果在运行过程中，遇到了其他线程抢占锁，则持有偏向锁的线程会被挂起，JVM会消除它身上的偏向锁，将锁恢复到标准的轻量级锁。</strong></p>
+<p>它通过消除资源无竞争情况下的同步原语，进一步提高了程序的运行性能。</p>
+<h4 id="偏向锁的实现"><a href="#偏向锁的实现" class="headerlink" title="偏向锁的实现"></a>偏向锁的实现</h4><p>偏向锁获取过程：</p>
+<ol>
+<li>访问Mark Word中偏向锁的标识是否设置成1，锁标志位是否为01，确认为可偏向状态。</li>
+<li>如果为可偏向状态，则测试线程ID是否指向当前线程，如果是，进入步骤5，否则进入步骤3。</li>
+<li>如果线程ID并未指向当前线程，则通过CAS操作竞争锁。如果竞争成功，则将Mark Word中线程ID设置为当前线程ID，然后执行5；如果竞争失败，执行4。</li>
+<li>如果CAS获取偏向锁失败，则表示有竞争。当到达全局安全点（safepoint）时获得偏向锁的线程被挂起，偏向锁升级为轻量级锁，然后被阻塞在安全点的线程继续往下执行同步代码。（撤销偏向锁的时候会导致stop the word）</li>
+<li>执行同步代码。</li>
+</ol>
+<p>注意：第四步中到达安全点safepoint会导致stop the word，时间很短。</p>
+<h4 id="偏向锁的释放："><a href="#偏向锁的释放：" class="headerlink" title="偏向锁的释放："></a>偏向锁的释放：</h4><p>偏向锁的撤销在上述第四步骤中有提到。偏向锁只有遇到其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁，<strong>线程不会主动去释放偏向锁。</strong>偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，判断锁对象是否处于被锁定状态，撤销偏向锁后恢复到未锁定（标志位为“01”）或轻量级锁（标志位为“00”）的状态。</p>
+<h4 id="偏向锁的适用场景"><a href="#偏向锁的适用场景" class="headerlink" title="偏向锁的适用场景"></a>偏向锁的适用场景</h4><p>始终只有一个线程在执行同步块，在它没有执行完释放锁之前，没有其它线程去执行同步块，在锁无竞争的情况下使用，一旦有了竞争就升级为轻量级锁，升级为轻量级锁的时候需要撤销偏向锁，撤销偏向锁的时候会导致stop the word操作；<br>在有锁的竞争时，偏向锁会多做很多额外操作，尤其是撤销偏向所的时候会导致进入安全点，安全点会导致stw，导致性能下降，这种情况下应当禁用； </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h3 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h3><p>线程的阻塞和唤醒需要CPU从用户态转为核心态，频繁的阻塞和唤醒对CPU来说是一件负担很重的工作。同时我们可以发现，很多对象锁的锁定状态只会持续很短的一段时间，例如整数的自加操作，在很短的时间内阻塞并唤醒线程显然不值得，为此引入了自旋锁。</p>
+<p>所谓“自旋”，就是让线程去执行一个无意义的循环，循环结束后再去重新竞争锁，如果竞争不到继续循环，循环过程中线程会一直处于running状态，但是基于JVM的线程调度，会出让时间片，所以其他线程依旧有申请锁和释放锁的机会。</p>
+<p>自旋锁省去了阻塞锁的时间空间（队列的维护等）开销，但是长时间自旋就变成了“忙式等待”，忙式等待显然还不如阻塞锁。所以自旋的次数一般控制在一个范围内，例如10,100等，在超出这个范围后，自旋锁会升级为阻塞锁。（即从轻量级锁转变为重量级锁）</p>
+<h3 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h3><p>加锁</p>
+<p>线程在执行同步块之前，JVM会先在当前线程的栈桢中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中，官方称为Displaced Mark Word。<strong>然后线程尝试使用CAS将对象头中的Mark Word替换为指向锁记录的指针。如果成功，当前线程获得锁，如果失败，则自旋获取锁，当自旋获取锁仍然失败时，表示存在其他线程竞争锁(两条或两条以上的线程竞争同一个锁)，则轻量级锁会膨胀成重量级锁。</strong></p>
+<p>解锁</p>
+<p><strong>轻量级解锁时，会使用原子的CAS操作来将Displaced Mark Word替换回到对象头，如果成功，则表示同步过程已完成。</strong>如果失败，表示有其他线程尝试过获取该锁，则要在释放锁的同时唤醒被挂起的线程。</p>
+<h3 id="重量级锁"><a href="#重量级锁" class="headerlink" title="重量级锁"></a>重量级锁</h3><p>重量锁在JVM中又叫对象监视器（Monitor），它很像C中的Mutex，除了具备Mutex(0|1)互斥的功能，它还负责实现了Semaphore(信号量)的功能，也就是说它至少包含一个竞争锁的队列，和一个信号阻塞队列（wait队列），前者负责做互斥，后一个用于做线程同步。</p>
+<p><strong>如果说轻量级锁是在无竞争的情况下使用CAS操作去消除同步使用的互斥量，那偏向锁就是在无竞争的情况下把整个同步都消除掉，连CAS都不做了。</strong></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/01/解决缓存数据库双写不一致/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2197,353 +2596,6 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/02/排序/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/02/排序/" itemprop="url">排序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-02T11:01:41+08:00">
-                2019-09-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据结构/" itemprop="url" rel="index">
-                    <span itemprop="name">数据结构</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  4.3k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  16
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="排序的稳定性"><a href="#排序的稳定性" class="headerlink" title="排序的稳定性"></a>排序的稳定性</h2><p>假设在排序前的序列中ri 领先于rj(即i&lt;j)。如果排序后ri仍领先于rj，则称所用的排序方法是稳定的；反之，若可能使得排序后的序列中rj领先ri,则称所用的排序方法是不稳定的。</p>
-<h2 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h2><p>冒泡排序一种交换排序，它的基本思想是：两两比较相邻记录的关键字，如果反序则交换，直到没有反序的记录为止。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表做冒泡排序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BubbleSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>;i&lt;list.length;i++)&#123;</span><br><span class="line">		<span class="keyword">for</span> (j = list.length-<span class="number">1</span>;j&gt;=i;j--)&#123;   <span class="comment">//注意j是从后往前递减	</span></span><br><span class="line">			<span class="keyword">if</span>(list[j-<span class="number">1</span>]&gt;list[j])&#123;		    <span class="comment">//若前者大于后者</span></span><br><span class="line">				swap(list,j-<span class="number">1</span>,j);			<span class="comment">//交换前者和后者的位置</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>较小的数字如同气泡般慢慢浮到上面，因此将此算法命名为冒泡排序。</p>
-<h3 id="冒泡排序优化"><a href="#冒泡排序优化" class="headerlink" title="冒泡排序优化"></a>冒泡排序优化</h3><p>如果待排序的序列是{2,1,3,4,5,6,7,8}，也就是说，除了第一和第二的关键字需要交换外，别的已经是正常的顺序。当i=1时，交换了2和1，此时序列已将有序，但是算法仍然将i=2到8都执行了一遍，尽管没有交换数据，但是之后的大量比较大大的多余。<br>当i=2时，我们已经对9与8,8与7……3与2作了比较，没有任何数据交换，这就说明此序列已将有序，不需要再继续后面的循环判断工作。为了实现这个想法，需要改进代码，增加一个标记变量flag来实现算法的改进。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BubbleSort2</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	Boolean flag = <span class="keyword">false</span>;					<span class="comment">//flag用来做标记</span></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>;i&lt;list.length &amp;&amp; flag;i++)&#123;	<span class="comment">//若flag为false则退出循环</span></span><br><span class="line">		flag = <span class="keyword">false</span>;						<span class="comment">//初始flag为false</span></span><br><span class="line">		<span class="keyword">for</span> (j = list.length-<span class="number">1</span>;j&gt;=i;j--)&#123;   </span><br><span class="line">			<span class="keyword">if</span>(list[j-<span class="number">1</span>]&gt;list[j])&#123;		    </span><br><span class="line">				swap(list,j-<span class="number">1</span>,j);			</span><br><span class="line">				flag = <span class="keyword">true</span>;				<span class="comment">//若发生交换，flag=true</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>最好的情况，排序的表本身就是有序的，根据最后改进的代码，可以推断出就是n-1次的比较，没有数据交换，时间复杂度是O(n)。<br>最坏的情况，即排序表时逆序的情况，此时需要比较1+2+3+4+5…+（n-1）= n(n-1)/2次，因此，总的时间复杂度为O(n2)。</p>
-<h2 id="简单选择排序"><a href="#简单选择排序" class="headerlink" title="简单选择排序"></a>简单选择排序</h2><p>选择排序法的初步思想，冒泡排序的思想是不断的交换，通过交换完成最终的排序，我们可以在排序时找到合适的关键字再做交换，并且只移动一次就完成相应关键字的排序定位工作。<br>简单选择排序法就是通过n-i次关键字间的比较，从n-i+1个记录中选出关键字最小的记录，并和第i个记录交换之。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*对顺序表L作简单选择排序*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SelectSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j,min;</span><br><span class="line">	<span class="keyword">for</span> (i=<span class="number">1</span>;i&lt;list.length;i++)&#123;</span><br><span class="line">		min = i;						<span class="comment">//将当前下标定义为最小值下标	</span></span><br><span class="line">		<span class="keyword">for</span>(j=i+<span class="number">1</span>;j&lt;list.length;j++)&#123;	</span><br><span class="line">			<span class="keyword">if</span> (list[min] &gt; list[j])&#123;	<span class="comment">//从n-i+1中选出关键字最小的记录</span></span><br><span class="line">				min = j;				<span class="comment">//将此关键字的下标赋值给min</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (min != i)&#123;					<span class="comment">//若min不等于i,找到最小值，交换</span></span><br><span class="line">			swap(list,i,min);			<span class="comment">//交换list[i]和list[min]的值</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="简单选择排序复杂度分析"><a href="#简单选择排序复杂度分析" class="headerlink" title="简单选择排序复杂度分析"></a>简单选择排序复杂度分析</h3><p>从过程来看，它最大的特点就是交换移动数据次数相当少，这样也就节约了相应的时间。分析复杂度发现，无论最好最坏情况，其比较次数都是一样的多，第i趟排序需要进行n-i次关键字的比较，此时需要比较n-1+n-2+…=1 = n(n-1)/2次。因此，总的时间复杂度依然是O(n2).<br>应该说，尽管与冒泡排序同为O(n2),但简单选择排序的性能上还是要略优于冒泡排序。</p>
-<h2 id="直接插入排序"><a href="#直接插入排序" class="headerlink" title="直接插入排序"></a>直接插入排序</h2><p>直接插入排序的基本操作是将一个记录插入到已经排好序的有序表中，从而得到一个新的，记录数增1的有序表。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InsertSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="comment">//0的位置当成哨兵，假设list[1]已经排好位置，后面的牌其实就是插入到它的左侧还是右侧的问题</span></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">2</span>,j&lt;=list.length;i++)&#123;		</span><br><span class="line">		<span class="keyword">if</span> (list[i] &lt; list[i-<span class="number">1</span>])&#123;		<span class="comment">//升序，需将list[i]插入有序子表</span></span><br><span class="line">			list[<span class="number">0</span>] = list[i];			<span class="comment">//设置哨兵</span></span><br><span class="line">			<span class="keyword">for</span> (j=i-<span class="number">1</span>;list[j]&gt;list[<span class="number">0</span>];j--) &#123;</span><br><span class="line">				list[j+<span class="number">1</span>] = list[j];	<span class="comment">//记录后移				</span></span><br><span class="line">			&#125;</span><br><span class="line">			list[j+<span class="number">1</span>] = list[<span class="number">0</span>];		<span class="comment">//插入到正确位置</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="直接插入排序时间复杂度分析"><a href="#直接插入排序时间复杂度分析" class="headerlink" title="直接插入排序时间复杂度分析"></a>直接插入排序时间复杂度分析</h3><p>最好的情况，也就是要排序的表本身就是有序的，那么比较次数，其实就是代码第6行每个list[i]与list[i-1]的比较。时间复杂度为O(n)。<br>最坏的情况，2+3+4+…+n=(n+2)(n-1)/2,直接插入排序的时间复杂度为O(n2),同样的O(n2)时间复杂度，直接插入排序法比冒泡和简单选择排序的性能要好一些。</p>
-<h2 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h2><p>在这之前排序算法的时间复杂度基本都是O(n2)，希尔排序算法是突破这个时间复杂度的第一批算法之一。在直接插入排序的基础上进行改进。<br>将原本有大量记录数的记录进行分组，分割成若干序列，采取跳跃分割的策略：将相距某个“增量”的记录组成一个子序列，这样才能保证在子序列内分别进行直接插入排序后得到的结果是基本有序而不是局部有序。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表L做希尔排序</span></span><br><span class="line"><span class="comment">//将关键字较小的记录，不是一步一步地往前挪动，而是跳跃式地往前移，使得每完成一轮循环后，整个序列就朝着有序坚持地迈进了一步</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SheelSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="keyword">int</span> increment = list.length();</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		increment = increment/<span class="number">3</span> +<span class="number">1</span>;				<span class="comment">//增量序列</span></span><br><span class="line">		<span class="keyword">for</span>(i=increment+<span class="number">1</span>;i&lt;=list.length();i++)&#123;</span><br><span class="line">			<span class="keyword">if</span> (list[i] &lt; list[i-increment])&#123;	<span class="comment">//跳跃判断</span></span><br><span class="line">				list[<span class="number">0</span>] = list[i]; 				<span class="comment">//暂存在list[0]</span></span><br><span class="line">				<span class="keyword">for</span> (j = i-increment;j&gt;<span class="number">0</span>&amp;&amp;list[<span class="number">0</span>]&lt;list[i];j-=increment)&#123;</span><br><span class="line">					list[j+increment] = list[j];	<span class="comment">//记录后移，查找插入位置</span></span><br><span class="line">				&#125;</span><br><span class="line">				list[j+increment] = list[<span class="number">0</span>];		<span class="comment">//插入</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">while</span>(increment&gt;<span class="number">1</span>);		<span class="comment">//当增量为1时，就停止循环</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="希尔排序复杂度分析"><a href="#希尔排序复杂度分析" class="headerlink" title="希尔排序复杂度分析"></a>希尔排序复杂度分析</h3><p>希尔排序的关键并不是随便分组后各自排序，而是将相隔某个“增量”的记录组成一个子序列，实现跳跃式的移动，使得排序的效率提高。<br>其时间复杂度为O(n3/2)，要好于直接排序的O(n2)，需要注意的是，增量序列的最后一个增量值必须等于1才行，另外记录是跳跃式的移动，希尔排序并不是一种稳定的排序算法。</p>
-<h2 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2><p>前面讲到简单选择排序，他在待排序的n个记录中选择一个最小的记录需要比较n-1次，本来可以理解，查找第一个数据需要比较这么多次是正常的，可惜的是，这样的操作并没有把每一趟的比较结果保存下来，在后一趟的比较中，有许多比较在前一趟已经做过了，但由于前一趟排序时未保存这些比较结果，所以后一趟排序时又重复执行了这些比较操作，因而记录的比较次数较多，如果可以做到每次在选择到最小记录的同时，并根据比较结果对其他记录做出相应的调整，那排序的总体效率就会非常高。而堆排序就是对简单排序进行的一种改进。同时，他们发明了“堆”这样的数据结构。</p>
-<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>堆是具有下列性质的完成二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆。<br>或者每个结点的值都小于或等于其左右孩子结点的值，称为小顶堆。<br>根结点一定是堆中所有结点最大（小）者。<br>如果按照层序遍历的方式给结点从1开始编号，则结点之间满足如下关系：<br>完全二叉树的特性，下标i与2i和2i+1是双亲子女关系。<br><strong>核心   大顶堆：ki &gt;= k2i , ki &gt;= k2i+1  小顶堆： ki &lt;=k2i , ki&lt;=k2i+1  ( 1&lt;= i &lt;= n/2 )</strong><br>堆排序利用此规则，完成排序。</p>
-<h3 id="堆排序算法"><a href="#堆排序算法" class="headerlink" title="堆排序算法"></a>堆排序算法</h3><p>将要排序的数组，看成是按照层序遍历的完全二叉树。<br>堆排序就是利用堆（假设利用大顶堆）进行排序的方法。它的基本思想是，<strong>将待排序的序列构造成一个大顶堆，此时整个序列的最大值就是堆顶的根结点。将它移走（其实就是将其与堆数组的末尾元素交换，此时末尾元素就是最大值），然后将剩余的n-1个序列重新构造成一个堆，这样就会得到n个元素的次大顶堆，如此反复执行，便能得到一个有序序列。</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//本函数调整list[s]的关键字，使list[s..m]成为一个大顶堆</span></span><br><span class="line"><span class="comment">//s 根节点 ，m 数组长度</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HeadAdjust</span><span class="params">(SqlList list,<span class="keyword">int</span> s,<span class="keyword">int</span> m)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> temp,j;</span><br><span class="line">	temp = list[s];</span><br><span class="line">	<span class="keyword">for</span> (j=<span class="number">2</span>*s;j&lt;=m;j*=<span class="number">2</span>)&#123;				<span class="comment">//沿关键字较大的孩子结点向下筛选</span></span><br><span class="line">		<span class="comment">//找出s结点下，最大的孩子结点。j为关键字中较大的记录的下标。</span></span><br><span class="line">		<span class="keyword">if</span> (j&lt;m &amp;&amp; list[j]&lt;list[j+<span class="number">1</span>])&#123;	</span><br><span class="line">			++j;		</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (temp &gt;= list[j])&#123;</span><br><span class="line">			<span class="keyword">break</span>;					<span class="comment">//根节点是最大的值，不需要改变位置</span></span><br><span class="line">		&#125;</span><br><span class="line">		list[s] =list[j];			<span class="comment">//将根节点与孩子结点数值交换，</span></span><br><span class="line">		<span class="comment">//s替换为j,进入下一次循环，看是否需要与下一个根节点互换</span></span><br><span class="line">		s=j;	</span><br><span class="line">	&#125;</span><br><span class="line">	list[s] = temp;				<span class="comment">//将孩子结点换成根节点的数值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>堆排序的核心算法已经有了，接下来就是对数组进行排序。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HeapSort</span><span class="params">(SqList list)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">for</span> (i = list.length()/<span class="number">2</span>;i&gt;<span class="number">0</span>;i--)&#123;	   **		</span><br><span class="line">		HeadAdjust(list,i,list.length());	<span class="comment">//把list构建成一个大顶堆</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> (i = list.length() ;i&gt;<span class="number">1</span>;i--)&#123;</span><br><span class="line">		swap(list,<span class="number">1</span>,i);		<span class="comment">//将堆顶记录和当前子序列的最后一个记录交换。</span></span><br><span class="line">		HeadAdjust(list,<span class="number">1</span>,i-<span class="number">1</span>);  <span class="comment">//将list[1..i-1]重新调整为大顶堆</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>假设list长度是9，从4往下递减，是因为都是有孩子的结点。<br>我们所谓的将待排序的序列构建成为一个大顶堆，其实就是从下往上，从右往左，将每个非终端结点（非叶结点）当成根节点，将其和其子树调整成大顶堆。</p>
-<h3 id="堆排序的时间复杂度"><a href="#堆排序的时间复杂度" class="headerlink" title="堆排序的时间复杂度"></a>堆排序的时间复杂度</h3><p>堆排序的运行时间主要是消耗在初始构建堆和重建堆时的反复筛选上。<br>在构建堆的过程中，因为我们是完成二叉树从最下层最右边的非终端结点开始构建将它与其孩子进行和若有必要的互换，对于每个非终端结点来说，其实最多进行两次比较和互换操作，因此整个构建堆的时间复杂度为O(n)。<br>在正式排序时，第i次取堆顶记录重建堆需要用O(logi)的时间（完全二叉树的某个结点到根节点的距离为logi+1）,并且需要去n-1次堆顶记录，因此，重建堆的时间复杂度为O(nlogn)。<br>所以，总体来说，堆排序的时间复杂度为O(nlogn).</p>
-<h2 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h2><p>前面我们讲 了堆排序，因为它用到了完全二叉树，充分利用了完全二叉树的深度是log2n + 1的特性，所以效率比较高。不过堆结构的设计本身是比较复杂的，有没有更直接简单的方法利用完成二叉树来排序。当然有。归并排序法涉及到完全二叉树结构的排序算法。<br>归并排序就像是一颗倒置的完全二叉树</p>
-<h3 id="归并排序算法"><a href="#归并排序算法" class="headerlink" title="归并排序算法"></a>归并排序算法</h3><p>归并排序就是利用归并的思想实现的排序方法。<strong>他的原理是假设初始序列含有n个记录，则可以看成是n个有序的子序列，每个子序列的长度为1，然后两两归并，得到[n/2]个长度为2或1的有序子序列，再两两归并，…..,如此重复，直至得到一个长度为n的有序序列位置，这种排序方法称为2路归并排序。</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表L作归并排序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MergeSort</span><span class="params">(Sqlist list)</span></span>&#123;</span><br><span class="line">	Msort(list,list,<span class="number">1</span>,list.length());</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Msort</span><span class="params">(<span class="keyword">int</span> sr[],<span class="keyword">int</span> tr1[],<span class="keyword">int</span> s,<span class="keyword">int</span> t)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> m;</span><br><span class="line">	<span class="keyword">int</span> tr2[MAXSIZE+<span class="number">1</span>];</span><br><span class="line">	<span class="keyword">if</span> (s == t)&#123;		<span class="comment">//当细分到一个记录填入tr2后，此时s和t相等，递归返回</span></span><br><span class="line">		tr1[s] = sr[s];</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		m = (s+t) /<span class="number">2</span>;  	 <span class="comment">//将sr[s..t]平分为sr[s..m]和sr[m+1..t]</span></span><br><span class="line">	<span class="number">10</span>	Msort(sr,tr2,s,m); <span class="comment">//递归将sr[s..m]归并为有序的tr2[s..m]</span></span><br><span class="line">		Msort(sr,tr2,m+<span class="number">1</span>,t); <span class="comment">//递归将sr[m+1..t]归并成有序的tr2[m+1..m]</span></span><br><span class="line">	<span class="number">12</span> 	Merge(tr2,tr1,s,m,t); <span class="comment">//将tr2[s..m]和tr2[m+1..t],归并到tr1[s..t]</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>看第10行继续递归进去后，直到细分为一个记录填入tr2,此时s与t相等，递归返回，每次递归返回后都会执行当前递归函数的第12行，将tr2归并到tr1中，最终使得当前序列有序。<br>现在我们来看看Merge函数的代码是如果实现的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//sr[] 待归并的数组，tr[]归并排序后的数组，i=1，m正中间值,n数组长度</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Merge</span><span class="params">(<span class="keyword">int</span> sr[],<span class="keyword">int</span> tr[],<span class="keyword">int</span> i,<span class="keyword">int</span> m,<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> j,k,l;	<span class="comment">//k记录tr数组坐标。 j记录sr数组右半段数组下标</span></span><br><span class="line">	<span class="keyword">for</span> (j = m+<span class="number">1</span>,k=i;i&lt;=m &amp;&amp; j&lt;=n;k++)&#123;  <span class="comment">//将sr中记录由小到大归并到tr</span></span><br><span class="line">		<span class="keyword">if</span> (sr[i] &lt;sr[j])&#123;</span><br><span class="line">			tr[k] = sr[i++];	<span class="comment">//将前后两段数组进行对比，牛逼</span></span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			tr[k] = sr[j++];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;   </span><br><span class="line">	<span class="keyword">if</span> (i &lt;=m)&#123;			<span class="comment">//将没有归并到tr的sr[1..m]复制到tr</span></span><br><span class="line">		<span class="keyword">for</span>(l=<span class="number">0</span>;l&lt;m-i;l++)&#123;</span><br><span class="line">			tr[k+<span class="number">1</span>]=sr[i+<span class="number">1</span>];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (j &lt;=n)&#123;			<span class="comment">//将没有归并到tr的sr[m+1..n]复制到tr</span></span><br><span class="line">		<span class="keyword">for</span>(l=<span class="number">0</span>;l&lt;n-j;l++)&#123;</span><br><span class="line">			tr[k+<span class="number">1</span>]=sr[i+<span class="number">1</span>];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="归并排序复杂度分析"><a href="#归并排序复杂度分析" class="headerlink" title="归并排序复杂度分析"></a>归并排序复杂度分析</h3><p>总的时间复杂度为O(nlogn),这是归并排序算法中最好，最坏，平均的时间性能。<br>归并排序Merge函数中有if（sr[i]&lt;sr[j]）,这就说明它需要两两比较，不存在跳跃，因此归并排序是一种稳定的排序算法。</p>
-<h2 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h2><p>希尔排序相当于直接插入排序的升级，堆排序相当于简单选择排序的升级，它们同属于选择排序类，而快速排序其实就是最慢的冒泡排序的升级，都属于交换排序类，只不过它的实现，增大了记录的比较和移动的距离，将关键字较大的记录从前面直接移动到后面，关键字较小的记录从后面直接移动到前面，从而减小了总的比较次数和移动交换次数。</p>
-<h3 id="快速排序算法"><a href="#快速排序算法" class="headerlink" title="快速排序算法"></a>快速排序算法</h3><p>快速排序的基本思想是:通过一趟排序将待排序记录分割成独立的两部分，其中一部分记录的关键字均比另一部分的关键字小，则可分别对这两部分记录继续进行排序，以达到整个序列有序的目的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//对顺序表L的子序列作快速排序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">QSort</span><span class="params">(SqList list , <span class="keyword">int</span> low ,<span class="keyword">int</span> high)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> pivot;</span><br><span class="line">	<span class="keyword">if</span> (low &lt; high)&#123;</span><br><span class="line">		pivot = Partition(L,low,high);  <span class="comment">//将list一分为二 算出枢轴值pivot</span></span><br><span class="line">		Qsort(list,low,pivot-<span class="number">1</span>);		<span class="comment">//对低子表递归排序</span></span><br><span class="line">		Qsort(list,pivot+<span class="number">1</span>,length);		<span class="comment">//对高子表递归排序</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Partition</span><span class="params">(SqList list,<span class="keyword">int</span> low ,<span class="keyword">int</span> high)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> pivotkey;</span><br><span class="line">	pivotkey = list[low]; 		<span class="comment">//用子表的第一个记录做枢轴记录</span></span><br><span class="line">	<span class="keyword">while</span>(low &lt; high)&#123;</span><br><span class="line">	<span class="comment">//将第一个记录作为枢轴，则一定要从后往前扫</span></span><br><span class="line">		<span class="keyword">while</span> (low &lt;high &amp;&amp; list[high] &gt;=pivotkey)&#123;</span><br><span class="line">			high --;</span><br><span class="line">		&#125;			</span><br><span class="line">		swap(list,low,high);	<span class="comment">//将比枢轴小的记录交换到低端</span></span><br><span class="line">		<span class="keyword">while</span>(low &gt;high &amp;&amp; list[low] &lt;=pivotkey)&#123;</span><br><span class="line">			low ++;</span><br><span class="line">		&#125;</span><br><span class="line">		swap(list,low,high);	<span class="comment">//将比枢轴大的记录交换到高端</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> low;   <span class="comment">//返回枢轴所在位置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="快速排序时间复杂度分析"><a href="#快速排序时间复杂度分析" class="headerlink" title="快速排序时间复杂度分析"></a>快速排序时间复杂度分析</h3><p>在最优的情况下，快速排序算法的时间复杂度为O(nlogn)。<br>最坏情况下，其时间复杂度是O(n*n)。<br>快速排序是一种不稳定的排序方法。<br>java对快速的实现  java.util.Arrays  —-&gt; static void sort(type[] a)</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/21/递归/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/21/递归/" itemprop="url">递归</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-21T15:15:23+08:00">
-                2019-08-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  5
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  1
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="http://lylblog.cn/blog/4" target="_blank" rel="noopener">http://lylblog.cn/blog/4</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2596,7 +2648,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">51</span>
+                  <span class="site-state-item-count">53</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2692,7 +2744,7 @@ public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean bean){
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共100.8k字</span>
+  <span class="post-count">博客全站共104.1k字</span>
 </div>
 
         
