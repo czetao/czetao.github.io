@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ddd `Blog">
 <meta property="og:description" content="为什么用MongoDBMongodb是以文档的形式存储数据的，他的风格比较类似于JSON。文档类似于编程语言中的键和值的方式联系在一起的。严格意义来讲，MongoDB文档是BSON文档。BSON文档是带有附加类型信息的二进制JSON文档。在文档里，字段的值可以是任何BSON数据类型，他们可以是其他的文档，数组，和数组文档。  MongoDB主要拿来储存学生的信息数据，格式比较灵活，不用为了各种格式">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-12T13:55:26.480Z">
+<meta property="og:updated_time" content="2019-10-13T04:58:37.973Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简历坑">
 <meta name="twitter:description" content="为什么用MongoDBMongodb是以文档的形式存储数据的，他的风格比较类似于JSON。文档类似于编程语言中的键和值的方式联系在一起的。严格意义来讲，MongoDB文档是BSON文档。BSON文档是带有附加类型信息的二进制JSON文档。在文档里，字段的值可以是任何BSON数据类型，他们可以是其他的文档，数组，和数组文档。  MongoDB主要拿来储存学生的信息数据，格式比较灵活，不用为了各种格式">
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  2.5k
+                  1.4k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  8
+                  5
                 </span>
               
             </div>
@@ -401,32 +401,26 @@
 <p><strong>SHA1算法简介</strong></p>
 <p>安全哈希算法（Secure Hash Algorithm）主要适用于数字签名标准（Digital Signature Standard DSS）里面定义的数字签名算法（Digital Signature Algorithm DSA）。对于长度小于2^64位的消息，SHA1会产生一个160位的消息摘要。当接收到消息的时候，这个消息摘要可以用来验证数据的完整性。在传输的过程中，数据很可能会发生变化，那么这时候就会产生不同的消息摘要。</p>
 <p>SHA1有如下特性：不可以从消息摘要中复原信息；两个不同的消息不会产生同样的消息摘要。</p>
-<h2 id="Docker原理"><a href="#Docker原理" class="headerlink" title="Docker原理"></a>Docker原理</h2><p>Docker的思想来自于集装箱，集装箱解决了什么问题？在一艘大船上，可以把货物规整的摆放起来。并且各种各样的货物被集装箱标准化了，集装箱和集装箱之间不会互相影响。那么我就不需要专门运送水果的船和专门运送化学品的船了。只要这些货物在集装箱里封装的好好的，那我就可以用一艘大船把他们都运走。</p>
-<p>Docker 是一个<strong>便携的应用容器</strong></p>
-<h3 id="避免“我机器上可以运行”"><a href="#避免“我机器上可以运行”" class="headerlink" title="避免“我机器上可以运行”"></a>避免“我机器上可以运行”</h3><p>无论是上一篇介绍的企业部署 Docker 还是本文的个人 Docker 用例，都提到了这个情况。因为环境配置不同，很多人在开发中也会遇到这个情况，甚至开发的软件到了测试人员的机器上便不能运行。但这都不是重点。重点是，如果我们有一个可靠的、可分发的标准开发环境，那么我们的开发将不会像现在这么痛苦。Docker 便可以解决这个问题。Docker 镜像并不会因为环境的变化而不能运行，也不会在不同的电脑上有不同的运行结果。可以给测试人员提交含有应用的 Docker 镜像，这样便不再会发生“在我机器上是可以运行的”这种事情，很大程度上减轻了开发人员测试人员互相检查机器环境设置带来的时间成本。<br>另一个 Docker 可以发挥用处的地方是培训班。除了 Docker 容器的隔离性之外，更能体会到 Docker 优势的地方在于环境搭建。培训班的新手每个人都要在环境搭建上花费很多时间，但是如果在这里应用到 Docker 的话，那么我们只需要把标准的运行环境镜像分发下去，然后就可以开始上课了。使用 Docker 和使用虚拟机一样简单，但是 Docker 要更方便、更轻量级。同时，我们也可以告诉学员：“在培训的同时，我们还将学到当下最流行的技术——Docker”，这种双赢的结局，何乐而不为呢。</p>
-<h3 id="Docker基本概念"><a href="#Docker基本概念" class="headerlink" title="Docker基本概念"></a>Docker基本概念</h3><p>Docker 包括三个基本概念</p>
+<h2 id="127-0-0-1和0-0-0-0的区别"><a href="#127-0-0-1和0-0-0-0的区别" class="headerlink" title="127.0.0.1和0.0.0.0的区别"></a>127.0.0.1和0.0.0.0的区别</h2><h3 id="0-0-0-0"><a href="#0-0-0-0" class="headerlink" title="0.0.0.0"></a>0.0.0.0</h3><p>IPV4中，0.0.0.0地址被用于表示一个无效的，未知的或者不可用的目标。 </p>
 <ul>
-<li><strong>镜像（Image）</strong></li>
-<li><strong>容器（Container）</strong></li>
-<li><strong>仓库（Repository）</strong></li>
+<li>在服务器中，0.0.0.0指的是本机上的所有IPV4地址，如果一个主机有两个IP地址，192.168.1.1 和 10.1.2.1，并且该主机上的一个服务监听的地址是0.0.0.0,那么通过两个ip地址都能够访问该服务。 </li>
+<li>在路由中，0.0.0.0表示的是默认路由，即当路由表中没有找到完全匹配的路由的时候所对应的路由就是表示所有的IP地址.</li>
 </ul>
-<p>理解了这三个概念，就理解了 Docker 的整个生命周期</p>
-<h4 id="镜像-Image-一个特殊的文件系统"><a href="#镜像-Image-一个特殊的文件系统" class="headerlink" title="镜像(Image):一个特殊的文件系统"></a>镜像(Image):一个特殊的文件系统</h4><p>　　<strong>操作系统分为内核和用户空间</strong>。对于 Linux 而言，内核启动后，会挂载 root 文件系统为其提供用户空间支持。而Docker 镜像（Image），就相当于是一个 root 文件系统。</p>
-<p>　　<strong>Docker 镜像是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。</strong> 镜像不包含任何动态数据，其内容在构建之后也不会被改变。</p>
-<p>　　Docker 设计时，就充分利用 <strong>Union FS</strong>的技术，将其设计为 <strong>分层存储的架构</strong> 。 镜像实际是由多层文件系统联合组成。</p>
-<p>　　<strong>镜像构建时，会一层层构建，前一层是后一层的基础。每一层构建完就不会再发生改变，后一层上的任何改变只发生在自己这一层。</strong>　比如，删除前一层文件的操作，实际不是真的删除前一层的文件，而是仅在当前层标记为该文件已删除。在最终容器运行的时候，虽然不会看到这个文件，但是实际上该文件会一直跟随镜像。因此，在构建镜像的时候，需要额外小心，每一层尽量只包含该层需要添加的东西，任何额外的东西应该在该层构建结束前清理掉。</p>
-<p>　　分层存储的特征还使得镜像的复用、定制变的更为容易。甚至可以用之前构建好的镜像作为基础层，然后进一步添加新的层，以定制自己所需的内容，构建新的镜像。</p>
-<h4 id="容器-Container）"><a href="#容器-Container）" class="headerlink" title="容器(Container）"></a>容器(Container）</h4><p>　　镜像（Image）和容器（Container）的关系，就像是面向对象程序设计中的 类 和 实例 一样，镜像是静态的定义，<strong>容器是镜像运行时的实体。容器可以被创建、启动、停止、删除、暂停等</strong> 。</p>
-<p>　　<strong>容器的实质是进程，但与直接在宿主执行的进程不同，容器进程运行于属于自己的独立的 命名空间。前面讲过镜像使用的是分层存储，容器也是如此。</strong></p>
-<p>　　<strong>容器存储层的生存周期和容器一样，容器消亡时，容器存储层也随之消亡。因此，任何保存于容器存储层的信息都会随容器删除而丢失。</strong></p>
-<p>　　按照 Docker 最佳实践的要求，<strong>容器不应该向其存储层内写入任何数据</strong> ，容器存储层要保持无状态化。<strong>所有的文件写入操作，都应该使用数据卷（Volume）、或者绑定宿主目录</strong>，在这些位置的读写会跳过容器存储层，直接对宿主(或网络存储)发生读写，其性能和稳定性更高。数据卷的生存周期独立于容器，容器消亡，数据卷不会消亡。因此， <strong>使用数据卷后，容器可以随意删除、重新 run ，数据却不会丢失。</strong></p>
-<h4 id="仓库-Repository"><a href="#仓库-Repository" class="headerlink" title="仓库(Repository)"></a>仓库(Repository)</h4><p>　　镜像构建完成后，可以很容易的在当前宿主上运行，但是， <strong>如果需要在其它服务器上使用这个镜像，我们就需要一个集中的存储、分发镜像的服务，Docker Registry就是这样的服务。</strong></p>
-<p>　　一个 Docker Registry中可以包含多个仓库（Repository）；每个仓库可以包含多个标签（Tag）；每个标签对应一个镜像。所以说：<strong>镜像仓库是Docker用来集中存放镜像文件的地方类似于我们之前常用的代码仓库。</strong></p>
-<p>　　通常，<strong>一个仓库会包含同一个软件不同版本的镜像</strong>，而<strong>标签就常用于对应该软件的各个版本</strong> 。我们可以通过<code>&lt;仓库名&gt;:&lt;标签&gt;</code>的格式来指定具体是这个软件哪个版本的镜像。如果不给出标签，将以 latest 作为默认标签.。</p>
-<p><strong>这里补充一下Docker Registry 公开服务和私有 Docker Registry的概念：</strong></p>
-<p>　　<strong>Docker Registry 公开服务</strong> 是开放给用户使用、允许用户管理镜像的 Registry 服务。一般这类公开服务允许用户免费上传、下载公开的镜像，并可能提供收费服务供用户管理私有镜像。</p>
-<p>　　最常使用的 Registry 公开服务是官方的 <strong>Docker Hub</strong> ，这也是默认的 Registry，并拥有大量的高质量的官方镜像，网址为：<a href="https://hub.docker.com/" target="_blank" rel="noopener">https://hub.docker.com/</a> 。在国内访问<strong>Docker Hub</strong> 可能会比较慢国内也有一些云服务商提供类似于 Docker Hub 的公开服务。比如 <a href="https://hub.tenxcloud.com/" target="_blank" rel="noopener">时速云镜像库</a>、<a href="https://www.163yun.com/product/repo" target="_blank" rel="noopener">网易云镜像服务</a>、<a href="https://www.daocloud.io/" target="_blank" rel="noopener">DaoCloud 镜像市场</a>、<a href="https://www.aliyun.com/product/containerservice?utm_content=se_1292836" target="_blank" rel="noopener">阿里云镜像库</a>等。</p>
-<p>　　除了使用公开服务外，用户还可以在 <strong>本地搭建私有 Docker Registry</strong> 。Docker 官方提供了 Docker Registry 镜像，可以直接使用做为私有 Registry 服务。开源的 Docker Registry 镜像只提供了 Docker Registry API 的服务端实现，足以支持 docker 命令，不影响使用。但不包含图形界面，以及镜像维护、用户管理、访问控制等高级功能。zhen </p>
+<p>比如一个tomcat配置文件中,如果监听的IP地址设置了 0.0.0.0 就表示你的这个tomcat服务器监听在本机的所有IP地址上,通过任何一个IP地址都可以访问到.<br>如果本地的IP地址有 192.168.1.10, 172.16.2.10,那么访问你这个tomcat就可以 <a href="http://192.168.1.10:8080/http://172.16.2.10:8080/" target="_blank" rel="noopener">http://192.168.1.10:8080/http://172.16.2.10:8080/</a> 都可以访问</p>
+<h3 id="127-0-0-0"><a href="#127-0-0-0" class="headerlink" title="127.0.0.0"></a>127.0.0.0</h3><p>​        很多人会接触到这个ip地址127.0.0.1。也许你会问127.0.0.1是什么地址？其实127.0.0.1是一个回送地址，指本地机，一般用来测试使用。大家常用来ping 127.0.0.1来看本地ip/tcp正不正常，如能ping通即可正常使用。</p>
+<p>　　对于大多数习惯用localhost的来说，实质上就是指向127.0.0.1这个本地IP地址。在操作系统中有个配置文件将localhost与127.0.0.1绑定在了一起。可以理解为本地主机的意思。</p>
+<p>127.0.0.1属于{127,}集合中的一个，而所有网络号为127的地址都被称之为回环地址，所以<code>回环地址！=127.0.0.1</code>,它们是包含关系，即<code>回环地址包含127.0.0.1</code>。<br>回环地址：所有发往该类地址的数据包都应该被loop back。<br>用途: </p>
+<ul>
+<li>回环测试,通过使用ping 127.0.0.1 测试某台机器上的网络设备，操作系统或者TCP/IP实现是否工作正常。 </li>
+<li>DDos攻击防御：网站收到DDos攻击之后，将域名A记录到127.0.0.1，即让攻击者自己攻击自己。 </li>
+<li>大部分Web容器测试的时候绑定的本机地址。</li>
+</ul>
+<h3 id="localhost"><a href="#localhost" class="headerlink" title="localhost"></a>localhost</h3><p>相比127.0.0.1，localhost具有更多的意义。localhost是个域名，而不是一个ip地址。之所以我们经常把localhost与127.0.0.1认为是同一个是因为我们使用的大多数电脑上都讲localhost指向了127.0.0.1这个地址。<br>在ubuntu系统中，/ets/hosts文件中都会有如下内容：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">127<span class="selector-class">.0</span><span class="selector-class">.0</span><span class="selector-class">.1</span>   <span class="selector-tag">localhost</span></span><br><span class="line">127<span class="selector-class">.0</span><span class="selector-class">.1</span><span class="selector-class">.1</span>   <span class="selector-tag">jason-Lenovo-V3000</span></span><br><span class="line"># <span class="selector-tag">The</span> <span class="selector-tag">following</span> <span class="selector-tag">lines</span> <span class="selector-tag">are</span> <span class="selector-tag">desirable</span> <span class="selector-tag">for</span> <span class="selector-tag">IPv6</span> <span class="selector-tag">capable</span> <span class="selector-tag">hosts</span></span><br><span class="line"><span class="selector-pseudo">::1</span>     <span class="selector-tag">ip6-localhost</span> <span class="selector-tag">ip6-loopback</span></span><br><span class="line"><span class="selector-tag">fe00</span><span class="selector-pseudo">::0</span> <span class="selector-tag">ip6-localnet</span></span><br><span class="line"><span class="selector-tag">ff00</span><span class="selector-pseudo">::0</span> <span class="selector-tag">ip6-mcastprefix</span></span><br><span class="line"><span class="selector-tag">ff02</span><span class="selector-pseudo">::1</span> <span class="selector-tag">ip6-allnodes</span></span><br><span class="line"><span class="selector-tag">ff02</span><span class="selector-pseudo">::2</span> <span class="selector-tag">ip6-allrouters</span></span><br></pre></td></tr></table></figure>
+<p>上面第一行是几乎每台电脑上都会有的默认配置。<br>但是localhost的意义并不局限于127.0.0.1。</p>
+<p>localhost是一个域名，用于指代this computer或者this host,可以用它来获取运行在本机上的网络服务。<br>在大多数系统中，localhost被指向了IPV4的127.0.0.1和IPV6的::1。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127<span class="selector-class">.0</span><span class="selector-class">.0</span><span class="selector-class">.1</span>    <span class="selector-tag">localhost</span></span><br><span class="line"><span class="selector-pseudo">::1</span>          <span class="selector-tag">localhost</span></span><br></pre></td></tr></table></figure>
+<p>所以，在使用的时候要注意确认IPV4还是IPV6</p>
 
       
     </div>
@@ -548,7 +542,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">55</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -570,7 +564,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">31</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -603,7 +597,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么用MongoDB"><span class="nav-number">1.</span> <span class="nav-text">为什么用MongoDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实习业务逻辑"><span class="nav-number">2.</span> <span class="nav-text">实习业务逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker原理"><span class="nav-number">3.</span> <span class="nav-text">Docker原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#避免“我机器上可以运行”"><span class="nav-number">3.1.</span> <span class="nav-text">避免“我机器上可以运行”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Docker基本概念"><span class="nav-number">3.2.</span> <span class="nav-text">Docker基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#镜像-Image-一个特殊的文件系统"><span class="nav-number">3.2.1.</span> <span class="nav-text">镜像(Image):一个特殊的文件系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#容器-Container）"><span class="nav-number">3.2.2.</span> <span class="nav-text">容器(Container）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#仓库-Repository"><span class="nav-number">3.2.3.</span> <span class="nav-text">仓库(Repository)</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么用MongoDB"><span class="nav-number">1.</span> <span class="nav-text">为什么用MongoDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实习业务逻辑"><span class="nav-number">2.</span> <span class="nav-text">实习业务逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#127-0-0-1和0-0-0-0的区别"><span class="nav-number">3.</span> <span class="nav-text">127.0.0.1和0.0.0.0的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-0-0-0"><span class="nav-number">3.1.</span> <span class="nav-text">0.0.0.0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#127-0-0-0"><span class="nav-number">3.2.</span> <span class="nav-text">127.0.0.0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#localhost"><span class="nav-number">3.3.</span> <span class="nav-text">localhost</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -660,7 +654,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共104.1k字</span>
+  <span class="post-count">博客全站共107.1k字</span>
 </div>
 
         
