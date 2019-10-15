@@ -281,6 +281,198 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/10/事务/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/10/事务/" itemprop="url">事务</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-10T21:44:39+08:00">
+                2019-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/事务/" itemprop="url" rel="index">
+                    <span itemprop="name">事务</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  8
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="事务的概念"><a href="#事务的概念" class="headerlink" title="事务的概念"></a>事务的概念</h2><p><strong>事务就是一组原子性的sql,或者说一个独立的工作单元。事务就是说，要么MySql引擎会全部执行这一组SQL语句，要么全部都不执行。</strong></p>
+<h3 id="事务的ACID"><a href="#事务的ACID" class="headerlink" title="事务的ACID"></a>事务的ACID</h3><p>Atomicity，原子性：一个事务必须保证其中的操作要么全部执行，要么全部回滚，不可能存在只执行了一部分这种情况出现。<br>Consistency，一致性：事务必须保证从一种一致性状态转换为另一种一致性状态。<br>Isolation,隔离性：事务互相隔离，在一个事务未执行完毕时，通常会保证其他Session无法看到这个事务的执行结果。<br>Durability，持久性：事务一旦commit，则数据就会保存下来，即使提交完之后系统崩溃，数据也不会丢失。</p>
+<h3 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h3><p>以下，我们来详细来说一说隔离性<br>我们都知道，事务控制的太严格，程序在并发訪问的情况下，会减少程序的性能。<br>所以。人们总是想让事务为性能做出让步。那么就分出了四种隔离级别：<br><strong>为未提交读、提交读、可重复度读、序列化。</strong><br><img src="https://www.javazhiyin.com/wp-content/uploads/2019/03/java1-1551760079.jpg" alt><br>可是。因为隔离界别限制的程度不同，那么就会产生脏读、不可反复读、幻读的情况。</p>
+<ol>
+<li>脏读：脏读就是指当一个事务正在訪问数据，而且对数据进行了改动，而这样的改动还没有提交到数据库中，这时。另外一个事务也訪问这个数据，然后使用了这个数据。</li>
+<li>不可反复读：是指在一个事务内，多次读同一数据。在这个事务还没有结束时。另外一个事务也訪问该同一数据。那么，在第一个事务中的两次读数据之间，因为第二个事务的改动，那么第一个事务两次读到的的数据可能是不一样的。<br>这样就发生了在一个事务内两次读到的数据是不一样的，因此称为是不可反复读。比如。一个编辑人员两次读取同一文档，但在两次读取之间，作者重写了该文档。当编辑人员第二次读取文档时，文档已更改。<br>原始读取不可反复。假设仅仅有在作者所有完毕编写后编辑人员才干够读取文档，则能够避免该问题。</li>
+<li>幻读:是指当事务不是独立运行时发生的一种现象，比如第一个事务对一个表中的数据进行了改动，这样的改动涉及到表中的所有数据行。同一时候。第二个事务也改动这个表中的数据。这样的改动是向表中插入一行新数据。那么，以后就会发生操作第一个事务的用户发现表中还有没有改动的数据行，就好象发生了幻觉一样。<br>比如。一个编辑人员更改作者提交的文档。但当生产部门将其更改内容合并到该文档的主复本时，发现作者已将未编辑的新材料加入到该文档中。<h3 id="事务并发下隔离级别的场景"><a href="#事务并发下隔离级别的场景" class="headerlink" title="事务并发下隔离级别的场景"></a>事务并发下隔离级别的场景</h3></li>
+</ol>
+<ul>
+<li>未提交读<br>公司发工资了，领导把5000元打到singo的账号上，但是该事务并未提交，而singo正好去查看账户，发现工资已经到账，是5000元整。很高兴。但是不幸的是。领导发现发给singo的工资金额不正确。是2000元。于是迅速回滚了事务，改动金额后，将事务提交，最后singo实际的工资仅仅有2000元，singo空欢喜一场。<br>出现上述情况，即我们所说的脏读。两个并发的事务，“事务A：领导给singo发工资”、“事务B：singo查询工资账户”，事务B读取了事务A尚未提交的数据。<br>当隔离级别设置为Readuncommitted时，就可能出现脏读，怎样避免脏读。请看下一个隔离级别。</li>
+<li>读提交<br>singo拿着工资卡去消费。系统读取到卡里确实有2000元。而此时她的老婆也正好在网上转账，把singo工资卡的2000元转到还有一账户，并在singo之前提交了事务，当singo扣款时，系统检查到singo的工资卡已经没有钱，扣款失败，singo十分纳闷，明明卡里有钱，为何……<br>出现上述情况，即我们所说的不可反复读。两个并发的事务，“事务A：singo消费”、“事务B：singo的老婆网上转账”。事务A事先读取了数据。事务B紧接了更新了数据，并提交了事务，而事务A再次读取该数据时，数据已经发生了改变。<br>当隔离级别设置为Readcommitted时，避免了脏读。可是可能会造成不可反复读。<br>大多数数据库的默认级别就是Readcommitted。比方Sql Server , Oracle。怎样解决不可反复读这一问题。请看下一个隔离级别。</li>
+<li>反复读<br>当隔离级别设置为Repeatableread时。能够避免不可反复读。当singo拿着工资卡去消费时。一旦系统開始读取工资卡信息（即事务開始）。singo的老婆就不可能对该记录进行改动，也就是singo的老婆不能在此时转账。<br>尽管Repeatableread避免了不可反复读，但还有可能出现幻读。<br>singo的老婆工作在银行部门。她时常通过银行内部系统查看singo的信用卡消费记录。有一天，她正在查询到singo当月信用卡的总消费金额（select sum(amount) from transaction where month =本月）为80元。而singo此时正好在外面胡吃海塞后在收银台买单。消费1000元，即新增了一条1000元的消费记录（insert transaction… ）。并提交了事务。随后singo的老婆将singo当月信用卡消费的明细打印到A4纸上。却发现消费总额为1080元，singo的老婆非常诧异，以为出现了幻觉。幻读就这样产生了。<br>注：Mysql的默认隔离级别就是Repeatableread。</li>
+<li>序列化<br>Serializable是最高的事务隔离级别。同一时候代价也花费最高，性能非常低，一般非常少使用，在该级别下，事务顺序运行，不仅能够避免脏读、不可反复读，还避免了幻像读。<h2 id="mysql开启事务"><a href="#mysql开启事务" class="headerlink" title="mysql开启事务"></a>mysql开启事务</h2>默认情况下，mysql每执行一条sql语句都是一条事务，自动提交。如果一条事务有多条sql语句需要执行，要开启一个新的事务<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">开启事务</span><br><span class="line"><span class="keyword">start</span> <span class="keyword">transaction</span></span><br><span class="line">....</span><br><span class="line">结束事务</span><br><span class="line"><span class="keyword">commit</span>/<span class="keyword">rollback</span></span><br><span class="line">或  </span><br><span class="line">通过AutoCommit设置事务开启或关闭</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">"autocommit"</span></span><br><span class="line"><span class="keyword">set</span> autocommit = <span class="number">0</span>; //0表示AutoCommit关闭</span><br><span class="line"><span class="keyword">set</span> autocommit = <span class="number">1</span>； //<span class="number">1</span>表示AutoCommit开启</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>在执行SQL语句之前，先执行start transaction，这就开启了一个事务（事务的起点），然后可以去执行多条SQL语句，最后要结束事务，commit表示提交，即事务中的多条SQL语句所作出的影响会持久到数据库中，或者rollback，表示回滚到事务的起点，之前做的所有操作都被撤销了。</p>
+<h2 id="jdbc-开启事务"><a href="#jdbc-开启事务" class="headerlink" title="jdbc 开启事务"></a>jdbc 开启事务</h2><p>默认自动提交事务，若要手动提交，则关闭事务。<br>在JDBC中处理事务，都是通过Connection完成的。<br>同一事务中所有的操作，都在使用同一个Connection对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">con.setAutoCommit(<span class="keyword">false</span>) 表示开启事务。</span><br><span class="line">...(进行多条sql)</span><br><span class="line">commit（）：提交结束事务。</span><br><span class="line">rollback（）：回滚结束事务。</span><br></pre></td></tr></table></figure></p>
+<h4 id="附上jdbc代码练习"><a href="#附上jdbc代码练习" class="headerlink" title="附上jdbc代码练习"></a>附上jdbc代码练习</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException </span>&#123;</span><br><span class="line">       Connection conn= <span class="keyword">null</span>;</span><br><span class="line">       String driver = <span class="string">"com.mysql.jdbc.Driver"</span>;</span><br><span class="line">       <span class="comment">//时区问题，serverTimezone=UTC</span></span><br><span class="line">       String url = <span class="string">"jdbc:mysql://localhost:3306/czt?characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC"</span>;</span><br><span class="line">       String name = <span class="string">"root"</span>;</span><br><span class="line">       String password = <span class="string">"666666"</span>;</span><br><span class="line">       <span class="comment">//先获取链接驱动</span></span><br><span class="line">       Class.forName(driver);</span><br><span class="line">       String sql =<span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">       	<span class="comment">//通过driverManager获取链接</span></span><br><span class="line">           conn = DriverManager.getConnection(url, name, password);</span><br><span class="line">           <span class="keyword">if</span> (conn != <span class="keyword">null</span> )&#123;</span><br><span class="line">               System.out.println(<span class="string">"成功连接"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//通过链接，发送statement    preperStatement的区别是，可以预编译sql语句，再注入参数，</span></span><br><span class="line">           Statement statement = conn.createStatement();</span><br><span class="line">           sql = <span class="string">"create table student(NO char(20),name varchar(20),primary key(NO))"</span>;</span><br><span class="line">           <span class="comment">//返回影响行数</span></span><br><span class="line">           <span class="keyword">int</span> i = statement.executeUpdate(sql);</span><br><span class="line">           <span class="keyword">if</span> (i!=-<span class="number">1</span>)&#123;</span><br><span class="line">               System.out.println(<span class="string">"修改成功"</span>);</span><br><span class="line">           &#125;</span><br><span class="line">           conn.close();</span><br><span class="line">       &#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="spring-开启事务"><a href="#spring-开启事务" class="headerlink" title="spring 开启事务"></a>spring 开启事务</h2><p><a href="https://juejin.im/post/5b00c52ef265da0b95276091" target="_blank" rel="noopener">spring 事务管理详解</a><br>在xml配置文件中<br><strong>第一步</strong>：配置事务管理器<br><strong>第二步</strong>：开启事务注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 第一步：配置事务管理器 (和配置文件方式一样)--&gt;</span><br><span class="line">	&lt;bean id=<span class="string">"dataSourceTransactionManager"</span></span><br><span class="line">		<span class="class"><span class="keyword">class</span></span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span><br><span class="line">		&lt;!-- 注入dataSource --&gt;</span><br><span class="line">		&lt;property name="dataSource" ref="dataSource"&gt;&lt;/property&gt;</span><br><span class="line">	&lt;/bean&gt;</span><br><span class="line">	</span><br><span class="line">	&lt;!-- 第二步： 开启事务注解 --&gt;</span><br><span class="line">	&lt;tx:annotation-driven transaction-manager=<span class="string">"dataSourceTransactionManager"</span> /&gt;</span><br><span class="line">	&lt;!-- 第三步 在方法所在类上加注解 --&gt;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/07/位运算符/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2079,195 +2271,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/29/vue项目小记/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/29/vue项目小记/" itemprop="url">vue项目小记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-29T10:20:23+08:00">
-                2019-07-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/前端/" itemprop="url" rel="index">
-                    <span itemprop="name">前端</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  750
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  3
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>win + Q 打开搜索框<br><a href="https://blog.csdn.net/jack_bob/article/details/80644376" target="_blank" rel="noopener">npm 与 cnpm 的区别</a><br>DOM （Document Object Model）是指文档对象模型，通过它，可以访问html文档的所有元素。</p>
-<h3 id="下载cnpm-淘宝镜像，更快"><a href="#下载cnpm-淘宝镜像，更快" class="headerlink" title="下载cnpm(淘宝镜像，更快)"></a>下载cnpm(淘宝镜像，更快)</h3><p>npm install cnpm -g –registry=<a href="https://registry.npm.taobao.org" target="_blank" rel="noopener">https://registry.npm.taobao.org</a></p>
-<h3 id="全局安装vue-cli"><a href="#全局安装vue-cli" class="headerlink" title="全局安装vue -cli"></a>全局安装vue -cli</h3><p>cnpm install -g vue-cli</p>
-<h3 id="npm-i-install下载安装模块"><a href="#npm-i-install下载安装模块" class="headerlink" title="npm i     install下载安装模块"></a>npm i     install下载安装模块</h3><h1 id="vue项目管理系统"><a href="#vue项目管理系统" class="headerlink" title="vue项目管理系统"></a>vue项目管理系统</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>使用vue脚本架搭建工程<br>vue init webpack vuetest(项目名)<br>package.json 总项目的js控制文件<br>启动项目  npm run dev</p>
-<h3 id="集成elementUI组件"><a href="#集成elementUI组件" class="headerlink" title="集成elementUI组件"></a>集成elementUI组件</h3><p><strong>npm i element-ui -S</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//引入element-ui 样式   main.js</span><br><span class="line">import ElementUI from &apos;element-ui&apos;;</span><br><span class="line">import &apos;element-ui/lib/theme-chalk/index.css&apos;;</span><br><span class="line">//注册elementui</span><br><span class="line">Vue.use(ElementUI);</span><br></pre></td></tr></table></figure></p>
-<h3 id="使用axios"><a href="#使用axios" class="headerlink" title="使用axios"></a>使用axios</h3><p><strong>npm install axios –save </strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//在main.js中引入axios</span><br><span class="line">import axios from &apos;axios&apos;</span><br><span class="line">//挂载在Vue的原型上。</span><br><span class="line">Vue.prototype.axios = axios</span><br><span class="line">//通过代理方式，将请求地址代理到888端口下，即解决跨域</span><br><span class="line"> this.axios.post(&apos;/api/checklogin&apos;,&#123;      </span><br><span class="line">              username : that.loginForm.username,</span><br><span class="line">              password : that.loginForm.password                  </span><br><span class="line">          &#125;)</span><br><span class="line">          .then(response =&gt; &#123;</span><br><span class="line">              console.log(&quot;接收后端响应请求的数据：&quot; ,response.data)</span><br><span class="line">            &#125;)</span><br></pre></td></tr></table></figure></p>
-<p>通过axios与后端交互。</p>
-<h3 id="使用express-node-js快速搭建后台。"><a href="#使用express-node-js快速搭建后台。" class="headerlink" title="使用express+node.js快速搭建后台。"></a>使用express+node.js快速搭建后台。</h3><p>通过后台的/routes/index.js文件，接收请求<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">router.post(&quot;/checklogin&quot;,(req,res) =&gt;</span><br><span class="line">  res.send(&quot;1&quot;)</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
-<p>//全局安装express<br>npm install express-generator -g<br>express -e server</p>
-<h3 id="使用nodemon工具启动项目-记得给安装新项目中的模块。cnpm-install"><a href="#使用nodemon工具启动项目-记得给安装新项目中的模块。cnpm-install" class="headerlink" title="使用nodemon工具启动项目      记得给安装新项目中的模块。cnpm install"></a>使用nodemon工具启动项目      记得给安装新项目中的模块。cnpm install</h3><p>npm install -g nodemon<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//启动后台服务</span><br><span class="line">nodemon app</span><br></pre></td></tr></table></figure></p>
-<h3 id="出现跨域错误"><a href="#出现跨域错误" class="headerlink" title="出现跨域错误"></a>出现跨域错误</h3><p>error : changeOrigin<br>通过自己添加一个代理 解决<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">proxyTable: &#123;</span><br><span class="line">      &apos;/api&apos;: &#123;</span><br><span class="line">        target: &apos;http://localhost:888/&apos;,  //目标接口域名</span><br><span class="line">        changeOrigin: true,  //是否跨域</span><br><span class="line">        pathRewrite: &#123;</span><br><span class="line">          &apos;^/api&apos;: &apos;/api&apos;   //重写接口</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    这段代码的效果就是将本地8080端口的一个请求代理到了http://www.abc.com这一域名下：</span><br><span class="line">    &apos;http://localhost:8080/api&apos; ===&gt; &apos;http://localhost:888/api&apos;</span><br></pre></td></tr></table></figure></p>
-<h3 id="sql-语法"><a href="#sql-语法" class="headerlink" title="sql 语法"></a>sql 语法</h3><p>当使用${}拼接时，sql应该用<code></code>套起<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const sql = `select * from users where username=&apos;$&#123;username&#125;&apos; and password=&apos;$&#123;password&#125;&apos;`</span><br></pre></td></tr></table></figure></p>
-<h3 id="使用vuex做到数据之间的共享"><a href="#使用vuex做到数据之间的共享" class="headerlink" title="使用vuex做到数据之间的共享"></a>使用vuex做到数据之间的共享</h3><p>cnpm i vuex –save<br>通过vuex中的state做到一个全局变量的储存，形同与小程序的全局变量localstore。<br>通过定义mutations操作state<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const mutations = &#123;</span><br><span class="line">    SAVE_USERINFO(state,userinfo)&#123;</span><br><span class="line">        console.log(&quot;函数被触发&quot;);</span><br><span class="line">        state.userinfo = userinfo;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>通过commit 触发函数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$store.commit(&apos;SAVE_USERINFO&apos;,data);</span><br></pre></td></tr></table></figure></p>
-<h3 id="在样式中加个-imporant"><a href="#在样式中加个-imporant" class="headerlink" title="在样式中加个!imporant"></a>在样式中加个!imporant</h3><h3 id="路由出口"><a href="#路由出口" class="headerlink" title="路由出口 "></a>路由出口 <router-view></router-view></h3><p>在属性列表 增添router属性</p>
-<h3 id="使用vuex中mapState-获取state数据"><a href="#使用vuex中mapState-获取state数据" class="headerlink" title="使用vuex中mapState 获取state数据"></a>使用vuex中mapState 获取state数据</h3><p>vuex中state 是保存全局状态的常用方法。<br>改变state通过改变提交方式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//状态 </span><br><span class="line">const state = &#123;</span><br><span class="line">    userinfo : JSON.parse(localStorage.getItem(&apos;userinfo&apos;))</span><br><span class="line">&#125;</span><br><span class="line">//mutations  主要用来操作state</span><br><span class="line">const mutations = &#123;</span><br><span class="line">    SAVE_USERINFO(state,userinfo)&#123;</span><br><span class="line">        //存入本地 需要将对象转成字符串</span><br><span class="line">        localStorage.setItem(&apos;userinfo&apos;,JSON.stringify(userinfo))</span><br><span class="line">        state.userinfo = userinfo;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="通过vuex-actions-异步获取所有数据"><a href="#通过vuex-actions-异步获取所有数据" class="headerlink" title="通过vuex actions 异步获取所有数据"></a>通过vuex actions 异步获取所有数据</h3><h3 id="mapState-辅助组件"><a href="#mapState-辅助组件" class="headerlink" title="mapState 辅助组件"></a>mapState 辅助组件</h3><p>给state状态中的属性映射。通过提交computed方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">import &#123;mapState&#125; from &apos;vuex&apos;;</span><br><span class="line">computed :&#123;</span><br><span class="line">    // username ()&#123;</span><br><span class="line">    //   return this.$store.state.userinfo.username</span><br><span class="line">    // &#125;,</span><br><span class="line">    //通过mapState 辅助函数获取state数据</span><br><span class="line">    ...mapState(&#123;</span><br><span class="line">      userinfo :state =&gt; state.userinfo,</span><br><span class="line">      username :state =&gt; state.userinfo.username</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2320,7 +2323,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">55</span>
+                  <span class="site-state-item-count">56</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2342,7 +2345,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2416,7 +2419,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共107.1k字</span>
+  <span class="post-count">博客全站共108.3k字</span>
 </div>
 
         

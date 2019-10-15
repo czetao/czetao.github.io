@@ -281,6 +281,220 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/15/nginx-location匹配规则/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/15/nginx-location匹配规则/" itemprop="url">nginx location匹配规则</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-15T21:20:11+08:00">
+                2019-10-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  996
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  3
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="location-匹配规则"><a href="#location-匹配规则" class="headerlink" title="location 匹配规则"></a>location 匹配规则</h1><h4 id="语法规则"><a href="#语法规则" class="headerlink" title="语法规则"></a>语法规则</h4><blockquote>
+<p>location [=|~|~*|^~] /uri/ { … }</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th style="text-align:left">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>location = /uri</td>
+<td style="text-align:left">= 表示精确匹配，只有完全匹配上才能生效</td>
+</tr>
+<tr>
+<td>location ^~ /uri</td>
+<td style="text-align:left">^~ 开头对URL路径进行前缀匹配，并且在正则之前。</td>
+</tr>
+<tr>
+<td>location ~ pattern</td>
+<td style="text-align:left">开头表示区分大小写的正则匹配</td>
+</tr>
+<tr>
+<td>location ~* pattern</td>
+<td style="text-align:left">开头表示不区分大小写的正则匹配</td>
+</tr>
+<tr>
+<td>location /uri</td>
+<td style="text-align:left">不带任何修饰符，也表示前缀匹配，但是在正则匹配之后</td>
+</tr>
+<tr>
+<td>location /</td>
+<td style="text-align:left">通用匹配，任何未匹配到其它location的请求都会匹配到，相当于switch中的default</td>
+</tr>
+</tbody>
+</table>
+<p>前缀匹配时，Nginx 不对 url 做编码，因此请求为 <code>/static/20%/aa</code>，可以被规则 <code>^~ /static/ /aa</code> 匹配到（注意是空格）</p>
+<p>多个 location 配置的情况下匹配顺序为（参考资料而来，还未实际验证，试试就知道了，不必拘泥，仅供参考）:</p>
+<ul>
+<li>首先精确匹配 <code>=</code></li>
+<li>其次前缀匹配 <code>^~</code></li>
+<li>其次是按文件中顺序的正则匹配</li>
+<li>然后匹配不带任何修饰的前缀匹配。</li>
+<li>最后是交给 <code>/</code> 通用匹配</li>
+<li>当有匹配成功时候，停止匹配，按当前匹配规则处理请求</li>
+</ul>
+<p><em>注意：前缀匹配，如果有包含关系时，按最大匹配原则进行匹配。比如在前缀匹配：<code>location /dir01</code> 与 <code>location /dir01/dir02</code>，如有请求 <code>http://localhost/dir01/dir02/file</code> 将最终匹配到 <code>location /dir01/dir02</code></em></p>
+<p>例子，有如下匹配规则：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span> = / &#123;</span><br><span class="line">   <span class="attribute">echo</span> <span class="string">"规则A"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span> = /login &#123;</span><br><span class="line">   <span class="attribute">echo</span> <span class="string">"规则B"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span><span class="regexp"> ^~</span> /static/ &#123;</span><br><span class="line">   <span class="attribute">echo</span> <span class="string">"规则C"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span><span class="regexp"> ^~</span> /static/files &#123;</span><br><span class="line">    <span class="attribute">echo</span> <span class="string">"规则X"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span> <span class="regexp">~ \.(gif|jpg|png|js|css)$</span> &#123;</span><br><span class="line">   <span class="attribute">echo</span> <span class="string">"规则D"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span> <span class="regexp">~* \.png$</span> &#123;</span><br><span class="line">   <span class="attribute">echo</span> <span class="string">"规则E"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span> /img &#123;</span><br><span class="line">    <span class="attribute">echo</span> <span class="string">"规则Y"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span> / &#123;</span><br><span class="line">   <span class="attribute">echo</span> <span class="string">"规则F"</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么产生的效果如下：</p>
+<ul>
+<li>访问根目录 <code>/</code>，比如 <code>http://localhost/</code> 将匹配 <code>规则A</code></li>
+<li>访问 <code>http://localhost/login</code> 将匹配 <code>规则B</code>，<code>http://localhost/register</code> 则匹配 <code>规则F</code></li>
+<li>访问 <code>http://localhost/static/a.html</code> 将匹配 <code>规则C</code></li>
+<li>访问 <code>http://localhost/static/files/a.exe</code> 将匹配 <code>规则X</code>，虽然 <code>规则C</code> 也能匹配到，但因为最大匹配原则，最终选中了 <code>规则X</code>。你可以测试下，去掉规则 X ，则当前 URL 会匹配上 <code>规则C</code>。</li>
+<li>访问 <code>http://localhost/a.gif</code>, <code>http://localhost/b.jpg</code> 将匹配 <code>规则D</code> 和 <code>规则 E</code> ，但是 <code>规则 D</code> 顺序优先，<code>规则 E</code> 不起作用，而 <code>http://localhost/static/c.png</code> 则优先匹配到 <code>规则 C</code></li>
+<li>访问 <code>http://localhost/a.PNG</code> 则匹配 <code>规则 E</code> ，而不会匹配 <code>规则 D</code> ，因为 <code>规则 E</code> 不区分大小写。</li>
+<li>访问 <code>http://localhost/img/a.gif</code> 会匹配上 <code>规则D</code>,虽然 <code>规则Y</code> 也可以匹配上，但是因为正则匹配优先，而忽略了 <code>规则Y</code>。</li>
+<li>访问 <code>http://localhost/img/a.tiff</code> 会匹配上 <code>规则Y</code>。</li>
+</ul>
+<p>访问 <code>http://localhost/category/id/1111</code> 则最终匹配到规则 F ，因为以上规则都不匹配，这个时候应该是 Nginx 转发请求给后端应用服务器，比如 FastCGI（php），tomcat（jsp），Nginx 作为反向代理服务器存在。</p>
+<p>所以实际使用中，笔者觉得至少有三个匹配规则定义，如下：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接匹配网站根，通过域名访问网站首页比较频繁，使用这个会加速处理，官网如是说。</span></span><br><span class="line"><span class="comment"># 这里是直接转发给后端应用服务器了，也可以是一个静态首页</span></span><br><span class="line"><span class="comment"># 第一个必选规则</span></span><br><span class="line"><span class="attribute">location</span> = / &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://tomcat:8080/index</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 第二个必选规则是处理静态文件请求，这是 nginx 作为 http 服务器的强项</span><br><span class="line"><span class="comment"># 有两种配置模式，目录匹配或后缀匹配，任选其一或搭配使用</span></span><br><span class="line">location<span class="regexp"> ^~</span> /static/ &#123;</span><br><span class="line">    <span class="attribute">root</span> /webroot/static/;</span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">location</span> <span class="regexp">~* \.(gif|jpg|jpeg|png|css|js|ico)$</span> &#123;</span><br><span class="line">    <span class="attribute">root</span> /webroot/res/;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 第三个规则就是通用规则，用来转发动态请求到后端应用服务器</span></span><br><span class="line"><span class="comment"># 非静态文件请求就默认是动态请求，自己根据实际把握</span></span><br><span class="line"><span class="comment"># 毕竟目前的一些框架的流行，带.php、.jsp后缀的情况很少了</span></span><br><span class="line"><span class="attribute">location</span> / &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://tomcat:8080/</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/13/tcp黏包/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1525,7 +1739,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.5k
+                  1.8k
                 </span>
               
 
@@ -1541,7 +1755,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  6
+                  7
                 </span>
               
             </div>
@@ -1564,111 +1778,51 @@
       
         
           
-            <h3 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h3><p>  正向代理是一个位于客户端和目标服务器之间的代理服务器(中间服务器)。为了从原始服务器取得内容，客户端向代理服务器发送一个请求，并且指定目标服务器，之后代理向目标服务器转交并且将获得的内容返回给客户端。正向代理的情况下客户端必须要进行一些特别的设置才能使用。</p>
-<p>  反向代理正好相反。对于客户端来说，反向代理就好像目标服务器。并且客户端不需要进行任何设置。客户端向反向代理发送请求，接着反向代理判断请求走向何处，并将请求转交给客户端，使得这些内容就好似他自己一样，一次客户端并不会感知到反向代理后面的服务，也因此不需要客户端做任何设置，只需要把反向代理服务器当成真正的服务器就好了。</p>
+            <h3 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h3><p> 正向代理（ Forward Proxy ）：是指是一个位于客户端和原始服务器之间的服务器，为了从原始服务器取得内容， 客户端向代理发送一个请求并指定目标(原始服务器)，然后代理向原始服务器转交请求并将获得的内容返回给客户端。客户端才能使用正向代理。</p>
+<p>反向代理（ Reverse Proxy ）：是指以代理服务器来接受 Internet 上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给 Internet 上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。</p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><h4 id="正向代理"><a href="#正向代理" class="headerlink" title="正向代理"></a>正向代理</h4><ol>
+<li><strong>代理客户</strong>;</li>
+<li>隐藏真实的客户，为客户端收发请求，使真实客户端对服务器不可见;</li>
+<li>一个局域网内的所有用户可能被一台服务器做了正向代理，由该台服务器负责 HTTP 请求;</li>
+<li>意味着同服务器做通信的是正向代理服务器;</li>
+</ol>
+<h4 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h4><ol>
+<li><strong>代理服务器</strong>;</li>
+<li>隐藏了真实的服务器，为服务器收发请求，使真实服务器对客户端不可见;</li>
+<li>负载均衡服务器，将用户的请求分发到空闲的服务器上;</li>
+<li>意味着用户和负载均衡服务器直接通信，即用户解析服务器域名时得到的是负载均衡服务器的 IP ;</li>
+</ol>
+<h4 id="共同点"><a href="#共同点" class="headerlink" title="共同点"></a>共同点</h4><ol>
+<li>都是做为服务器和客户端的中间层</li>
+<li>都可以加强内网的安全性，阻止 web 攻击</li>
+<li>都可以做缓存机制</li>
+</ol>
 <h3 id="2-区别"><a href="#2-区别" class="headerlink" title="2. 区别"></a>2. 区别</h3><p>  正向代理需要你主动设置代理服务器ip或者域名进行访问，由设置的服务器ip或者域名去获取访问内容并返回；而反向代理不需要你做任何设置，直接访问服务器真实ip或者域名，但是服务器内部会自动根据访问内容进行跳转及内容返回，你不知道它最终访问的是哪些机器。</p>
 <p>  正向代理是代理客户端，为客户端收发请求，使真实客户端对服务器不可见；而反向代理是代理服务器端，为服务器收发请求，使真实服务器对客户端不可见。</p>
 <p>2、安装tomcat2个,现在我们模拟的话服务器就采用tomcat来模拟。</p>
 <p>安装tomcat的过程就不介绍了，在<a href="http://blog.csdn.net/u013144287/article/details/78499485过程中有介绍，" target="_blank" rel="noopener">http://blog.csdn.net/u013144287/article/details/78499485过程中有介绍，</a><br>（1）创建一个tomcat目录mkdir -p /usr/local/tomcats<br>在此目录下安装两个tomcat如图所示：</p>
-<p>（2）修改tomcat2的端口号，vi ./tomcat2/conf/server.xml</p>
-<p><server port="8006" shutdown="SHUTDOWN"></server></p>
-<p><connector port="8081" protocol="HTTP/1.1" connectiontimeout="20000" redirectport="8443"></connector></p>
-<p><connector port="8010" protocol="AJP/1.3" redirectport="8443"><br>修改此3处端口号，分别在原来基础上加1，然后wq保存，启动两台tomcat</connector></p>
+<p>（2）修改tomcat2的端口号，vi ./tomcat2/conf/server.xml<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Server</span> <span class="attr">port</span>=<span class="string">"8006"</span> <span class="attr">shutdown</span>=<span class="string">"SHUTDOWN"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">"8081"</span> <span class="attr">protocol</span>=<span class="string">"HTTP/1.1"</span></span></span><br><span class="line"><span class="tag">               <span class="attr">connectionTimeout</span>=<span class="string">"20000"</span></span></span><br><span class="line"><span class="tag">               <span class="attr">redirectPort</span>=<span class="string">"8443"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">"8010"</span> <span class="attr">protocol</span>=<span class="string">"AJP/1.3"</span> <span class="attr">redirectPort</span>=<span class="string">"8443"</span> /&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>修改此3处端口号，分别在原来基础上加1，然后wq保存，启动两台tomcat</p>
 <p>3、需求<br>nginx的安装可以参考<a href="http://blog.csdn.net/u013144287/article/details/78408001此篇文章" target="_blank" rel="noopener">http://blog.csdn.net/u013144287/article/details/78408001此篇文章</a><br>通过访问不同的域名访问运行在tomcat不同端口的服务器，中间使用nginx反向代理服务器<br>windows上访问需要修改hosts文件进行配置如下：<br>8080.zcinfo.com 访问运行8080端口的tomcat</p>
 <p>8082.zcinfo.com 访问运行8081端口的tomcat</p>
 <p>如图所示：hosts目录是：C:\Windows\System32\drivers\etc</p>
-<p>4、Nginx的配置<br>在Nginx的配置文件里面加入如下配置<br>   upstream tomcatserver1 {<br>    server 192.168.3.43:8080;<br>    }<br>    upstream tomcatserver2 {<br>    server 192.168.3.43:8082;<br>    }<br>   server {<br>        listen       80;<br>        server_name  8080.zcinfo.com;</p>
-<pre><code>    #charset koi8-r;
-
-    #access_log  logs/host.access.log  main;
-
-    location / {
-        proxy_pass   http://tomcatserver1;
-        index  index.html index.htm;
-    }  
-}
-server {
-    listen       80;
-    server_name  8082.zcinfo.com;
-
-    #charset koi8-r;
-
-    #access_log  logs/host.access.log  main;
-
-    location / {
-        proxy_pass   http://tomcatserver2;
-        index  index.html index.htm;
-    }
-}
-</code></pre><p>重启nginx<br>ps：如果在同一个域名下有多台服务器提供服务，此时需要nginx负载均衡。<br>5、测试</p>
+<p>4、Nginx的配置<br>在Nginx的配置文件里面加入如下配置<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">  <span class="attribute">upstream</span> tomcatserver1 &#123;</span><br><span class="line"><span class="attribute">server</span> <span class="number">192.168.3.43:8080</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="attribute">upstream</span> tomcatserver2 &#123;</span><br><span class="line"><span class="attribute">server</span> <span class="number">192.168.3.43:8082</span>;</span><br><span class="line">   &#125;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">       <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">       <span class="attribute">server_name</span>  <span class="number">8080</span>.zcinfo.com;</span><br><span class="line"></span><br><span class="line">       <span class="comment">#charset koi8-r;</span></span><br><span class="line">    </span><br><span class="line">       <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line">    </span><br><span class="line">       <span class="attribute">location</span> / &#123;</span><br><span class="line">           <span class="attribute">proxy_pass</span>   http://tomcatserver1;</span><br><span class="line">           <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">       &#125;  </span><br><span class="line">   &#125;</span><br><span class="line">   <span class="section">server</span> &#123;</span><br><span class="line">       <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">       <span class="attribute">server_name</span>  <span class="number">8082</span>.zcinfo.com;</span><br><span class="line">    </span><br><span class="line">       <span class="comment">#charset koi8-r;</span></span><br><span class="line">    </span><br><span class="line">       <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line">    </span><br><span class="line">       <span class="attribute">location</span> / &#123;</span><br><span class="line">           <span class="attribute">proxy_pass</span>   http://tomcatserver2;</span><br><span class="line">           <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>重启nginx<br>ps：如果在同一个域名下有多台服务器提供服务，此时需要nginx负载均衡。<br>5、测试</p>
 <p>至此恭喜您，nginx反向代理成功<br>二、负载均衡<br>1、什么是负载均衡？<br>负载均衡建立在现有网络结构之上，它提供了一种廉价有效透明的方法扩展网络设备和服务器的带宽、增加吞吐量、加强网络数据处理能力、提高网络的灵活性和可用性。</p>
 <p>负载均衡，英文名称为Load Balance，其意思就是分摊到多个操作单元上进行执行，例如Web服务器、FTP服务器、企业关键应用服务器和其它关键任务服务器等，从而共同完成工作任务。</p>
 <p>2、需求</p>
 <p>nginx作为负载均衡服务器，用户请求先到达nginx，再由nginx根据负载配置将请求转发至tomcat服务器。</p>
-<p>nginx负载均衡服务器：192.168.3.43</p>
-<p>tomcat1服务器：192.168.3.43:8080</p>
-<p>tomcat2服务器：192.168.3.43:8081</p>
-<p>3、nginx的配置</p>
-<p>  upstream tomcatserver1 {<br>    server 192.168.3.43:8080;<br>        server 192.168.3.43:8082; #多加了此台服务器<br> }<br>    upstream tomcatserver2 {<br>    server 192.168.3.43:8082;<br>    }<br>   server {<br>        listen       80;<br>        server_name  8080.zcinfo.com;</p>
-<pre><code>    #charset koi8-r;
-
-    #access_log  logs/host.access.log  main;
-
-    location / {
-        proxy_pass   http://tomcatserver1;
-        index  index.html index.htm;
-    }  
-}
-server {
-    listen       80;
-    server_name  8082.zcinfo.com;
-
-    #charset koi8-r;
-
-    #access_log  logs/host.access.log  main;
-
-    location / {
-        proxy_pass   http://tomcatserver2;
-        index  index.html index.htm;
-    }
-}
-</code></pre><p>如果两台服务器性能差不多这样设置重启nginx就行了，但是现在假如两台服务器性能不一样，还需要设置性能权重，让性能高服务器做更多事情。只需要加入weight=?就行了，如下：</p>
-<p>upstream tomcatserver1 {<br>    server 192.168.3.43:8080 weight=2;<br>        server 192.168.3.43:8082 weight=1;<br> }<br>    upstream tomcatserver2 {<br>    server 192.168.3.43:8082;<br>    }<br>   server {<br>        listen       80;<br>        server_name  8080.zcinfo.com;</p>
-<pre><code>    #charset koi8-r;
-
-    #access_log  logs/host.access.log  main;
-
-    location / {
-        proxy_pass   http://tomcatserver1;
-        index  index.html index.htm;
-    }  
-}
-server {
-    listen       80;
-    server_name  8082.zcinfo.com;
-
-    #charset koi8-r;
-
-    #access_log  logs/host.access.log  main;
-
-    location / {
-        proxy_pass   http://tomcatserver2;
-        index  index.html index.htm;
-    }
-}
-</code></pre><p>重新启动nginx,会发现8080出现了两次，8082出现一次这样轮循。<br>ps:关于nginx负载均衡的一些参数介绍例子</p>
+<p>nginx负载均衡服务器：192.168.3.43<br>tomcat1服务器：192.168.3.43:8080<br>tomcat2服务器：192.168.3.43:8082</p>
+<p>3、nginx的配置<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"> <span class="attribute">upstream</span> tomcatserver1 &#123;</span><br><span class="line"><span class="attribute">server</span> <span class="number">192.168.3.43:8080</span>;</span><br><span class="line">   <span class="attribute">server</span> <span class="number">192.168.3.43:8082</span>; <span class="comment">#多加了此台服务器</span></span><br><span class="line">&#125;</span><br><span class="line">   <span class="attribute">upstream</span> tomcatserver2 &#123;</span><br><span class="line"><span class="attribute">server</span> <span class="number">192.168.3.43:8082</span>;</span><br><span class="line">   &#125;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">       <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">       <span class="attribute">server_name</span>  <span class="number">8080</span>.zcinfo.com;</span><br><span class="line">       <span class="comment">#charset koi8-r;     </span></span><br><span class="line">       <span class="comment">#access_log  logs/host.access.log  main;   </span></span><br><span class="line">       <span class="attribute">location</span> / &#123;</span><br><span class="line">           <span class="attribute">proxy_pass</span>   http://tomcatserver1;</span><br><span class="line">           <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">       &#125;  </span><br><span class="line">   &#125;</span><br><span class="line">   <span class="section">server</span> &#123;</span><br><span class="line">       <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">       <span class="attribute">server_name</span>  <span class="number">8082</span>.zcinfo.com;     </span><br><span class="line">       <span class="comment">#charset koi8-r;    </span></span><br><span class="line">       <span class="comment">#access_log  logs/host.access.log  main;    </span></span><br><span class="line">       <span class="attribute">location</span> / &#123;</span><br><span class="line">           <span class="attribute">proxy_pass</span>   http://tomcatserver2;</span><br><span class="line">           <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果两台服务器性能差不多这样设置重启nginx就行了，但是现在假如两台服务器性能不一样，还需要设置性能权重，让性能高服务器做更多事情。只需要加入weight=?就行了，如下：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">upstream</span> tomcatserver1 &#123;</span><br><span class="line">	<span class="attribute">server</span> <span class="number">192.168.3.43:8080</span> weight=<span class="number">2</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.3.43:8082</span> weight=<span class="number">1</span>; </span><br><span class="line"> &#125;</span><br><span class="line">    <span class="attribute">upstream</span> tomcatserver2 &#123;</span><br><span class="line">	<span class="attribute">server</span> <span class="number">192.168.3.43:8082</span>;</span><br><span class="line">    &#125;</span><br><span class="line">   <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">        <span class="attribute">server_name</span>  <span class="number">8080</span>.zcinfo.com;</span><br><span class="line">        <span class="comment">#charset koi8-r;</span></span><br><span class="line">        <span class="comment">#access_log  logs/host.access.log  main;     </span></span><br><span class="line">        <span class="attribute">location</span> / &#123;</span><br><span class="line">            <span class="attribute">proxy_pass</span>   http://tomcatserver1;</span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">        <span class="attribute">server_name</span>  <span class="number">8082</span>.zcinfo.com;     </span><br><span class="line">        <span class="comment">#charset koi8-r;    </span></span><br><span class="line">        <span class="comment">#access_log  logs/host.access.log  main;     </span></span><br><span class="line">        <span class="attribute">location</span> / &#123;</span><br><span class="line">            <span class="attribute">proxy_pass</span>   http://tomcatserver2;</span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>重新启动nginx,会发现8080出现了两次，8082出现一次这样轮循。<br>ps:关于nginx负载均衡的一些参数介绍例子</p>
 <p>节点说明：<br>在http节点里添加:</p>
-<p>#定义负载均衡设备的 Ip及设备状态<br>upstream myServer {   </p>
-<pre><code>server 127.0.0.1:9090 down; 
-server 127.0.0.1:8080 weight=2; 
-server 127.0.0.1:6060; 
-server 127.0.0.1:7070 backup; 
-</code></pre><p>}</p>
+<p>#定义负载均衡设备的 Ip及设备状态 </p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//# upstream 表示负载服务器池，定义名字为 myServer</span><br><span class="line"><span class="attribute">upstream</span> myServer &#123;   </span><br><span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:9090</span> down; </span><br><span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:8080</span> weight=<span class="number">2</span>; </span><br><span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:6060</span>; </span><br><span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:7070</span> backup; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在需要使用负载的Server节点下添加</p>
 <p>proxy_pass <a href="http://myServer" target="_blank" rel="noopener">http://myServer</a>;</p>
 <p>upstream 每个设备的状态:</p>
 <p>down 表示单前的server暂时不参与负载<br>weight  默认为1.weight越大，负载的权重就越大。<br>max_fails ：允许请求失败的次数默认为1.当超过最大次数时，返回proxy_next_upstream 模块定义的错误<br>fail_timeout:max_fails 次失败后，暂停的时间。<br>backup： 其它所有的非backup机器down或者忙的时候，请求backup机器。所以这台机器压力会最轻。</p>
-<p>4、效果</p>
 <p>————————————————<br>版权声明：本文为CSDN博主「演员赵诗绎」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/u013144287/article/details/78551398" target="_blank" rel="noopener">https://blog.csdn.net/u013144287/article/details/78551398</a></p>
 
           
@@ -2042,193 +2196,6 @@ server 127.0.0.1:7070 backup;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/深入理解AQS/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/06/深入理解AQS/" itemprop="url">深入理解AQS</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:39:45+08:00">
-                2019-10-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2.3k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  9
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="同步队列"><a href="#同步队列" class="headerlink" title="同步队列"></a>同步队列</h2><p>当共享资源被某个线程占有，其他请求该资源的线程将会阻塞，从而进入同步队列。就数据结构而言，队列的实现方式无外乎两者一是通过数组的形式，另外一种则是链表的形式。AQS中的同步队列则是<strong>通过链式方式</strong>进行实现。同步队列是<strong>带头结点的链式存储结构</strong>。</p>
-<p>在AQS有一个静态内部类<strong>Node</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">volatile int waitStatus //节点状态 volatile Node prev //当前节点/线程的前驱节点 volatile Node next; //当前节点/线程的后继节点 volatile Thread thread;//加入同步队列的线程引用 Node nextWaiter;//等待队列中的下一个节点</span><br></pre></td></tr></table></figure>
-<p><strong>节点的状态</strong>有以下这些</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int CANCELLED =  1//节点从同步队列中取消 int SIGNAL = -1//后继节点的线程处于等待状态，如果当前节点释放同步状态会通知后继节点，使得后继节点的线程能够运行； int CONDITION = -2//当前节点进入等待队列中 int PROPAGATE = -3//表示下一次共享式同步状态获取将会无条件传播下去 int INITIAL = 0;//初始状态`</span><br></pre></td></tr></table></figure>
-<p>AQS中有两个重要的成员变量，通过头尾指针来管理同步队列，同时实现包括获取锁失败的线程进行入队，释放锁时对同步队列中的线程进行通知</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private transient volatile Node head;private transient volatile Node tail;</span><br></pre></td></tr></table></figure>
-<p><a href="https://a5223594.github.io/2019/10/06/深入理解AQS/163261637bb25796.png" target="_blank" rel="noopener"><img src="https://a5223594.github.io/2019/10/06/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3AQS/163261637bb25796.png" alt="img"></a></p>
-<p>调用lock()方法是获取独占式锁，获取失败就将当前线程加入同步队列，成功则线程执行。而lock()方法实际上会调用AQS的<strong>acquire()</strong>方法，源码如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//先看同步状态是否获取成功，如果成功则方法结束返回 		//若失败则先调用addWaiter()方法再调用acquireQueued()方法        public final void acquire(int arg) &#123;     if (!tryAcquire(arg) &amp;&amp; acquireQueued(addWaiter(Node.EXCLUSIVE), arg))         selfInterrupt();&#125;</span><br></pre></td></tr></table></figure>
-<p>acquire根据当前获得同步状态成功与否做了两件事情：1. 成功，则方法结束返回，2. 失败，则先调用addWaiter()然后在调用acquireQueued()方法。</p>
-<h3 id="addWaiter-源码"><a href="#addWaiter-源码" class="headerlink" title="addWaiter()源码"></a><strong>addWaiter()</strong>源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private Node addWaiter(Node mode) &#123;		// 1. 将当前线程构建成Node类型        Node node = new Node(Thread.currentThread(), mode);        // Try the fast path of enq; backup to full enq on failure        // 2. 当前尾节点是否为null？		Node pred = tail;        if (pred != null) &#123;			// 2.2 将当前节点尾插入的方式插入同步队列中            node.prev = pred;            if (compareAndSetTail(pred, node)) &#123;                pred.next = node;                return node;            &#125;        &#125;		// 2.1. 当前同步队列尾节点为null，说明当前线程是第一个加入同步队列进行等待的线程        enq(node);        return node;&#125;</span><br></pre></td></tr></table></figure>
-<p>程序的逻辑主要分为两个部分：<strong>1. 当前同步队列的尾节点为null，调用方法enq()插入;2. 当前队列的尾节点不为null，则采用尾插入（compareAndSetTail（）方法）的方式入队。</strong>另外还会有另外一个问题：如果 <code>if (compareAndSetTail(pred, node))</code>为false怎么办？会继续执行到enq()方法，同时很明显compareAndSetTail是一个CAS操作，通常来说如果CAS操作失败会继续自旋（死循环,在enq中自旋）进行重试。</p>
-<h3 id="enq-源码"><a href="#enq-源码" class="headerlink" title="enq()源码"></a>enq()源码</h3><p><strong>1. 处理当前同步队列尾节点为null时进行入队操作；2. 如果CAS尾插入节点失败后负责自旋进行尝试。</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private Node enq(final Node node) &#123;        for (;;) &#123;            Node t = tail;			if (t == null) &#123; // Must initialize				//1. 构造头结点                if (compareAndSetHead(new Node()))                    tail = head;            &#125; else &#123;				// 2. 尾插入，CAS操作失败自旋尝试                node.prev = t;                 if (compareAndSetTail(t, node)) &#123;                    t.next = node;                    return t;                &#125;            &#125;        &#125;&#125;</span><br></pre></td></tr></table></figure>
-<p>获取独占式锁失败的线程包装成Node然后插入同步队列的过程，线程）会做什么事情了来保证自己能够有机会获得独占式锁？</p>
-<h3 id="acquireQueued-源码"><a href="#acquireQueued-源码" class="headerlink" title="acquireQueued()源码"></a><strong>acquireQueued()</strong>源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">final boolean acquireQueued(final Node node, int arg) &#123;        boolean failed = true;        try &#123;            boolean interrupted = false;            for (;;) &#123;				// 1. 获得当前节点的先驱节点                final Node p = node.predecessor();				// 2. 当前节点能否获取独占式锁									// 2.1 如果当前节点的先驱节点是头结点并且成功获取同步状态，即可以获得独占式锁				// 链表是带头节点的表示头节点的下一个结点为第一个结点                if (p == head &amp;&amp; tryAcquire(arg)) &#123;					//队列头指针用指向当前节点                    setHead(node);					//释放前驱节点                    p.next = null; // help GC                    failed = false;                    //没有被中断，返回false，让selfInterrupt();不执行,让线程不被中断                    return interrupted;                &#125;				// 2.2 获取锁失败，线程进入等待状态等待获取独占式锁                if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;                    parkAndCheckInterrupt())                    interrupted = true;            &#125;        &#125; finally &#123;            if (failed)                cancelAcquire(node);        &#125;&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>如果先驱节点是头结点的并且成功获得同步状态的时候（if (p == head &amp;&amp; tryAcquire(arg))），当前节点所指向的线程能够获取锁</strong>。反之，获取锁失败进入等待状态。</p>
-<p>acquireQueued()在自旋过程中主要完成了两件事情：</p>
-<ol>
-<li><strong>如果当前节点的前驱节点是头节点，并且能够获得同步状态的话，当前线程能够获得锁该方法执行结束退出</strong>；</li>
-<li><strong>获取锁失败的话，先将当前结点的前驱结点状态设置成SIGNAL，然后调用LookSupport.park方法使得当前线程阻塞</strong>。</li>
-</ol>
-<h3 id="shouldParkAfterFailedAcquire-源码"><a href="#shouldParkAfterFailedAcquire-源码" class="headerlink" title="shouldParkAfterFailedAcquire()源码"></a>shouldParkAfterFailedAcquire()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) &#123;    int ws = pred.waitStatus;    if (ws == Node.SIGNAL)        // 有个规定，就是当前结点的前驱结点状态一定要是-1，才能将当前结点park，        // 相当于你告诉你前面的人排到你的时候叫我，我睡个觉        // 至于为什么前驱结点要是signal,等到release的时候有用        return true;    if (ws &gt; 0) &#123; 		//ws大于0只有一个取消状态 		//做个循环将取消结点去掉        do &#123;            node.prev = pred = pred.prev;        &#125; while (pred.waitStatus &gt; 0);        pred.next = node;    &#125; else &#123;        //CAS将前驱结点的ws设置成-1，自旋在aquareQueued里        compareAndSetWaitStatus(pred, ws, Node.SIGNAL);    &#125;    return false;&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="parkAndCheckInterrupt-源码"><a href="#parkAndCheckInterrupt-源码" class="headerlink" title="parkAndCheckInterrupt()源码"></a>parkAndCheckInterrupt()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private final boolean parkAndCheckInterrupt() &#123;        //使得该线程阻塞		LockSupport.park(this);        return Thread.interrupted();&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="独占锁的释放"><a href="#独占锁的释放" class="headerlink" title="独占锁的释放"></a>独占锁的释放</h2><h3 id="release-源码"><a href="#release-源码" class="headerlink" title="release()源码"></a>release()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public final boolean release(int arg) &#123;        if (tryRelease(arg)) &#123;            Node h = head;            if (h != null &amp;&amp; h.waitStatus != 0)                unparkSuccessor(h);            return true;        &#125;        return false;&#125;</span><br></pre></td></tr></table></figure>
-<p>如果同步状态释放成功（tryRelease返回true）则会执行if块中的代码，当head指向的头结点不为null，并且该节点的状态值不为0的话才会执行unparkSuccessor()方法。</p>
-<h3 id="unparkSuccessor-源码"><a href="#unparkSuccessor-源码" class="headerlink" title="unparkSuccessor()源码"></a>unparkSuccessor()源码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private void unparkSuccessor(Node node) &#123;    /*     * If status is negative (i.e., possibly needing signal) try     * to clear in anticipation of signalling.  It is OK if this     * fails or if status is changed by waiting thread.     */    // 如果头结点为负数，可能为-1，尝试将其ws设置为0，失败也没关系    int ws = node.waitStatus;    if (ws &lt; 0)        compareAndSetWaitStatus(node, ws, 0);    /*     * Thread to unpark is held in successor, which is normally     * just the next node.  But if cancelled or apparently null,     * traverse backwards from tail to find the actual     * non-cancelled successor.     */	//向后遍历找到头节点的后继节点，不能为取消结点    Node s = node.next;    if (s == null || s.waitStatus &gt; 0) &#123;        s = null;        for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)            if (t.waitStatus &lt;= 0)                s = t;    &#125;    if (s != null)		//后继节点不为null时唤醒该线程        LockSupport.unpark(s.thread);&#125;</span><br></pre></td></tr></table></figure>
-<p>首先获取头节点的后继节点，当后继节点的时候会调用LookSupport.unpark()方法，该方法会唤醒该节点的后继节点所包装的线程。因此，<strong>每一次锁释放后就会唤醒队列中该节点的后继节点所引用的线程，从而进一步可以佐证获得锁的过程是一个FIFO（先进先出）的过程。</strong></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>线程获取锁失败，线程被封装成Node进行入队操作，核心方法在于addWaiter()和enq()，同时enq()完成对同步队列的头结点初始化工作以及CAS操作失败的重试</strong>;</p>
-<p><strong>线程获取锁是一个自旋的过程，当且仅当 当前节点的前驱节点是头结点并且成功获得同步状态时，节点出队即该节点引用的线程获得锁，否则，当不满足条件时就会调用LookSupport.park()方法使得线程阻塞</strong>；</p>
-<p><strong>释放锁的时候会唤醒后继节点；</strong></p>
-<p><strong>在获取同步状态时，AQS维护一个同步队列，获取同步状态失败的线程会加入到队列中进行自旋；移除队列（或停止自旋）的条件是前驱节点是头结点并且成功获得了同步状态。在释放同步状态时，同步器会调用unparkSuccessor()方法唤醒后继节点。</strong></p>
-<h2 id="可中断式获取锁"><a href="#可中断式获取锁" class="headerlink" title="可中断式获取锁"></a>可中断式获取锁</h2><p>唯一的区别是当<strong>parkAndCheckInterrupt</strong>返回true时即线程阻塞时该线程被中断，代码抛出被中断异常。而上面只是<code>interrupted = true;</code></p>
-<h2 id="超时等待式获取锁"><a href="#超时等待式获取锁" class="headerlink" title="超时等待式获取锁"></a>超时等待式获取锁</h2><p>和上面类似，每次自旋都会重新计算超时时间</p>
-<h2 id="共享锁"><a href="#共享锁" class="headerlink" title="共享锁"></a>共享锁</h2><p>共享锁的原理和独占锁差不多，区别在于aquire（arg）大于0就能获取锁，每次都是arg–</p>
-<p>释放大概是CAS释放多个线程，保证一定的顺序性</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2281,7 +2248,7 @@ server 127.0.0.1:7070 backup;
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">55</span>
+                  <span class="site-state-item-count">56</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2303,7 +2270,7 @@ server 127.0.0.1:7070 backup;
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -2377,7 +2344,7 @@ server 127.0.0.1:7070 backup;
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共107.1k字</span>
+  <span class="post-count">博客全站共108.3k字</span>
 </div>
 
         
