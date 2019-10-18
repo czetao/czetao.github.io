@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/6273713-73ab95127427c82e.png?imageMogr2/auto-orient/strip|imageView2/2/w/726/format/webp">
 <meta property="og:image" content="https://upload-images.jianshu.io/upload_images/6273713-f93a2127eb81a40f.png?imageMogr2/auto-orient/strip|imageView2/2/w/1200/format/webp">
-<meta property="og:updated_time" content="2019-10-13T12:12:59.946Z">
+<meta property="og:updated_time" content="2019-10-18T02:33:06.221Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spring IOC&amp;AOP">
 <meta name="twitter:description" content="主要用到的设计模式有工厂模式和代理模式。 IOC就是典型的工厂模式，通过sessionfactory去注入实例。 AOP就是典型的代理模式的体现。 IOC   IOC 不是一种技术，只是一种思想，一个重要的面向对象编程的法则，它能指导我们如何设计出松耦合、更优良的程序。传统应用程序都是由我们在类内部主动创建依赖对象，从而导致类与类之间高耦合，难于测试；有了IoC容器后，把创建和查找依赖对象的控制权">
@@ -354,7 +354,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3.1k
+                  3.5k
                 </span>
               
 
@@ -370,7 +370,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  12
+                  13
                 </span>
               
             </div>
@@ -400,9 +400,14 @@
 <p>实现AOP的技术，主要分为两大类：一是采用动态代理技术，利用截取消息的方式，对该消息进行装饰，以取代原有对象行为的执行；二是采用静态织入的方式，引入特定的语法创建“方面”，从而使得编译器可以在编译期间织入有关“方面”的代码.</p>
 <h2 id="AOP实现的关键在于AOP框架自动创建的AOP代理。"><a href="#AOP实现的关键在于AOP框架自动创建的AOP代理。" class="headerlink" title="AOP实现的关键在于AOP框架自动创建的AOP代理。"></a>AOP实现的关键在于AOP框架自动创建的AOP代理。</h2><p>AOP代理主要分为静态代理和动态代理，</p>
 <ul>
-<li>静态代理的代表为AspectJ；</li>
-<li>动态代理则以Spring AOP为代表</li>
+<li><p>静态代理的代表为AspectJ；</p>
+</li>
+<li><p>动态代理则以Spring AOP为代表</p>
+</li>
 </ul>
+<p><strong>代理模式</strong><br>  代理模式是23种设计模式的一种，他是指一个对象A通过持有另一个对象B，可以具有B同样的行为的模式。为了对外开放协议，B往往实现了一个接口，A也会去实现接口。但是B是“真正”实现类，A则比较“虚”，他借用了B的方法去实现接口的方法。A虽然是“伪军”，但它可以增强B，在调用B的方法前后都做些其他的事情。Spring AOP就是使用了动态代理完成了代码的动态“织入”。</p>
+<p>  使用代理好处还不止这些，一个工程如果依赖另一个工程给的接口，但是另一个工程的接口不稳定，经常变更协议，就可以使用一个代理，接口变更时，只需要修改代理，不需要一一修改业务代码。从这个意义上说，所有调外界的接口，我们都可以这么做，不让外界的代码对我们的代码有侵入，这叫防御式编程。代理其他的应用可能还有很多。</p>
+<p>  上述例子中，类A写死持有B，就是B的静态代理。如果A代理的对象是不确定的，就是动态代理。动态代理目前有两种常见的实现，jdk动态代理和cglib动态代理。</p>
 <h4 id="1，AspectJ"><a href="#1，AspectJ" class="headerlink" title="1，AspectJ"></a>1，AspectJ</h4><p>AspectJ是静态代理的增强，采用编译时生成 AOP 代理类，因此也称为编译时增强，具有更好的性能。<br>缺点：但需要使用特定的编译器进行处理</p>
 <h3 id="2，Spring-AOP"><a href="#2，Spring-AOP" class="headerlink" title="2，Spring AOP"></a>2，Spring AOP</h3><p>Spring AOP使用的动态代理，运行时生成 AOP 代理类，所谓的动态代理就是说AOP框架不会去修改字节码，而是在内存中临时为方法生成一个AOP对象，这个AOP对象包含了目标对象的全部方法，并且在特定的切点做了增强处理，并回调原对象的方法。<br>缺点：由于 Spring AOP 需要在每次运行时生成 AOP 代理，因此性能略差一些。</p>
 <p>由于aspectj的使用还需要使用特定的编译器进行处理，处理起来有点麻烦。今天重要来讲解Spring AOP</p>
@@ -694,7 +699,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共108.3k字</span>
+  <span class="post-count">博客全站共109.6k字</span>
 </div>
 
         

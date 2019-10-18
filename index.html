@@ -719,7 +719,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  3.1k
+                  3.5k
                 </span>
               
 
@@ -735,7 +735,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  12
+                  13
                 </span>
               
             </div>
@@ -767,9 +767,14 @@
 <p>实现AOP的技术，主要分为两大类：一是采用动态代理技术，利用截取消息的方式，对该消息进行装饰，以取代原有对象行为的执行；二是采用静态织入的方式，引入特定的语法创建“方面”，从而使得编译器可以在编译期间织入有关“方面”的代码.</p>
 <h2 id="AOP实现的关键在于AOP框架自动创建的AOP代理。"><a href="#AOP实现的关键在于AOP框架自动创建的AOP代理。" class="headerlink" title="AOP实现的关键在于AOP框架自动创建的AOP代理。"></a>AOP实现的关键在于AOP框架自动创建的AOP代理。</h2><p>AOP代理主要分为静态代理和动态代理，</p>
 <ul>
-<li>静态代理的代表为AspectJ；</li>
-<li>动态代理则以Spring AOP为代表</li>
+<li><p>静态代理的代表为AspectJ；</p>
+</li>
+<li><p>动态代理则以Spring AOP为代表</p>
+</li>
 </ul>
+<p><strong>代理模式</strong><br>  代理模式是23种设计模式的一种，他是指一个对象A通过持有另一个对象B，可以具有B同样的行为的模式。为了对外开放协议，B往往实现了一个接口，A也会去实现接口。但是B是“真正”实现类，A则比较“虚”，他借用了B的方法去实现接口的方法。A虽然是“伪军”，但它可以增强B，在调用B的方法前后都做些其他的事情。Spring AOP就是使用了动态代理完成了代码的动态“织入”。</p>
+<p>  使用代理好处还不止这些，一个工程如果依赖另一个工程给的接口，但是另一个工程的接口不稳定，经常变更协议，就可以使用一个代理，接口变更时，只需要修改代理，不需要一一修改业务代码。从这个意义上说，所有调外界的接口，我们都可以这么做，不让外界的代码对我们的代码有侵入，这叫防御式编程。代理其他的应用可能还有很多。</p>
+<p>  上述例子中，类A写死持有B，就是B的静态代理。如果A代理的对象是不确定的，就是动态代理。动态代理目前有两种常见的实现，jdk动态代理和cglib动态代理。</p>
 <h4 id="1，AspectJ"><a href="#1，AspectJ" class="headerlink" title="1，AspectJ"></a>1，AspectJ</h4><p>AspectJ是静态代理的增强，采用编译时生成 AOP 代理类，因此也称为编译时增强，具有更好的性能。<br>缺点：但需要使用特定的编译器进行处理</p>
 <h3 id="2，Spring-AOP"><a href="#2，Spring-AOP" class="headerlink" title="2，Spring AOP"></a>2，Spring AOP</h3><p>Spring AOP使用的动态代理，运行时生成 AOP 代理类，所谓的动态代理就是说AOP框架不会去修改字节码，而是在内存中临时为方法生成一个AOP对象，这个AOP对象包含了目标对象的全部方法，并且在特定的切点做了增强处理，并回调原对象的方法。<br>缺点：由于 Spring AOP 需要在每次运行时生成 AOP 代理，因此性能略差一些。</p>
 <p>由于aspectj的使用还需要使用特定的编译器进行处理，处理起来有点麻烦。今天重要来讲解Spring AOP</p>
@@ -1935,7 +1940,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  609
+                  1.5k
                 </span>
               
 
@@ -1951,7 +1956,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  2
+                  5
                 </span>
               
             </div>
@@ -1992,6 +1997,25 @@
 <p> jvm1的程序现在执行完毕，执行释放锁。关闭当前会话。临时节点不复存在了并且事件通知Watcher，jvm2和jvm3继续创建。               </p>
 <p> ps：zk强制关闭时候，通知会有延迟。但是close（）方法关闭时候，延迟小</p>
 <p>  如果程序一直不处理完，可能导致思索（其他的一直等待）。设置有效期~ 直接close（）掉 其实连接也是有有效期设置的 大家可以找下相关资料看下哦</p>
+<h3 id="使用redis实现分布式锁"><a href="#使用redis实现分布式锁" class="headerlink" title="使用redis实现分布式锁"></a>使用redis实现分布式锁</h3><p>使用Redis实现分布式锁最简单的方案是使用命令SETNX。SETNX（SET if Not eXist）的使用方式为：SETNX key value，只在键key不存在的情况下，将键key的值设置为value，若键key存在，则SETNX不做任何动作。SETNX在设置成功时返回，设置失败时返回0。当要获取锁时，直接使用SETNX获取锁，当要释放锁时，使用DEL命令删除掉对应的键key即可。</p>
+<p>上面这种方案有一个致命问题，就是某个线程在获取锁之后由于某些异常因素（比如宕机）而不能正常的执行解锁操作，那么这个锁就永远释放不掉了。为此，我们可以为这个锁加上一个超时时间。第一时间我们会联想到Redis的EXPIRE命令（EXPIRE key seconds）。但是这里我们不能使用EXPIRE来实现分布式锁，因为它与SETNX一起是两个操作，在这两个操作之间可能会发生异常，从而还是达不到预期的结果，示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">// STEP 1SETNX key value// 若在这里（STEP1和STEP2之间）程序突然崩溃，则无法设置过期时间，将有可能无法释放锁// STEP 2EXPIRE key expireTime</span><br></pre></td></tr></table></figure>
+<p>对此，正确的姿势应该是使用“SET key value [EX seconds] [PX milliseconds] [NX|XX]”这个命令。</p>
+<p>从 Redis 2.6.12 版本开始， SET 命令的行为可以通过一系列参数来修改：</p>
+<ul>
+<li>EX seconds ： 将键的过期时间设置为 seconds 秒。 执行 SET key value EX seconds 的效果等同于执行 SETEX key seconds value 。</li>
+<li>PX milliseconds ： 将键的过期时间设置为 milliseconds 毫秒。 执行 SET key value PX milliseconds 的效果等同于执行 PSETEX key milliseconds value 。</li>
+<li>NX ： 只在键不存在时， 才对键进行设置操作。 执行 SET key value NX 的效果等同于执行 SETNX key value 。</li>
+<li>XX ： 只在键已经存在时， 才对键进行设置操作。</li>
+</ul>
+<p>举例，我们需要创建一个分布式锁，并且设置过期时间为10s，那么可以执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET lockKey lockValue EX 10 NX或者SET lockKey lockValue PX 10000 NX</span><br></pre></td></tr></table></figure>
+<p>注意EX和PX不能同时使用，否则会报错：ERR syntax error。</p>
+<p>解锁的时候还是使用DEL命令来解锁。</p>
+<p>修改之后的方案看上去很完美，但实际上还是会有问题。试想一下，某线程A获取了锁并且设置了过期时间为10s，然后在执行业务逻辑的时候耗费了15s，此时线程A获取的锁早已被Redis的过期机制自动释放了。在线程A获取锁并经过10s之后，改锁可能已经被其它线程获取到了。当线程A执行完业务逻辑准备解锁（DEL key）的时候，有可能删除掉的是其它线程已经获取到的锁。</p>
+<p>所以最好的方式是在解锁时判断锁是否是自己的。我们可以在设置key的时候将value设置为一个唯一值uniqueValue（可以是随机值、UUID、或者机器号+线程号的组合、签名等）。当解锁时，也就是删除key的时候先判断一下key对应的value是否等于先前设置的值，如果相等才能删除key，伪代码示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if uniqueKey == GET(key) &#123;    DEL key&#125;</span><br></pre></td></tr></table></figure>
+<p>这里我们一眼就可以看出问题来：GET和DEL是两个分开的操作，在GET执行之后且在DEL执行之前的间隙是可能会发生异常的。</p>
 
           
         
@@ -2344,7 +2368,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共108.3k字</span>
+  <span class="post-count">博客全站共109.6k字</span>
 </div>
 
         

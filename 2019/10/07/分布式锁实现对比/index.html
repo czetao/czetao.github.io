@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="ddd `Blog">
 <meta property="og:description" content="分布式情况下，怎么解决订单号生成不重复 使用分布式锁 提前生成好，订单号，存放在redis取。获取订单号，直接从redis中取。  使用分布式锁生成订单号技术1.使用数据库实现分布式锁 缺点:性能差、线程出现异常时，容易出现死锁 2.使用redis实现分布式锁 缺点:锁的失效时间难控制、容易产生死锁、非阻塞式、不可重入 3.**使用zookeeper实现分布式锁** 实现相对简单、可靠性强、使用临">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-07T16:26:15.672Z">
+<meta property="og:updated_time" content="2019-10-18T03:08:32.691Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式锁实现对比">
 <meta name="twitter:description" content="分布式情况下，怎么解决订单号生成不重复 使用分布式锁 提前生成好，订单号，存放在redis取。获取订单号，直接从redis中取。  使用分布式锁生成订单号技术1.使用数据库实现分布式锁 缺点:性能差、线程出现异常时，容易出现死锁 2.使用redis实现分布式锁 缺点:锁的失效时间难控制、容易产生死锁、非阻塞式、不可重入 3.**使用zookeeper实现分布式锁** 实现相对简单、可靠性强、使用临">
@@ -351,7 +351,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  609
+                  1.5k
                 </span>
               
 
@@ -367,7 +367,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  2
+                  5
                 </span>
               
             </div>
@@ -406,6 +406,25 @@
 <p> jvm1的程序现在执行完毕，执行释放锁。关闭当前会话。临时节点不复存在了并且事件通知Watcher，jvm2和jvm3继续创建。               </p>
 <p> ps：zk强制关闭时候，通知会有延迟。但是close（）方法关闭时候，延迟小</p>
 <p>  如果程序一直不处理完，可能导致思索（其他的一直等待）。设置有效期~ 直接close（）掉 其实连接也是有有效期设置的 大家可以找下相关资料看下哦</p>
+<h3 id="使用redis实现分布式锁"><a href="#使用redis实现分布式锁" class="headerlink" title="使用redis实现分布式锁"></a>使用redis实现分布式锁</h3><p>使用Redis实现分布式锁最简单的方案是使用命令SETNX。SETNX（SET if Not eXist）的使用方式为：SETNX key value，只在键key不存在的情况下，将键key的值设置为value，若键key存在，则SETNX不做任何动作。SETNX在设置成功时返回，设置失败时返回0。当要获取锁时，直接使用SETNX获取锁，当要释放锁时，使用DEL命令删除掉对应的键key即可。</p>
+<p>上面这种方案有一个致命问题，就是某个线程在获取锁之后由于某些异常因素（比如宕机）而不能正常的执行解锁操作，那么这个锁就永远释放不掉了。为此，我们可以为这个锁加上一个超时时间。第一时间我们会联想到Redis的EXPIRE命令（EXPIRE key seconds）。但是这里我们不能使用EXPIRE来实现分布式锁，因为它与SETNX一起是两个操作，在这两个操作之间可能会发生异常，从而还是达不到预期的结果，示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">// STEP 1SETNX key value// 若在这里（STEP1和STEP2之间）程序突然崩溃，则无法设置过期时间，将有可能无法释放锁// STEP 2EXPIRE key expireTime</span><br></pre></td></tr></table></figure>
+<p>对此，正确的姿势应该是使用“SET key value [EX seconds] [PX milliseconds] [NX|XX]”这个命令。</p>
+<p>从 Redis 2.6.12 版本开始， SET 命令的行为可以通过一系列参数来修改：</p>
+<ul>
+<li>EX seconds ： 将键的过期时间设置为 seconds 秒。 执行 SET key value EX seconds 的效果等同于执行 SETEX key seconds value 。</li>
+<li>PX milliseconds ： 将键的过期时间设置为 milliseconds 毫秒。 执行 SET key value PX milliseconds 的效果等同于执行 PSETEX key milliseconds value 。</li>
+<li>NX ： 只在键不存在时， 才对键进行设置操作。 执行 SET key value NX 的效果等同于执行 SETNX key value 。</li>
+<li>XX ： 只在键已经存在时， 才对键进行设置操作。</li>
+</ul>
+<p>举例，我们需要创建一个分布式锁，并且设置过期时间为10s，那么可以执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET lockKey lockValue EX 10 NX或者SET lockKey lockValue PX 10000 NX</span><br></pre></td></tr></table></figure>
+<p>注意EX和PX不能同时使用，否则会报错：ERR syntax error。</p>
+<p>解锁的时候还是使用DEL命令来解锁。</p>
+<p>修改之后的方案看上去很完美，但实际上还是会有问题。试想一下，某线程A获取了锁并且设置了过期时间为10s，然后在执行业务逻辑的时候耗费了15s，此时线程A获取的锁早已被Redis的过期机制自动释放了。在线程A获取锁并经过10s之后，改锁可能已经被其它线程获取到了。当线程A执行完业务逻辑准备解锁（DEL key）的时候，有可能删除掉的是其它线程已经获取到的锁。</p>
+<p>所以最好的方式是在解锁时判断锁是否是自己的。我们可以在设置key的时候将value设置为一个唯一值uniqueValue（可以是随机值、UUID、或者机器号+线程号的组合、签名等）。当解锁时，也就是删除key的时候先判断一下key对应的value是否等于先前设置的值，如果相等才能删除key，伪代码示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if uniqueKey == GET(key) &#123;    DEL key&#125;</span><br></pre></td></tr></table></figure>
+<p>这里我们一眼就可以看出问题来：GET和DEL是两个分开的操作，在GET执行之后且在DEL执行之前的间隙是可能会发生异常的。</p>
 
       
     </div>
@@ -582,7 +601,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式情况下，怎么解决订单号生成不重复"><span class="nav-number">1.</span> <span class="nav-text">分布式情况下，怎么解决订单号生成不重复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用分布式锁生成订单号技术"><span class="nav-number">2.</span> <span class="nav-text">使用分布式锁生成订单号技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是分布式锁"><span class="nav-number">3.</span> <span class="nav-text">什么是分布式锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Zookeeper实现分布式锁"><span class="nav-number">4.</span> <span class="nav-text">使用Zookeeper实现分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Zookeeper实现分布式锁原理"><span class="nav-number">4.1.</span> <span class="nav-text">Zookeeper实现分布式锁原理</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式情况下，怎么解决订单号生成不重复"><span class="nav-number">1.</span> <span class="nav-text">分布式情况下，怎么解决订单号生成不重复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用分布式锁生成订单号技术"><span class="nav-number">2.</span> <span class="nav-text">使用分布式锁生成订单号技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是分布式锁"><span class="nav-number">3.</span> <span class="nav-text">什么是分布式锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Zookeeper实现分布式锁"><span class="nav-number">4.</span> <span class="nav-text">使用Zookeeper实现分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Zookeeper实现分布式锁原理"><span class="nav-number">4.1.</span> <span class="nav-text">Zookeeper实现分布式锁原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用redis实现分布式锁"><span class="nav-number">4.2.</span> <span class="nav-text">使用redis实现分布式锁</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -639,7 +658,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共108.3k字</span>
+  <span class="post-count">博客全站共109.6k字</span>
 </div>
 
         
