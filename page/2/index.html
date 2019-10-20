@@ -281,6 +281,175 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/幂等性保证机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/06/幂等性保证机制/" itemprop="url">幂等性保证机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:44:16+08:00">
+                2019-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  5
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="幂等性概念"><a href="#幂等性概念" class="headerlink" title="幂等性概念"></a><strong>幂等性概念</strong></h2><p>在编程中.一个幂等操作的特点是其<strong>任意多次执行所产生的影响均与一次执行的影响相同。</strong>指可以使用相同参数重复执行，并能获得相同结果，<strong>不用担心重复执行会对系统造成改变</strong>。</p>
+<h2 id="幂等性场景"><a href="#幂等性场景" class="headerlink" title="幂等性场景"></a><strong>幂等性场景</strong></h2><ul>
+<li>查询操作：查询一次和查询多次，在数据不变的情况下，查询结果是一样的。select是天然的幂等操作；</li>
+<li>删除操作：删除操作也是幂等的，删除一次和多次删除都是把数据删除。(注意可能返回结果不一样，删除的数据不存在，返回0，删除的数据多条，返回结果多个) ；</li>
+<li>修改操作：多次修改，因为主键约束，修改一次和修改多次，如果数据没变，操作相同。</li>
+</ul>
+<h2 id="保证幂等性措施"><a href="#保证幂等性措施" class="headerlink" title="保证幂等性措施"></a>保证幂等性措施</h2><h3 id="唯一索引"><a href="#唯一索引" class="headerlink" title="唯一索引"></a>唯一索引</h3><p>防止<strong>新增</strong>脏数据。比如：支付宝的资金账户，支付宝也有用户账户，每个用户只能有一个资金账户，怎么防止给用户创建资金账户多个，那么给资金账户表中的用户ID加唯一索引，所以一个用户新增成功一个资金账户记录。要点：唯一索引或唯一组合索引来防止新增数据存在脏数据（当表存在唯一索引，并发时新增报错时，再查询一次就可以了，数据应该已经存在了，返回结果即可）；需要合适的业务唯一字段</p>
+<h3 id="token机制"><a href="#token机制" class="headerlink" title="token机制"></a>token机制</h3><p>防止页面重复提交。原理上通过session token来实现的(<strong>也可以通过redis来实现</strong>)。当客户端<strong>请求页面时，服务器会生成一个随机数Token，并且将Token放置到session当中</strong>，然后将Token发给客户端（一般通过<strong>构造hidden表单</strong>）。下次客户端提交请求时，Token会<strong>随着表单一起提交到服务器端</strong>。</p>
+<p>服务器端<strong>第一次验证相同过后，会将session中的Token值更新下</strong>，<strong>若用户重复提交，第二次的验证判断将失败，因为用户提交的表单中的Token没变，但服务器端session中Token已经改变了。</strong></p>
+<h3 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h3><p>获取数据的时候加锁获取。select * from table_xxx where id=’xxx’ for update;<br>注意：<strong>id字段一定是主键或者唯一索引，不然是锁表，会死人的</strong>；悲观锁使用时一般伴随事务一起使用，数据锁定时间可能会很长，根据实际情况选用；</p>
+<h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h3><p><strong>只是在更新数据那一刻锁表</strong>，其他时间不锁表，所以相对于悲观锁，效率更高。乐观锁的实现方式多种多样可以通过version或者其他状态条件：</p>
+<ol>
+<li>通过版本号实现update table_xxx set name=#{name},version=version+1 where version=#{version}；</li>
+<li>通过条件限制 update table_xxx set avai_amount=avai_amount-#subAmount# where<br>avai_amount-#subAmount# &gt;= 0要求：quality-#subQuality# &gt;= 0<br>，这个情景适合不用版本号，只更新是做数据安全校验，适合库存模型，扣份额和回滚份额，性能更高；</li>
+</ol>
+<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>如果是分布式系统，构建全局唯一索引比较困难，例如唯一性的字段没法确定，这时候可以引入分布式锁，通过第三方的系统(redis或zookeeper)，在业务系统插入数据或者更新数据，获取分布式锁，然后做操作，之后释放锁，这样其实是把多线程并发的锁的思路，引入多多个系统，也就是分布式系统中得解决思路。要点：某个长流程处理过程要求不能并发执行，可以<strong>在流程执行之前根据某个标志(用户ID+后缀等)获取分布式锁，其他流程执行时获取锁就会失败，也就是同一时间该流程只能有一个能执行成功，执行完成后，释放分布式锁(分布式锁要第三方系统提供)；</strong></p>
+<h3 id="select-insert"><a href="#select-insert" class="headerlink" title="select + insert"></a>select + insert</h3><p>并发不高的后台系统，或者一些任务JOB，为了支持幂等，支持重复执行，简单的处理方法是，<strong>先查询下一些关键数据，判断是否已经执行过，在进行业务处理，就可以了。</strong>注意：<strong>核心高并发流程不要用这种方法；</strong></p>
+<h3 id="状态机幂等"><a href="#状态机幂等" class="headerlink" title="状态机幂等"></a>状态机幂等</h3><p>在设计单据相关的业务，或者是任务相关的业务，肯定会涉及到状态机(状态变更图)，就是业务单据上面有个状态，状态在不同的情况下会发生变更，一般情况下存在有限状态机，这时候，如果状态机已经处于下一个状态，这时候来了一个上一个状态的变更，理论上是不能够变更的，这样的话，保证了有限状态机的幂等。注意：订单等单据类业务，存在很长的状态流转，一定要深刻理解状态机，对业务系统设计能力提高有很大帮助</p>
+<h3 id="对外提供接口的api如何保证幂等"><a href="#对外提供接口的api如何保证幂等" class="headerlink" title="对外提供接口的api如何保证幂等"></a>对外提供接口的api如何保证幂等</h3><p>如银联提供的付款接口：需要接入商户提交付款请求时附带：source来源，seq序列号；source+seq在数据库里面做唯一索引，防止多次付款(并发时，只能处理一个请求) 。<br>重点：对外提供接口为了支持幂等调用，接口有两个字段必须传，一个是来源source，一个是来源方序列号seq，这个两个字段在提供方系统里面做联合唯一索引，这样当第三方调用时，先在本方系统里面查询一下，是否已经处理过，返回相应处理结果；没有处理过，进行相应处理，返回结果。注意，为了幂等友好，一定要先查询一下，是否处理过该笔业务，不查询直接插入业务系统，会报错，但实际已经处理了。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/深入理解AQS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2023,184 +2192,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/02/模拟第二天/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/02/模拟第二天/" itemprop="url">模拟第二天</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-02T22:41:46+08:00">
-                2019-10-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  2k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  7
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="HTTPS的工作原理"><a href="#HTTPS的工作原理" class="headerlink" title="HTTPS的工作原理"></a>HTTPS的工作原理</h3><p>（1）客户使用https的URL访问Web服务器，要求与Web服务器建立SSL连接。</p>
-<p>　　（2）Web服务器收到客户端请求后，会将网站的证书信息（证书中包含公钥）传送一份给客户端。</p>
-<p>　　（3）客户端的浏览器与Web服务器开始协商SSL连接的安全等级，也就是信息加密的等级。</p>
-<p>　　（4）客户端的浏览器根据双方同意的安全等级，建立会话密钥，然后利用网站的公钥将会话密钥加密，并传送给网站。</p>
-<p>　　（5）Web服务器利用自己的私钥解密出会话密钥。</p>
-<p>　　（6）Web服务器利用会话密钥加密与客户端之间的通信。</p>
-<p>  <img src="https://pic002.cnblogs.com/images/2012/339704/2012071410212142.gif" alt="img"></p>
-<h3 id="Synchronized和ReentrantLock的区别"><a href="#Synchronized和ReentrantLock的区别" class="headerlink" title="Synchronized和ReentrantLock的区别"></a>Synchronized和ReentrantLock的区别</h3><h4 id="①-两者都是可重入锁"><a href="#①-两者都是可重入锁" class="headerlink" title="① 两者都是可重入锁"></a>① 两者都是可重入锁</h4><p>两者都是可重入锁。“可重入锁”概念是：自己可以再次获取自己的内部锁。比如一个线程获得了某个对象的锁，此时这个对象锁还没有释放，当其再次想要获取这个对象的锁的时候还是可以获取的，如果不可锁重入的话，就会造成死锁。同一个线程每次获取锁，锁的计数器都自增1，所以要等到锁的计数器下降为0时才能释放锁。 </p>
-<h4 id="②synchronized依赖于JVM而ReenTrantLock依赖于API"><a href="#②synchronized依赖于JVM而ReenTrantLock依赖于API" class="headerlink" title="②synchronized依赖于JVM而ReenTrantLock依赖于API"></a>②synchronized依赖于JVM而ReenTrantLock依赖于API</h4><p>synchronized 是依赖于 JVM 实现的，前面我们也讲到了 虚拟机团队在 JDK1.6 为 synchronized 关键字进行了很多优化，但是这些优化都是在虚拟机层面实现的，并没有直接暴露给我们。ReenTrantLock 是 JDK 层面实现的（也就是 API 层面，需要 lock() 和 unlock 方法配合 try/fifinally 语句块来完成），所以我们可以通过查看它的源代码，来看它是如何实现的。 </p>
-<h4 id="③ReenTrantLock比synchronized增加了一些高级功能"><a href="#③ReenTrantLock比synchronized增加了一些高级功能" class="headerlink" title="③ReenTrantLock比synchronized增加了一些高级功能"></a>③ReenTrantLock比synchronized增加了一些高级功能</h4><p>相比synchronized，ReenTrantLock增加了一些高级功能。主要来说主要有三点：</p>
-<ul>
-<li><p>①等待可中断<br>ReenTrantLock提供了一种能够中断等待锁的线程的机制，通过lock.lockInterruptibly()来实现这个机制。也就是说正在等待的线程可以选择放弃等待，改为处理其他事情。 </p>
-</li>
-<li><p>②可实现公平锁<br>ReenTrantLock可以指定是公平锁还是非公平锁。而synchronized只能是非公平锁。所谓的公平锁就是先等待的线程先获得锁。ReenTrantLock默认情况是非公平的，可以通过 ReenTrantLock类的<br>ReentrantLock(boolean fair) 构造方法来制定是否是公平的。 </p>
-</li>
-<li><p>③可实现选择性通知（锁可以绑定多个条件）<br>synchronized关键字与wait()和notify/notifyAll()方法相结合可以实现等待/通知机制，ReentrantLock类当然也 可以实现，但是需要借助于Condition接口与newCondition() 方法。</p>
-<p>Condition是JDK1.5之后才有的，它具有很好的灵活性，比如可以实现多路通知功能也就是在一个Lock对象中可以创建多个Condition实例（即对象监视器），线程对象可以注册在指定的Condition中，从而可以有选择性的进行线程通知，在调度线程上更加灵活。 在使用notify/notifyAll()方法进行通知时，被通知的线程是由JVM选择的，用ReentrantLock类结合Condition实例可以实现”选择性通知”，这个功能非常重要，而且是Condition接口默认提供的。而 synchronized关键字就相当于整个Lock对象中只有一个Condition实例，所有的线程都注册在它一个身上。如果执行notifyAll()方法的话就会通知所有处于等待状态的线程这样会造成很大的效率问题，而Condition实例的 signalAll()方法 只会唤醒注册在该Condition实例中的所有等待线程。 </p>
-</li>
-</ul>
-<h3 id="聚簇索引和非聚簇索引（二级索引）"><a href="#聚簇索引和非聚簇索引（二级索引）" class="headerlink" title="聚簇索引和非聚簇索引（二级索引）"></a>聚簇索引和非聚簇索引（二级索引）</h3><p><strong>myisam索引：因为myisam的索引和数据是分开存储存储的，myisam通过key_buffer把索引先缓存到内存中，当需要访问数据时（通过索引访问数据），在内存中直接搜索索引，然后通过索引找到磁盘相应数据，这也就是为什么索引不在key buffer命中时，速度慢的原因  </strong></p>
-<p><strong>innodb索引：innodb的数据和索引放在一起，当找到索引也就找到了数据</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MySQL的BTree索引使用的是B树中的B+Tree，但对于主要的两种存储引擎的实现方式是不同的。</span><br><span class="line"></span><br><span class="line">MyISAM: B+Tree叶节点的data域存放的是数据记录的地址。在索引检索的时候，首先按照B+Tree搜索算法搜索索引，如果指定的Key存在，则取出其 data 域的值，然后以 data 域的值为地址读取相应的数据记录。这被称为“非聚簇索引”。</span><br><span class="line">InnoDB: 其数据文件本身就是索引文件。相比MyISAM，索引文件和数据文件是分离的，其表数据文件本身就是按B+Tree组织的一个索引结构，树的叶节点data域保存了完整的数据记录。这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。这被称为“聚簇索引（或聚集索引）”。而其余的索引都作为辅助索引，辅助索引的data域存储相应记录主键的值而不是地址，这也是和MyISAM不同的地方。在根据主索引搜索时，直接找到key所在的节点即可取出数据；在根据辅助索引查找时，则需要先取出主键的值，再走一遍主索引。 因此，在设计表的时候，不建议使用过长的字段作为主键，也不建议使用非单调的字段作为主键，这样会造成主索引频繁分裂。 PS：整理自《Java工程师修炼之道》</span><br></pre></td></tr></table></figure>
-<p>mysql的聚簇索引是指innodb引擎的特性，mysiam并没有，如果需要该索引，只要将索引指定为主键（primary key）就可以了。</p>
-<p>比如：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> blog_user</span><br><span class="line">(</span><br><span class="line">  user_Name <span class="built_in">char</span>(<span class="number">15</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">check</span>(user_Name !=<span class="string">''</span>),</span><br><span class="line">  user_Password <span class="built_in">char</span>(<span class="number">15</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">  user_emial <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">not</span> <span class="literal">null</span> <span class="keyword">unique</span>,</span><br><span class="line">  primary <span class="keyword">key</span>(user_Name)          </span><br><span class="line"></span><br><span class="line">)<span class="keyword">engine</span>=<span class="keyword">innodb</span> <span class="keyword">default</span> <span class="keyword">charset</span>=utf8 auto_increment=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-<p>其中的 primary key(user_Name) 这个就是聚簇索引索引了；<br>聚簇索引的叶节点就是数据节点，而非聚簇索引的叶节点仍然是索引节点，并保留一个链接指向对应数据块。</p>
-<p>聚簇索引主键的插入速度要比非聚簇索引主键的插入速度慢很多。相比之下，聚簇索引适合排序，非聚簇索引（也叫二级索引）不适合用在排序的场合。<br>因为聚簇索引本身已经是按照物理顺序放置的，排序很快。非聚簇索引则没有按序存放，需要额外消耗资源来排序。<br>当你需要取出一定范围内的数据时，用聚簇索引也比用非聚簇索引好。<br>另外，二级索引需要两次索引查找，而不是一次才能取到数据，因为存储引擎第一次需要通过二级索引找到索引的叶子节点，从而找到数据的主键，然后在聚簇索引中用主键再次查找索引，再找到数据。</p>
-<p>innodb索引分类：<br>聚簇索引(clustered index)<br>    1)  有主键时，根据主键创建聚簇索引<br>    2)  没有主键时，会用一个唯一且不为空的索引列做为主键，成为此表的聚簇索引<br>    3) 如果以上两个都不满足那innodb自己创建一个虚拟的聚集索引<br>辅助索引(secondary index)<br>   非聚簇索引都是辅助索引，像复合索引、前缀索引、唯一索引<br>————————————————<br>版权声明：本文为CSDN博主「大树叶」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/bigtree_3721/article/details/51335479" target="_blank" rel="noopener">https://blog.csdn.net/bigtree_3721/article/details/51335479</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2253,7 +2244,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-count">57</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2349,7 +2340,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共109.6k字</span>
+  <span class="post-count">博客全站共110.3k字</span>
 </div>
 
         

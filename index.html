@@ -281,6 +281,170 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/20/linux-shell运行原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Chen ZeTao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/weixin.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ddd `Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/20/linux-shell运行原理/" itemprop="url">linux shell运行原理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-20T10:29:59+08:00">
+                2019-10-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  671
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  2
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Linux严格意义上来说是一个操作系统，但是我们的用户是无法直接与操作系统对话的，而是通过shell来使用。</p>
+<p><strong>shell是用户和Linux内核之间的接口程序</strong>，如果把Linux内核想象成一个球体的中心，shell就是围绕内核的外层。 shell是一个命令语言解释器，它拥有自己内建的shell命令集，<strong>shell也能被系统中其他应用程序所调用</strong>。当从shell或其他程序向 Linux传递命令时，内核会做出相应的反应。<strong>用户在提示符下输入的命令都由shell先解释然后传给Linux核心</strong>。Linux系统的shell作为操作系统的外壳，为用户提供使用操作系统的接口。它是命令语言、命令解释程序及程序设计语言的统称。常见分类有bash、dash。</p>
+<p>对比Windows GUI，我们操作Windows不是直接操作Windows内核，而是通过图形接口，点击，从而完成我们的操作（比如进入D盘，通常是双击D盘盘符；再比如运行起来一个应用程序）。</p>
+<p><strong>shell对于Linux，有相同的作用，主要是对我们的指令进行解析，解析指令给Linux内核。反馈结果再通过内核运行出结果，shell解析给用户。</strong></p>
+<p><strong>shell管理用户与操作系统之间的交互：等待用户输入，向操作系统解释用户的输入，并且处理各种各样的操作系统的输出结果。 shell提供了用户与操作系统之间通讯的方式。</strong></p>
+<p>用一个生活中的例子来帮助理解：如果说你是一个闷骚且害羞的程序员，那shell就像媒婆，操作系统内核就是你们村头漂亮的且有让你心动的MM小花。你看上了小花，但是有不好意思直接表白，那就让你你家人找媒婆帮你提亲，所有的事情你都直接跟媒婆沟通，由媒婆转达你的意思给小花，而我们找到媒婆姓王，所以我们叫它王婆，它对应我们常使用的bash。</p>
+<p><strong>从技术角度，Shel的最简单定义：命令行解释器（command Interpreter）它主要包含：</strong></p>
+<ol>
+<li><p>将使用者的命令翻译给操作系统核心（kernel）处理。</p>
+</li>
+<li><p>同时，将核心的处理结果翻译给使用者（用户）。</p>
+</li>
+</ol>
+<p>————————————————<br>   版权声明：本文为CSDN博主「Miss_Monster」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>   原文链接：<a href="https://blog.csdn.net/Miss_Monster/article/details/86370076" target="_blank" rel="noopener">https://blog.csdn.net/Miss_Monster/article/details/86370076</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/15/nginx-location匹配规则/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2051,175 +2215,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/06/幂等性保证机制/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Chen ZeTao">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/weixin.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ddd `Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/10/06/幂等性保证机制/" itemprop="url">幂等性保证机制</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-06T20:44:16+08:00">
-                2019-10-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-            <div class="post-wordcount">
-              
-                
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计&#58;</span>
-                
-                <span title="字数统计">
-                  1.5k
-                </span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
-                
-                <span title="阅读时长">
-                  5
-                </span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="幂等性概念"><a href="#幂等性概念" class="headerlink" title="幂等性概念"></a><strong>幂等性概念</strong></h2><p>在编程中.一个幂等操作的特点是其<strong>任意多次执行所产生的影响均与一次执行的影响相同。</strong>指可以使用相同参数重复执行，并能获得相同结果，<strong>不用担心重复执行会对系统造成改变</strong>。</p>
-<h2 id="幂等性场景"><a href="#幂等性场景" class="headerlink" title="幂等性场景"></a><strong>幂等性场景</strong></h2><ul>
-<li>查询操作：查询一次和查询多次，在数据不变的情况下，查询结果是一样的。select是天然的幂等操作；</li>
-<li>删除操作：删除操作也是幂等的，删除一次和多次删除都是把数据删除。(注意可能返回结果不一样，删除的数据不存在，返回0，删除的数据多条，返回结果多个) ；</li>
-<li>修改操作：多次修改，因为主键约束，修改一次和修改多次，如果数据没变，操作相同。</li>
-</ul>
-<h2 id="保证幂等性措施"><a href="#保证幂等性措施" class="headerlink" title="保证幂等性措施"></a>保证幂等性措施</h2><h3 id="唯一索引"><a href="#唯一索引" class="headerlink" title="唯一索引"></a>唯一索引</h3><p>防止<strong>新增</strong>脏数据。比如：支付宝的资金账户，支付宝也有用户账户，每个用户只能有一个资金账户，怎么防止给用户创建资金账户多个，那么给资金账户表中的用户ID加唯一索引，所以一个用户新增成功一个资金账户记录。要点：唯一索引或唯一组合索引来防止新增数据存在脏数据（当表存在唯一索引，并发时新增报错时，再查询一次就可以了，数据应该已经存在了，返回结果即可）；需要合适的业务唯一字段</p>
-<h3 id="token机制"><a href="#token机制" class="headerlink" title="token机制"></a>token机制</h3><p>防止页面重复提交。原理上通过session token来实现的(<strong>也可以通过redis来实现</strong>)。当客户端<strong>请求页面时，服务器会生成一个随机数Token，并且将Token放置到session当中</strong>，然后将Token发给客户端（一般通过<strong>构造hidden表单</strong>）。下次客户端提交请求时，Token会<strong>随着表单一起提交到服务器端</strong>。</p>
-<p>服务器端<strong>第一次验证相同过后，会将session中的Token值更新下</strong>，<strong>若用户重复提交，第二次的验证判断将失败，因为用户提交的表单中的Token没变，但服务器端session中Token已经改变了。</strong></p>
-<h3 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h3><p>获取数据的时候加锁获取。select * from table_xxx where id=’xxx’ for update;<br>注意：<strong>id字段一定是主键或者唯一索引，不然是锁表，会死人的</strong>；悲观锁使用时一般伴随事务一起使用，数据锁定时间可能会很长，根据实际情况选用；</p>
-<h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h3><p><strong>只是在更新数据那一刻锁表</strong>，其他时间不锁表，所以相对于悲观锁，效率更高。乐观锁的实现方式多种多样可以通过version或者其他状态条件：</p>
-<ol>
-<li>通过版本号实现update table_xxx set name=#{name},version=version+1 where version=#{version}；</li>
-<li>通过条件限制 update table_xxx set avai_amount=avai_amount-#subAmount# where<br>avai_amount-#subAmount# &gt;= 0要求：quality-#subQuality# &gt;= 0<br>，这个情景适合不用版本号，只更新是做数据安全校验，适合库存模型，扣份额和回滚份额，性能更高；</li>
-</ol>
-<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>如果是分布式系统，构建全局唯一索引比较困难，例如唯一性的字段没法确定，这时候可以引入分布式锁，通过第三方的系统(redis或zookeeper)，在业务系统插入数据或者更新数据，获取分布式锁，然后做操作，之后释放锁，这样其实是把多线程并发的锁的思路，引入多多个系统，也就是分布式系统中得解决思路。要点：某个长流程处理过程要求不能并发执行，可以<strong>在流程执行之前根据某个标志(用户ID+后缀等)获取分布式锁，其他流程执行时获取锁就会失败，也就是同一时间该流程只能有一个能执行成功，执行完成后，释放分布式锁(分布式锁要第三方系统提供)；</strong></p>
-<h3 id="select-insert"><a href="#select-insert" class="headerlink" title="select + insert"></a>select + insert</h3><p>并发不高的后台系统，或者一些任务JOB，为了支持幂等，支持重复执行，简单的处理方法是，<strong>先查询下一些关键数据，判断是否已经执行过，在进行业务处理，就可以了。</strong>注意：<strong>核心高并发流程不要用这种方法；</strong></p>
-<h3 id="状态机幂等"><a href="#状态机幂等" class="headerlink" title="状态机幂等"></a>状态机幂等</h3><p>在设计单据相关的业务，或者是任务相关的业务，肯定会涉及到状态机(状态变更图)，就是业务单据上面有个状态，状态在不同的情况下会发生变更，一般情况下存在有限状态机，这时候，如果状态机已经处于下一个状态，这时候来了一个上一个状态的变更，理论上是不能够变更的，这样的话，保证了有限状态机的幂等。注意：订单等单据类业务，存在很长的状态流转，一定要深刻理解状态机，对业务系统设计能力提高有很大帮助</p>
-<h3 id="对外提供接口的api如何保证幂等"><a href="#对外提供接口的api如何保证幂等" class="headerlink" title="对外提供接口的api如何保证幂等"></a>对外提供接口的api如何保证幂等</h3><p>如银联提供的付款接口：需要接入商户提交付款请求时附带：source来源，seq序列号；source+seq在数据库里面做唯一索引，防止多次付款(并发时，只能处理一个请求) 。<br>重点：对外提供接口为了支持幂等调用，接口有两个字段必须传，一个是来源source，一个是来源方序列号seq，这个两个字段在提供方系统里面做联合唯一索引，这样当第三方调用时，先在本方系统里面查询一下，是否已经处理过，返回相应处理结果；没有处理过，进行相应处理，返回结果。注意，为了幂等友好，一定要先查询一下，是否处理过该笔业务，不查询直接插入业务系统，会报错，但实际已经处理了。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2272,7 +2267,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">56</span>
+                  <span class="site-state-item-count">57</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2368,7 +2363,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共109.6k字</span>
+  <span class="post-count">博客全站共110.3k字</span>
 </div>
 
         
